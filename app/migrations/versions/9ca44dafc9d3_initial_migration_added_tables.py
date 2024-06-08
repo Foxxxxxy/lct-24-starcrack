@@ -96,7 +96,14 @@ def downgrade() -> None:
     DROP TABLE IF EXISTS "shifts";
     """)
     op.execute("""
+<<<<<<< HEAD
     DROP TABLE IF EXISTS "requisitions";
+=======
+    DROP TABLE IF EXISTS "Requisitions";
+    """)
+    op.execute("""
+    DROP TABLE IF EXISTS "Employees";
+>>>>>>> ee6a1c7 (first get handler)
     """)
     op.execute("""
     DROP TABLE IF EXISTS "employees";
