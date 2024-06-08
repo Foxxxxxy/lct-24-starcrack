@@ -1,7 +1,15 @@
 from sqlalchemy import Column, Integer, TIMESTAMP, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from db.base import Base
-from db.metro_stations import MetroStations
+
+
+class Status(Enum):
+    Pending = 'SELECTED_FOR_SCHEDULING'
+    Finished = 'FINISHED'
+    Cancelled = 'CANCELLED'
+    Need_dynamic_scheduling = 'NEED_DYNAMIC_SCHEDULING'
+    Scheduled = 'SCHEDULED'
+    In_progres = 'IN_PROGRESS'
 
 
 class Requisitions(Base):
@@ -12,7 +20,7 @@ class Requisitions(Base):
     start_time = Column(TIMESTAMP, nullable=False)
     meet_time = Column(TIMESTAMP, nullable=False)
     finish_time = Column(TIMESTAMP, nullable=False)
-    status = Column(Enum('Pending', 'Completed', 'Cancelled', name='request_status'), nullable=False)
+    status = Column(Enum(Status), nullable=False)
     creation_time = Column(TIMESTAMP, nullable=False)
     males_needed = Column(Integer, nullable=False)
     start_station = Column(Integer, ForeignKey('Metro_stations.id'), nullable=False)

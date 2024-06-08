@@ -24,7 +24,7 @@ def upgrade() -> None:
 
     CREATE TYPE criticality AS ENUM ('CRITICAL', 'WARNING', 'NORMAL');
 
-    CREATE TABLE IF NOT EXISTS event (
+    CREATE TABLE IF NOT EXISTS Event (
     id BIGSERIAL PRIMARY KEY,
     type event_type NOT NULL,
     data JSONB NOT NULL,

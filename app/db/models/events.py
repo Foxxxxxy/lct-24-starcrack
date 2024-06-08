@@ -16,7 +16,7 @@ class Criticality(Enum):
 
 
 class Event(Base):
-    __tablename__ = 'event'
+    __tablename__ = 'Event'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     type = Column(Enum(EventType), nullable=False)

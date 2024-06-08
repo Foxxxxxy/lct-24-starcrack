@@ -20,24 +20,28 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.execute("""
-    CREATE TABLE IF NOT EXISTS "Metro_stations"(
-        "id" BIGINT PRIMARY KEY,
-        "line_name" VARCHAR(255) NOT NULL,
-        "line_id" BIGINT NOT NULL,
-        "station_name" VARCHAR(255) NOT NULL
-    );
+    CREATE TYPE passenger_category_type AS ENUM ('ИЗТ', 'ИЗ', 'ИС', 'ИК', 'ИО', 'ДИ', 'ПЛ', 'РД', 
+    'РДК', 'ОГД', 'ОВ', 'ИУ'); CREATE TABLE IF NOT EXISTS "Metro_stations"( "id" BIGINT PRIMARY KEY, "line_name" 
+    VARCHAR(255) NOT NULL, "line_id" BIGINT NOT NULL, "station_name" VARCHAR(255) NOT NULL );
+    
+    CREATE TYPE status_type AS ENUM ('SELECTED_FOR_SCHEDULING', 'FINISHED', 'CANCELLED', 'NEED_DYNAMIC_SCHEDULING', 
+    'SCHEDULED', 'IN_PROGRESS');
+    
+    CREATE TYPE weekday_type AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
     
     CREATE TABLE IF NOT EXISTS "Passenger"(
         "id" BIGINT PRIMARY KEY,
-        "passenger_category" VARCHAR(255) CHECK ("passenger_category" IN('ИЗТ', 'ИЗ', 'ИС', 'ИК', 'ИО', 'ДИ', 'ПЛ', 'РД', 'РДК', 'ОГД', 'ОВ', 'ИУ')) NOT NULL,
+        "passenger_category" passenger_category_type NOT NULL,
         "name" VARCHAR(255) NOT NULL
     );
     
+
     CREATE TABLE IF NOT EXISTS "Employees"(
         "id" BIGINT PRIMARY KEY,
         "full_name" VARCHAR(255) NOT NULL,
         "sex" VARCHAR(255) CHECK ("sex" IN('Male', 'Female')) NOT NULL,
-        "rank" VARCHAR(255) NOT NULL
+        "role" VARCHAR(255) NOT NULL,
+        "sub_role" VARCHAR(255) NOT NULL
     );
     
     CREATE TABLE IF NOT EXISTS "Requisitions"(
@@ -46,7 +50,7 @@ def upgrade() -> None:
         "start_time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
         "meet_time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
         "finish_time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-        "status" VARCHAR(255) CHECK ("status" IN('Pending', 'Completed', 'Cancelled')) NOT NULL,
+        "status" status_type NOT NULL,
         "creation_time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
         "males_needed" INTEGER NOT NULL,
         "start_station" BIGINT NOT NULL,
@@ -62,7 +66,7 @@ def upgrade() -> None:
         "time_start" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
         "time_end" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
         "place_start" BIGINT NULL,
-        "weekday" VARCHAR(255) CHECK ("weekday" IN('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')) NOT NULL,
+        "weekday" weekday_type NOT NULL,
         FOREIGN KEY ("employee_id") REFERENCES "Employees"("id"),
         FOREIGN KEY ("place_start") REFERENCES "Metro_stations"("id")
     );
@@ -98,4 +102,10 @@ def downgrade() -> None:
     """)
     op.execute("""
     DROP TYPE IF EXISTS passenger_category;
+    """)
+    op.execute("""
+    DROP TYPE IF EXISTS status_type;
+    """)
+    op.execute("""
+    DROP TYPE IF EXISTS weekday_type;
     """)
