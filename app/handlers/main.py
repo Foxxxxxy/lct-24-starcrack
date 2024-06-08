@@ -1,7 +1,8 @@
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import psycopg2
 
+from cron.Scheduler import Scheduler
 from .passenger_router import passenger_router
 
 
@@ -26,22 +27,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+scheduler = Scheduler(BackgroundScheduler())
 
 
-@app.get("/db")
-def read_db():
-    try:
-        connection = psycopg2.connect(user="user",
-                                      password="password",
-                                      host="db",
-                                      port="5432",
-                                      database="db")
-        cursor = connection.cursor()
-        cursor.execute("SELECT 1;")
-        return {"Database": "Connected"}
-    except Exception as e:
-        return {"error": str(e)}
+@app.on_event("startup")
+def startup_actions():
+    scheduler.register_executors()
+    scheduler.start()
+
+
+@app.on_event("shutdown")
+def shutdown_actions():
+    scheduler.shutdown()
