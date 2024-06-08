@@ -1,3 +1,4 @@
+import enum
 from sqlalchemy import Column, Integer, TIMESTAMP, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from db.base import Base
@@ -20,5 +21,6 @@ class Requisitions(Base):
     end_station = Column(Integer, ForeignKey('Metro_stations.id'), nullable=False)
 
     passenger = relationship("Passenger")
-    start_station_ref = relationship("MetroStation", foreign_keys=[start_station])
-    end_station_ref = relationship("MetroStation", foreign_keys=[end_station])
+    # start_station_ref = relationship("Metro_stations", foreign_keys=[start_station])
+    # end_station_ref = relationship("Metro_stations", foreign_keys=[end_station])
+
