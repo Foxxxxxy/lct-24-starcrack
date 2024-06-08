@@ -58,22 +58,17 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    print(1)
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
-    print(2)
     with connectable.connect() as connection:
-        print(2.5)
         context.configure(
             connection=connection, target_metadata=target_metadata
         )
-        print(3)
 
         with context.begin_transaction():
-            print(4)
             context.run_migrations()
 
 
