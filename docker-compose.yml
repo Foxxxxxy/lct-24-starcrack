@@ -14,7 +14,7 @@ services:
   web:
     build: ./app
     container_name: back
-    command: uvicorn handlers.main:app --host 0.0.0.0 --port 8000
+    command: sh -c "alembic upgrade head && uvicorn handlers.main:app --host 0.0.0.0 --port 8000"
     volumes:
       - ./app:/app
     ports:
