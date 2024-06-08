@@ -1,8 +1,10 @@
+import enum
+
 from sqlalchemy import Column, Integer, String, Enum
 from db.base import Base
 
 
-class PassengerCategory(Enum):
+class PassengerCategory(enum.Enum):
     ИЗТ = 'ИЗТ'
     ИЗ = 'ИЗ'
     ИС = 'ИС'
@@ -20,8 +22,6 @@ class PassengerCategory(Enum):
 class Passenger(Base):
     __tablename__ = 'Passenger'
 
-    id = Column(Integer, primary_last_key=True)
-    passenger_category = Column(
-        Enum(PassengerCategory),
-        nullable=False)
+    id = Column(Integer, primary_key=True)
+    passenger_category = Column(Enum(PassengerCategory), nullable=False)
     name = Column(String(255), nullable=False)

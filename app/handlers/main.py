@@ -2,14 +2,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 
-# def get_application() -> FastAPI:
-#     application = FastAPI()
-#     application.include_router(requisitions.requisitions_router, prefix='/requisitions', tags=['requisitions'])
-#     return application
+from .passenger_router import passenger_router
 
-# requisitions.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+def get_application() -> FastAPI:
+    application = FastAPI()
+    application.include_router(passenger_router, prefix='/passenger', tags=['passenger'])
+    return application
+
+
+app = get_application()
 
 origins = [
     "http://localhost:3000",
