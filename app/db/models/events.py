@@ -2,17 +2,7 @@ from sqlalchemy import Column, Integer, JSON, Enum, DateTime
 
 from sqlalchemy.sql import func
 from db.base import Base
-
-
-class EventType(Enum):
-    DYNAMIC_SCHEDULE_REQUEST = 'DYNAMIC_SCHEDULE_REQUEST'
-    UNSCHEDULED_REQUEST = 'UNSCHEDULED_REQUEST'
-
-
-class Criticality(Enum):
-    CRITICAL = 'CRITICAL'
-    WARNING = 'WARNING'
-    NORMAL = 'NORMAL'
+from model.enum.enums import EventType, Criticality
 
 
 class Event(Base):

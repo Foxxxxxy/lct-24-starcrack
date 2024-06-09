@@ -1,16 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, TIMESTAMP, Enum
 from sqlalchemy.orm import relationship
 from db.base import Base
-
-
-class Weekday(Enum):
-    Monday = 'Monday'
-    Tuesday = 'Tuesday'
-    Wednesday = 'Wednesday'
-    Thursday = 'Thursday'
-    Friday = 'Friday'
-    Saturday = 'Saturday'
-    Sunday = 'Sunday'
+from model.enum.enums import Weekday
 
 
 class Shift(Base):

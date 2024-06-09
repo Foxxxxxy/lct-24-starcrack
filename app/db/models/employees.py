@@ -1,25 +1,6 @@
-import enum
-
 from sqlalchemy import Column, Integer, String, Enum
 from db.base import Base
-
-
-class SexType(enum.Enum):
-    male = 'male'
-    female = 'female'
-
-
-class RoleType(enum.Enum):
-    Admin = 'Admin'
-    Attendant = 'Attendant'
-    Operator = 'Operator'
-    Specialist = 'Specialist'
-
-
-class SubRoleType(enum.Enum):
-    Head_of_the_section = 'Head of the section'
-    Senior_inspector = 'Senior inspector'
-    Inspector = 'Inspector'
+from model.enum.enums import SexType, RoleType, SubRoleType
 
 
 class Employee(Base):
