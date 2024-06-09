@@ -3,7 +3,7 @@ from db.base import Base
 
 
 class MetroStations(Base):
-    __tablename__ = 'Metro_stations'
+    __tablename__ = 'metro_stations'
 
     id = Column(Integer, primary_key=True)
     line_name = Column(String(255), nullable=False)
