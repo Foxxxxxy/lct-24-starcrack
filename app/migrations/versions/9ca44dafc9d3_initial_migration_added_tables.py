@@ -54,7 +54,7 @@ def upgrade() -> None:
         id BIGSERIAL PRIMARY KEY,
         passenger_id BIGINT,
         start_time TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-        meet_time TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+        meet_time TIMESTAMP WITHOUT TIME ZONE,
         finish_time TIMESTAMP WITHOUT TIME ZONE,
         status status_type NOT NULL,
         creation_time TIMESTAMP WITHOUT TIME ZONE NOT NULL,

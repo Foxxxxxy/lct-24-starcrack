@@ -1,22 +1,6 @@
-import enum
-
 from sqlalchemy import Column, Integer, String, Enum
 from db.base import Base
-
-
-class PassengerCategory(enum.Enum):
-    ИЗТ = 'ИЗТ'
-    ИЗ = 'ИЗ'
-    ИС = 'ИС'
-    ИК = 'ИК'
-    ИО = 'ИО'
-    ДИ = 'ДИ'
-    ПЛ = 'ПЛ'
-    РД = 'РД'
-    РДК = 'РДК'
-    ОГД = 'ОГД'
-    ОВ = 'ОВ'
-    ИУ = 'ИУ'
+from model.enum.enums import PassengerCategory
 
 
 class Passenger(Base):
