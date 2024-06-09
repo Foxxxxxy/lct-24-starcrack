@@ -4,6 +4,7 @@ from db.base import get_db
 from service import requisitions_service
 from model.dto.filters import RequisitionFilterDTO
 from model.dto.entity import RequisitionDTO
+from utils.logger import logger
 
 requisitions_router = APIRouter()
 

@@ -35,7 +35,7 @@ async def get_shifts_list_by_day(
     return shifts_list
 
 
-@shifts_router.post("/add")
+@shifts_router.post("/")
 async def create_shift(
     shift: ShiftDTO, base_session: Session = Depends(get_db)
 ):
