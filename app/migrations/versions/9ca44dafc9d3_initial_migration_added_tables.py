@@ -29,6 +29,12 @@ def upgrade() -> None:
     
     CREATE TYPE weekday_type AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
     
+    CREATE TYPE sex_type AS ENUM ('Male', 'Female');
+    
+    CREATE TYPE role_type AS ENUM ('Admin', 'Attendant', 'Operator', 'Specialist'); 
+    
+    CREATE TYPE sub_role_type AS ENUM ('Head of the section', 'Senior inspector', 'Inspector');
+    
     CREATE TABLE IF NOT EXISTS passenger(
         id BIGSERIAL PRIMARY KEY,
         passenger_category passenger_category_type NOT NULL,
@@ -39,9 +45,9 @@ def upgrade() -> None:
     CREATE TABLE IF NOT EXISTS employees(
         id BIGSERIAL PRIMARY KEY,
         full_name VARCHAR(255) NOT NULL,
-        sex VARCHAR(255) CHECK (sex IN('Male', 'Female')) NOT NULL,
-        role VARCHAR(255) NOT NULL,
-        sub_role VARCHAR(255) NULL
+        sex sex_type NOT NULL,
+        role role_type NOT NULL,
+        sub_role sub_role_type NULL
     );
     
     CREATE TABLE IF NOT EXISTS requisitions(
@@ -109,4 +115,13 @@ def downgrade() -> None:
     """)
     op.execute("""
     DROP TYPE IF EXISTS weekday_type;
+    """)
+    op.execute("""
+    DROP TYPE IF EXISTS sex_type;
+    """)
+    op.execute("""
+    DROP TYPE IF EXISTS role_type;
+    """)
+    op.execute("""
+    DROP TYPE IF EXISTS sub_role_type;
     """)
