@@ -4,8 +4,10 @@ from model.enum.enums import PassengerCategory
 
 
 class Passenger(Base):
-    __tablename__ = 'Passenger'
+    __tablename__ = 'passenger'
 
     id = Column(Integer, primary_key=True)
-    passenger_category = Column(Enum(PassengerCategory), nullable=False)
+    passenger_category = Column(
+        Enum(PassengerCategory),
+        nullable=False)
     name = Column(String(255), nullable=False)

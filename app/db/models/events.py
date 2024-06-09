@@ -6,7 +6,7 @@ from model.enum.enums import EventType, Criticality
 
 
 class Event(Base):
-    __tablename__ = 'Event'
+    __tablename__ = 'event'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     type = Column(Enum(EventType), nullable=False)

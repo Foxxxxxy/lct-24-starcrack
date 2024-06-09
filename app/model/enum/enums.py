@@ -46,12 +46,12 @@ class PassengerCategory(enum.Enum):
 
 
 class Status(enum.Enum):
-    Pending = 'SELECTED_FOR_SCHEDULING'
-    Finished = 'FINISHED'
-    Cancelled = 'CANCELLED'
-    Need_dynamic_scheduling = 'NEED_DYNAMIC_SCHEDULING'
-    Scheduled = 'SCHEDULED'
-    In_progres = 'IN_PROGRESS'
+    SELECTED_FOR_SCHEDULING = 'SELECTED_FOR_SCHEDULING'
+    FINISHED = 'FINISHED'
+    CANCELLED = 'CANCELLED'
+    NEED_DYNAMIC_SCHEDULING = 'NEED_DYNAMIC_SCHEDULING'
+    SCHEDULED = 'SCHEDULED'
+    IN_PROGRESS = 'IN_PROGRESS'
 
 
 class Weekday(enum.Enum):
