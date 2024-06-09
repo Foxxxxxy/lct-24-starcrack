@@ -12,3 +12,11 @@ async def get_employees_list(
 ):
     employees = employee_service.get_employees(limit, offset, base_session)
     return employees
+
+
+@employee_router.get("/id")
+async def get_employee_by_id(
+    emp_id: int, base_session: Session = Depends(get_db)
+):
+    employee = employee_service.get_employees_by_id_service(emp_id, base_session)
+    return employee

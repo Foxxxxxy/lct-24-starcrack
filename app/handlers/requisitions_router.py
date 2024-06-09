@@ -15,7 +15,7 @@ async def get_requisitions_list(
 
 
 @requisitions_router.get("/id")
-async def get_requisitions_list(
+async def get_requisition_by_id(
     req_id: int, base_session: Session = Depends(get_db)
 ):
     requisition = requisitions_service.get_requisition_by_id_service(req_id, base_session)
