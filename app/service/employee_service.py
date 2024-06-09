@@ -21,3 +21,9 @@ def add_employee(
 ):
     db_employee = db_model_from_dto(employee, employees.Employee)
     return add_new_employee(db_employee, base_session)
+
+
+def suggest_employee_by_name(
+    name: str, base_session: Session
+):
+    return suggest_by_name(name, base_session)

@@ -23,6 +23,14 @@ async def get_employee_by_id(
     return employee
 
 
+@employee_router.get("/suggestions/")
+async def suggest_employee(
+    name: str, base_session: Session = Depends(get_db)
+):
+    suggested_employees = employee_service.suggest_employee_by_name(name, base_session)
+    return suggested_employees
+
+
 @employee_router.post("/")
 async def add_employee(
     employee: EmployeeDTO, base_session: Session = Depends(get_db)
