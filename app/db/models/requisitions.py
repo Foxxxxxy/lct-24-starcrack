@@ -3,6 +3,9 @@ from sqlalchemy import Column, Integer, TIMESTAMP, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from db.base import Base
 from model.enum.enums import Status
+from db.models.passengers import Passenger
+from db.models.metro_stations import MetroStations
+
 
 
 class Requisitions(Base):
@@ -20,7 +23,7 @@ class Requisitions(Base):
     start_station = Column(Integer, ForeignKey('metro_stations.id'), nullable=False)
     end_station = Column(Integer, ForeignKey('metro_stations.id'), nullable=False)
 
-    passenger = relationship("passenger")
+    # passenger = relationship("Passenger")
     # start_station_ref = relationship("Metro_stations", foreign_keys=[start_station])
     # end_station_ref = relationship("Metro_stations", foreign_keys=[end_station])
 

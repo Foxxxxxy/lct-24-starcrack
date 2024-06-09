@@ -11,6 +11,15 @@ def get_everyone(
     return employees_list
 
 
+def add_new_employee(
+    employee: employees.Employee, base_session: Session
+):
+    base_session.add(employee)
+    base_session.commit()
+    base_session.refresh(employee)
+    return employee.id
+
+
 def get_employees_by_id(
     emp_id: int, base_session: Session
 ):

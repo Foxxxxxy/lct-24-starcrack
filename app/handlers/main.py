@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from handlers.requisitions_router import requisitions_router
 from handlers.employee_router import employee_router
-
+from handlers.shifts_router import shifts_router
 from cron.Scheduler import Scheduler
 from .passenger_router import passenger_router
 
@@ -13,6 +13,7 @@ def get_application() -> FastAPI:
     application.include_router(passenger_router, prefix='/passenger', tags=['passenger'])
     application.include_router(employee_router, prefix='/employee', tags=['employee'])
     application.include_router(requisitions_router, prefix='/requisitions', tags=['requisitions'])
+    application.include_router(shifts_router, prefix='/shifts', tags=['shifts'])
     return application
 
 

@@ -3,6 +3,7 @@ import json
 from sqlalchemy.orm import Session
 from db.models import requisitions
 from model.dto.filters import RequisitionFilterDTO
+from model.dto.entity import RequisitionDTO
 
 
 def get_everything(
@@ -17,6 +18,15 @@ def get_requisition_by_id(
 ):
     requisition = base_session.query(requisitions.Requisitions).filter(requisitions.Requisitions.id == req_id).first()
     return requisition
+
+
+def add_new_requisition(
+    requisition: requisitions.Requisitions, base_session: Session
+):
+    base_session.add(requisition)
+    base_session.commit()
+    base_session.refresh(requisition)
+    return requisition.id
 
 
 def get_filtered(

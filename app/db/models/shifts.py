@@ -1,7 +1,10 @@
+import enum
+
 from sqlalchemy import Column, Integer, ForeignKey, TIMESTAMP, Enum
 from sqlalchemy.orm import relationship
 from db.base import Base
 from model.enum.enums import Weekday
+
 
 
 class Shift(Base):
@@ -16,5 +19,5 @@ class Shift(Base):
         Enum(Weekday),
         nullable=False)
 
-    employee = relationship("employee")
-    place_start_ref = relationship("metro_stations")
+    # employee = relationship("employee")
+    # place_start_ref = relationship("metro_stations")

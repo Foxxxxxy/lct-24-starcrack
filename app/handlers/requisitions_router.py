@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from db.base import get_db
 from service import requisitions_service
 from model.dto.filters import RequisitionFilterDTO
+from model.dto.entity import RequisitionDTO
 
 requisitions_router = APIRouter()
 
@@ -23,8 +24,15 @@ async def get_requisition_by_id(
     return requisition
 
 
-@requisitions_router.post("/")
-async def get_passengers_filtered(
+@requisitions_router.post("/filtered")
+async def get_requisitions_filtered(
     filter: RequisitionFilterDTO, limit: int, offset: int, base_session: Session = Depends(get_db)
 ):
-    return requisitions_service.get_passengers_filtered(filter, limit, offset, base_session)
+    return requisitions_service.get_requisitions_filtered(filter, limit, offset, base_session)
+
+
+@requisitions_router.post("/")
+async def create_requisition(
+    requisition: RequisitionDTO, base_session: Session = Depends(get_db)
+):
+    return requisitions_service.create_requisition(requisition, base_session)

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from db.models import passengers
 from db.models.passengers import Passenger
 from model.dto.filters import PassengerFilterDTO
+from model.dto.entity import PassengerDTO
 
 
 def get_passengers_crud(
@@ -24,6 +25,15 @@ def suggest_by_name(
 ):
     passengers_list = base_session.query(passengers.Passenger).filter(Passenger.name.ilike(name + '%')).all()
     return passengers_list
+
+
+def add_new_passenger(
+    passenger: passengers.Passenger, base_session: Session
+):
+    base_session.add(passenger)
+    base_session.commit()
+    base_session.refresh(passenger)
+    return passenger.id
 
 
 def get_filtered(

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from db.base import get_db
 import service.passenger_service as passenger_service
 from model.dto.filters import PassengerFilterDTO
+from model.dto.entity import PassengerDTO
 
 passenger_router = APIRouter()
 
@@ -32,8 +33,16 @@ async def suggest_passenger(
     return suggested_passengers
 
 
-@passenger_router.post("/")
+@passenger_router.post("/filtered")
 async def get_passengers_filtered(
     filter: PassengerFilterDTO, limit: int, offset: int, base_session: Session = Depends(get_db)
 ):
     return passenger_service.get_passengers_filtered(filter, limit, offset, base_session)
+
+
+@passenger_router.post("/")
+async def add_new_passenger(
+     passenger: PassengerDTO, base_session: Session = Depends(get_db)
+):
+    passenger_service.add_passenger(passenger, base_session)
+    return
