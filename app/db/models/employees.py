@@ -9,7 +9,7 @@ class SexType(enum.Enum):
     female = 'female'
 
 
-class RoleType(enum.ENUM):
+class RoleType(enum.Enum):
     Admin = 'Admin'
     Attendant = 'Attendant'
     Operator = 'Operator'
@@ -23,7 +23,7 @@ class SubRoleType(enum.Enum):
 
 
 class Employee(Base):
-    __tablename__ = 'Employees'
+    __tablename__ = 'employees'
 
     id = Column(Integer, primary_key=True)
     full_name = Column(String(255), nullable=False)
