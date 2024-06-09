@@ -24,6 +24,14 @@ async def get_passenger_id(
     return passenger
 
 
+@passenger_router.get("/suggestions/")
+async def suggest_passenger(
+    name: str, base_session: Session = Depends(get_db)
+):
+    suggested_passengers = passenger_service.suggest_passenger_by_name(name, base_session)
+    return suggested_passengers
+
+
 @passenger_router.post("/")
 async def get_passengers_filtered(
     filter: PassengerFilterDTO, limit: int, offset: int, base_session: Session = Depends(get_db)

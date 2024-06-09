@@ -6,17 +6,24 @@ from model.dto.filters import PassengerFilterDTO
 
 
 def get_passengers_crud(
-        limit: int, offset: int, base_session: Session
+    limit: int, offset: int, base_session: Session
 ):
     passengers_list = base_session.query(passengers.Passenger).limit(limit).offset(offset).all()
     return passengers_list
 
 
 def get_passenger_by_id_crud(
-        pas_id: int, base_session: Session
+    pas_id: int, base_session: Session
 ):
     passenger = base_session.query(passengers.Passenger).filter(passengers.Passenger.id == pas_id).first()
     return passenger
+
+
+def suggest_by_name(
+    name: str, base_session: Session
+):
+    passengers_list = base_session.query(passengers.Passenger).filter(Passenger.name.ilike(name + '%')).all()
+    return passengers_list
 
 
 def get_filtered(

@@ -2,6 +2,7 @@ import json
 
 from sqlalchemy.orm import Session
 from db.models import requisitions
+from model.dto.filters import RequisitionFilterDTO
 
 
 def get_everything(
@@ -16,3 +17,23 @@ def get_requisition_by_id(
 ):
     requisition = base_session.query(requisitions.Requisitions).filter(requisitions.Requisitions.id == req_id).first()
     return requisition
+
+
+def get_filtered(
+    filter: RequisitionFilterDTO, limit: int, offset: int, base_session: Session
+):
+    query = base_session.query(requisitions.Requisitions)
+    filtered = __apply_filters(query, filter)
+    return filtered.offset(offset).limit(limit).all()
+
+
+def __apply_filters(query, filter: RequisitionFilterDTO):
+    for field, value in filter.dict(exclude_unset=True).items():
+        if value is None:
+            continue
+        if type(value) is str:
+            print("here")
+            query = query.filter(getattr(requisitions.Requisitions, field).ilike(f"%{value}%"))
+        else:
+            query = query.filter(getattr(requisitions.Requisitions, field) == value)
+    return query

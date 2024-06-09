@@ -4,15 +4,21 @@ from db.crud_passenger import *
 
 
 def get_passengers(
-        limit: int, offset: int, base_session: Session
+    limit: int, offset: int, base_session: Session
 ):
     return get_passengers_crud(limit, offset, base_session)
 
 
 def get_passenger_by_id_service(
-        pas_id: int, base_session: Session
+    pas_id: int, base_session: Session
 ):
     return get_passenger_by_id_crud(pas_id, base_session)
+
+
+def suggest_passenger_by_name(
+    name: str, base_session: Session
+):
+    return suggest_by_name(name, base_session)
 
 
 def get_passengers_filtered(

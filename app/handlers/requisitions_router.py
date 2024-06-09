@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.base import get_db
 from service import requisitions_service
+from model.dto.filters import RequisitionFilterDTO
 
 requisitions_router = APIRouter()
 
@@ -20,3 +21,10 @@ async def get_requisition_by_id(
 ):
     requisition = requisitions_service.get_requisition_by_id_service(req_id, base_session)
     return requisition
+
+
+@requisitions_router.post("/")
+async def get_passengers_filtered(
+    filter: RequisitionFilterDTO, limit: int, offset: int, base_session: Session = Depends(get_db)
+):
+    return requisitions_service.get_passengers_filtered(filter, limit, offset, base_session)
