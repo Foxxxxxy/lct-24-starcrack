@@ -7,7 +7,6 @@ from db.models.passengers import Passenger
 from db.models.metro_stations import MetroStations
 
 
-
 class Requisitions(Base):
     __tablename__ = 'requisitions'
 

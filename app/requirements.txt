@@ -5,3 +5,5 @@ alembic
 sqlalchemy
 psycopg2-binary
 apscheduler
+passlib
+python-jose

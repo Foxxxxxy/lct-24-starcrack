@@ -26,8 +26,13 @@ def get_employees_by_id(
     employee = base_session.query(employees.Employee).filter(employees.Employee.id == emp_id).first()
     return employee
 
+
 def suggest_by_name(
     name: str, base_session: Session
 ):
     employees_list = base_session.query(employees.Employee).filter(employees.Employee.full_name.ilike(name + '%')).all()
     return employees_list
+
+
+def get_employee_by_name(db: Session, name: str) -> employees.Employee:
+    return db.query(employees.Employee).filter(employees.Employee.full_name == name).first()

@@ -39,5 +39,11 @@ def create_new_shift(
     base_session.add(shift)
     base_session.commit()
     base_session.refresh(shift)
-    return
+    return shift
 
+
+def get_shifts_by_id(
+    shift_id: int, base_session: Session
+):
+    shift = base_session.query(shifts.Shift).filter(shifts.Shift.id == shift_id).first()
+    return shift
