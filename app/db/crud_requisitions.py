@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 from db.models import requisitions
 from model.dto.filters import RequisitionFilterDTO
 
+from model.dto.entity import RequisitionDTO
+from model.enum.enums import 
+
 
 def get_everything(
         limit: int, offset: int, base_session: Session
@@ -34,6 +37,15 @@ def get_filtered(
     query = base_session.query(requisitions.Requisitions)
     filtered = __apply_filters(query, filter)
     return filtered.offset(offset).limit(limit).all()
+
+
+def get_by_status(
+    status: Status, base_session: Session
+):
+    requisitions_list = base_session.query(requisitions.Requisitions).filter(
+        requisitions.Requisitions.status == status
+    ).all()
+    return requisitions_list
 
 
 def __apply_filters(query, filter: RequisitionFilterDTO):

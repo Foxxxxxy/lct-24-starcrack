@@ -1,12 +1,15 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from algorithms.DijkstraAlgorithm import DijkstraAlgorithm
 from handlers.requisitions_router import requisitions_router
 from handlers.employee_router import employee_router
 from handlers.shifts_router import shifts_router
 from cron.Scheduler import Scheduler
 from handlers.passenger_router import passenger_router
 from handlers.auth_router import auth_router
+from .routes_router import routes_router
 
 
 def get_application() -> FastAPI:
@@ -16,6 +19,7 @@ def get_application() -> FastAPI:
     application.include_router(requisitions_router, prefix='/requisitions', tags=['requisitions'])
     application.include_router(shifts_router, prefix='/shifts', tags=['shifts'])
     application.include_router(auth_router, prefix='/user', tags=['auth'])
+    application.include_router(routes_router, prefix='/routes', tags=['routes'])
     return application
 
 
@@ -41,6 +45,8 @@ scheduler = Scheduler(BackgroundScheduler())
 def startup_actions():
     scheduler.register_executors()
     scheduler.start()
+
+    app.state.dijkstra_algorithm = DijkstraAlgorithm()
 
 
 @app.on_event("shutdown")
