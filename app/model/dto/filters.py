@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Union
+from typing import Union, Optional
 
 import pydantic
 
@@ -8,18 +8,18 @@ from db.models.requisitions import Status
 
 
 class PassengerFilterDTO(pydantic.BaseModel):
-    passenger_category: Union[PassengerCategory, None] = None
-    name: Union[str, None] = None
+    passenger_category: Optional[PassengerCategory] = None
+    name: Optional[str] = None
 
 
 class RequisitionFilterDTO(pydantic.BaseModel):
-    passenger_id: Union[int, None] = None
-    start_time: Union[datetime, None] = None
-    meet_time: Union[datetime, None] = None
-    finish_time: Union[datetime, None] = None
-    status: Union[Status, None] = None
-    creation_time: Union[datetime, None] = None
-    males_needed: Union[int, None] = None
-    females_needed: Union[int, None] = None
-    start_station: Union[int, None] = None
-    end_station: Union[int, None] = None
+    passenger_id: Optional[int] = None
+    start_time: Optional[datetime] = None
+    meet_time: Optional[datetime] = None
+    finish_time: Optional[datetime] = None
+    status: Optional[Status] = None
+    creation_time: Optional[datetime] = None
+    males_needed: Optional[int] = None
+    females_needed: Optional[int] = None
+    start_station: Optional[int] = None
+    end_station: Optional[int] = None

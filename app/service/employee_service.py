@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from db.crud_employee import *
-from . import db_model_from_dto
+from model.dto.update_entity import EmployeeUpdateDto
+from . import db_model_from_dto, update_bd_objects
 from model.dto.entity import EmployeeDTO
 
 
@@ -27,3 +28,12 @@ def suggest_employee_by_name(
     name: str, base_session: Session
 ):
     return suggest_by_name(name, base_session)
+
+
+def update_employee(
+    employee: EmployeeUpdateDto, base_session: Session
+):
+    db_employee = get_employees_by_id(employee.id, base_session)
+    db_employee = update_bd_objects(db_employee, employee.dict(exclude_unset=True))
+    base_session.commit()
+    return db_employee

@@ -11,3 +11,4 @@ class Passenger(Base):
         Enum(PassengerCategory),
         nullable=False)
     name = Column(String(255), nullable=False)
+    phone = Column(String(255), nullable=False)

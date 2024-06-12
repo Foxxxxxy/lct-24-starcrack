@@ -10,17 +10,26 @@ import string
 from model.enum.enums import PassengerCategory, RoleType, SubRoleType
 from model.enum.enums import Status as RequisitionStatus
 from model.enum.enums import SexType
+from service.auth_service import pwd_context
+
+
+def generate_phone():
+    first_part = random.randint(100, 999)
+    second_part = random.randint(100, 999)
+    third_part = random.randint(1000, 9999)
+    return f"+7 {first_part}-{second_part}-{third_part}"
 
 
 def generate_test_passengers():
     amount = 100
-    sql = "INSERT INTO passenger(name, passenger_category)  VALUES" + "\n"
+    sql = "INSERT INTO passenger(name, passenger_category, phone)  VALUES" + "\n"
 
     for i in range(amount):
         passenger_category = random.choice(list(PassengerCategory)).value
         name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(10))
+        phone = generate_phone()
 
-        cortege = f"('{name}', '{passenger_category}'::passenger_category_type)"
+        cortege = f"('{name}', '{passenger_category}'::passenger_category_type, '{phone}')"
         if i < amount - 1:
             cortege += ",\n"
         else:
@@ -34,7 +43,8 @@ def generate_test_passengers():
 
 def generate_test_employees():
     amount = 100
-    sql = "INSERT INTO employees(full_name, sex, role, sub_role) VALUES" + "\n"
+    sql = "INSERT INTO employees(full_name, sex, role, sub_role, password) VALUES" + "\n"
+    password = pwd_context.hash("nB3@#9v^Z$2B")
 
     for i in range(amount):
         full_name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(10))
@@ -47,9 +57,9 @@ def generate_test_employees():
 
         cortege = f"('{full_name}', '{sex}'::sex_type, '{role}'::role_type, "
         if sub_role is None:
-            cortege += "null)"
+            cortege += f"null, '{password}')"
         else:
-            cortege += f"'{sub_role}'::sub_role_type)"
+            cortege += f"'{sub_role}'::sub_role_type, '{password}')"
 
         if i < amount - 1:
             cortege += ",\n"

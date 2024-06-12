@@ -1,12 +1,32 @@
 from sqlalchemy.orm import Session
 from db.crud_requisitions import *
 from typing import List
-from . import db_model_from_dto
+from . import db_model_from_dto, update_bd_objects
+from model.dto.entity import RequisitionDTO
+from model.dto.update_entity import RequisitionUpdateDTO
+from db.crud_stations import *
+
+
+def update_requisition_station_to_add(new_requisition, base_session):
+    new_requisition.start_station = get_station_by_name(new_requisition.start_station, base_session)
+    new_requisition.end_station = get_station_by_name(new_requisition.end_station, base_session)
+    return
+
+
+def update_requisition_station_to_response(db_requisition, base_session):
+    db_requisition.start_station = get_station_by_id(db_requisition.start_station, base_session)
+    db_requisition.end_station = get_station_by_id(db_requisition.end_station, base_session)
+    return
+
 
 def get_requisitions(
     limit: int, offset: int, base_session: Session
 ) -> List[requisitions.Requisitions]:
-    return get_everything(limit, offset, base_session)
+    requisitions_l = get_everything(limit, offset, base_session)
+    for requisition in requisitions_l:
+        update_requisition_station_to_response(requisition, base_session)
+    return requisitions_l
+
 
 
 def get_requisition_by_id_service(
@@ -18,12 +38,29 @@ def get_requisition_by_id_service(
 def create_requisition(
     requisition: RequisitionDTO, base_session: Session
 ):
+    update_requisition_station_to_add(requisition, base_session)
     db_requisition = db_model_from_dto(requisition, requisitions.Requisitions)
-    return add_new_requisition(db_requisition, base_session)
+    new_requisition = add_new_requisition(db_requisition, base_session)
+    update_requisition_station_to_response(requisition, base_session)
+    return new_requisition
 
 
 def get_requisitions_filtered(
     filter: RequisitionFilterDTO, limit: int, offset: int, base_session: Session
 
 ) -> List[requisitions.Requisitions]:
-    return get_filtered(filter, limit, offset, base_session)
+    requisitions_l = get_filtered(filter, limit, offset, base_session)
+    for requisition in requisitions_l:
+        update_requisition_station_to_response(requisition, base_session)
+    return requisitions_l
+
+
+def update_requisition(
+    new_requisition: RequisitionUpdateDTO, base_session: Session
+):
+    update_requisition_station_to_add(new_requisition, base_session)
+    db_requisition = get_requisition_by_id(new_requisition.id, base_session)
+    db_requisition = update_bd_objects(db_requisition, new_requisition.dict(exclude_unset=True))
+    base_session.commit()
+    update_requisition_station_to_response(db_requisition, base_session)
+    return db_requisition

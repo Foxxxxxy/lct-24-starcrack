@@ -38,7 +38,8 @@ def upgrade() -> None:
     CREATE TABLE IF NOT EXISTS passenger(
         id BIGSERIAL PRIMARY KEY,
         passenger_category passenger_category_type NOT NULL,
-        name VARCHAR(255) NOT NULL
+        name VARCHAR(255) NOT NULL,
+        phone VARCHAR(255) NOT NULL
     );
     
 
@@ -47,7 +48,8 @@ def upgrade() -> None:
         full_name VARCHAR(255) NOT NULL,
         sex sex_type NOT NULL,
         role role_type NOT NULL,
-        sub_role sub_role_type NULL
+        sub_role sub_role_type NULL,
+        password VARCHAR(255) NOT NULL
     );
     
     CREATE TABLE IF NOT EXISTS requisitions(

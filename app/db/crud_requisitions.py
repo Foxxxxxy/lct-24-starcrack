@@ -3,7 +3,6 @@ import json
 from sqlalchemy.orm import Session
 from db.models import requisitions
 from model.dto.filters import RequisitionFilterDTO
-from model.dto.entity import RequisitionDTO
 
 
 def get_everything(

@@ -7,28 +7,28 @@ from model.dto.entity import PassengerDTO
 
 
 def get_passengers_crud(
-    limit: int, offset: int, base_session: Session
+        limit: int, offset: int, base_session: Session
 ):
     passengers_list = base_session.query(passengers.Passenger).limit(limit).offset(offset).all()
     return passengers_list
 
 
 def get_passenger_by_id_crud(
-    pas_id: int, base_session: Session
+        pas_id: int, base_session: Session
 ):
     passenger = base_session.query(passengers.Passenger).filter(passengers.Passenger.id == pas_id).first()
     return passenger
 
 
 def suggest_by_name(
-    name: str, base_session: Session
+        name: str, base_session: Session
 ):
     passengers_list = base_session.query(passengers.Passenger).filter(Passenger.name.ilike(name + '%')).all()
     return passengers_list
 
 
 def add_new_passenger(
-    passenger: passengers.Passenger, base_session: Session
+        passenger: passengers.Passenger, base_session: Session
 ):
     base_session.add(passenger)
     base_session.commit()
@@ -37,7 +37,7 @@ def add_new_passenger(
 
 
 def get_filtered(
-    filter: PassengerFilterDTO, limit: int, offset: int, base_session: Session
+        filter: PassengerFilterDTO, limit: int, offset: int, base_session: Session
 ):
     query = base_session.query(passengers.Passenger)
     filtered = __apply_filters(query, filter)
@@ -54,3 +54,14 @@ def __apply_filters(query, filter: PassengerFilterDTO):
         else:
             query = query.filter(getattr(Passenger, field) == value)
     return query
+
+
+def get_passenger_by_phone(phone: str, base_session: Session):
+    passenger = base_session.query(passengers.Passenger).filter(passengers.Passenger.phone == phone).first()
+    return passenger
+
+
+def get_passenger_by_name(name: str, base_session: Session):
+    passenger = base_session.query(passengers.Passenger).filter(passengers.Passenger.name == name).first()
+    return passenger
+

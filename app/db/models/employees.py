@@ -10,4 +10,5 @@ class Employee(Base):
     full_name = Column(String(255), nullable=False)
     sex = Column(Enum(SexType), nullable=False)
     role = Column(Enum(RoleType), nullable=False)
-    sub_role = Column(Enum(SubRoleType), nullable=False)
+    sub_role = Column(Enum(SubRoleType), nullable=True)
+    password = Column(String(255), nullable=False)
