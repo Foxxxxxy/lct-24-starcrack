@@ -8,7 +8,7 @@ INSERT INTO requisitions(passenger_id, start_time, meet_time, finish_time, statu
 ('93', '2024-06-14 17:42:00'::timestamp, null, '2024-06-14 20:14:00'::timestamp, 'SELECTED_FOR_SCHEDULING'::status_type, '2024-06-12 00:00:00'::timestamp, 4, 0, 25, 20),
 ('62', '2024-06-12 01:13:00'::timestamp, null, '2024-06-12 01:30:00'::timestamp, 'SELECTED_FOR_SCHEDULING'::status_type, '2024-06-12 00:00:00'::timestamp, 2, 1, 154, 104),
 ('41', '2024-06-12 11:41:00'::timestamp, null, '2024-06-12 12:56:00'::timestamp, 'FINISHED'::status_type, '2024-06-12 00:00:00'::timestamp, 4, 2, 172, 166),
-('27', '2024-06-13 14:04:00'::timestamp, null, '2024-06-13 15:51:00'::timestamp, 'CANCELLED'::status_type, '2024-06-12 00:00:00'::timestamp, 2, 0, 46, 75),
+('27', '2024-06-13 14:04:00'::timestamp, null, '2024-06-13 15:51:00'::timestamp, 'CANCELLED'::status_type, '2024-06-12 00:00:00'::timestamp, 2, 0, 46, 3),
 ('83', '2024-06-12 13:00:00'::timestamp, null, '2024-06-12 13:45:00'::timestamp, 'SELECTED_FOR_SCHEDULING'::status_type, '2024-06-12 00:00:00'::timestamp, 2, 1, 21, 17),
 ('72', '2024-06-13 04:41:00'::timestamp, null, '2024-06-13 06:08:00'::timestamp, 'SELECTED_FOR_SCHEDULING'::status_type, '2024-06-12 00:00:00'::timestamp, 4, 2, 156, 5),
 ('76', '2024-06-14 09:21:00'::timestamp, null, '2024-06-14 10:46:00'::timestamp, 'FINISHED'::status_type, '2024-06-12 00:00:00'::timestamp, 4, 0, 101, 100),

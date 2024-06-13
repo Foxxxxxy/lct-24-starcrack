@@ -64,3 +64,11 @@ def update_requisition(
     base_session.commit()
     update_requisition_station_to_response(db_requisition, base_session)
     return db_requisition
+
+
+def delete_requisition(
+    requisition_id: int, base_session: Session
+):
+    requisition = get_requisition_by_id(requisition_id, base_session)
+    base_session.delete(requisition)
+    base_session.commit()

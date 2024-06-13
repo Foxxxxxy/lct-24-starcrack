@@ -45,6 +45,15 @@ def get_by_status(
     return requisitions_list
 
 
+def get_by_passenger_id(
+    passenger_id: int, base_session: Session
+):
+    requisitions_list = base_session.query(requisitions.Requisitions).filter(
+        requisitions.Requisitions.passenger_id == passenger_id
+    ).all()
+    return requisitions_list
+
+
 def __apply_filters(query, filter: RequisitionFilterDTO):
     for field, value in filter.dict(exclude_unset=True).items():
         if value is None:

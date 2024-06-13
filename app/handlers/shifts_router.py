@@ -56,3 +56,11 @@ async def update_shift(
         base_session: Session = Depends(get_db)
 ) -> ShiftDTO:
     return shifts_service.update_shift(shift, base_session)
+
+
+@shifts_router.delete("/")
+async def delete_shift(
+    shift_id: int, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
+        base_session: Session = Depends(get_db)
+):
+    shifts_service.delete_shift(shift_id, base_session)

@@ -51,3 +51,11 @@ async def create_requisition(
         base_session: Session = Depends(get_db)
 ) -> int:
     return requisitions_service.create_requisition(requisition, base_session)
+
+
+@requisitions_router.delete("/")
+async def delete_requisition(
+    requisition_id: int, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
+        base_session: Session = Depends(get_db)
+):
+    requisitions_service.delete_requisition(requisition_id, base_session)

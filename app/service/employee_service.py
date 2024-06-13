@@ -37,3 +37,11 @@ def update_employee(
     db_employee = update_bd_objects(db_employee, employee.dict(exclude_unset=True))
     base_session.commit()
     return db_employee
+
+
+def delete_employee(
+    employee_id: int, base_session: Session
+):
+    employee = get_employees_by_id(employee_id, base_session)
+    base_session.delete(employee)
+    base_session.commit()

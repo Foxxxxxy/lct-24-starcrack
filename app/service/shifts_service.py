@@ -35,3 +35,11 @@ def create_shift(
 ):
     db_shift = db_model_from_dto(shift, shifts.Shift)
     return create_new_shift(db_shift, base_session)
+
+
+def delete_shift(
+    shift_id: int, base_session: Session
+):
+    shift = get_shifts_by_id(shift_id, base_session)
+    base_session.delete(shift)
+    base_session.commit()

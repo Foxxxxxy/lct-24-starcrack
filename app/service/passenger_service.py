@@ -1,6 +1,7 @@
 from typing import List
 
 from db.crud_passenger import *
+from db.crud_requisitions import get_by_passenger_id
 from model.dto.update_entity import PassengerUpdateDTO
 from . import *
 
@@ -43,3 +44,17 @@ def update_passenger(
     db_passenger = update_bd_objects(db_passenger, passenger.dict(exclude_unset=True))
     base_session.commit()
     return db_passenger
+
+
+def delete_passenger(
+    passenger_id: int, base_session: Session
+):
+    passenger_requisitions = get_by_passenger_id(passenger_id, base_session)
+    for requisition in passenger_requisitions:
+        base_session.delete(requisition)
+    base_session.commit()
+
+    passenger = get_passenger_by_id_crud(passenger_id, base_session)
+    base_session.delete(passenger)
+
+    base_session.commit()

@@ -44,3 +44,11 @@ async def update_employee(
         base_session: Session = Depends(get_db)
 ) -> EmployeeDTO:
     return employee_service.update_employee(employee, base_session)
+
+
+@employee_router.delete("/")
+async def delete_employee(
+    employee_id: int, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
+        base_session: Session = Depends(get_db)
+):
+    employee_service.delete_employee(employee_id, base_session)
