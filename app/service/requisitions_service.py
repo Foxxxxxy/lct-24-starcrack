@@ -82,3 +82,7 @@ def delete_requisition(
     requisition = get_requisition_by_id(requisition_id, base_session)
     base_session.delete(requisition)
     base_session.commit()
+
+
+def get_requisitions_by_employee(emp_id: int, limit: int, offset: int, base_session):
+    return get_requisitions_by_employee_id(emp_id, limit, offset, base_session)

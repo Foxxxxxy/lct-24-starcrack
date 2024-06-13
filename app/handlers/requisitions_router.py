@@ -5,18 +5,22 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.base import get_db
 from model.dto.auth_models import UserOutputSchema
-from model.enum.enums import Status
+from model.enum.enums import Status, RoleType
 from service import requisitions_service, auth_service
 from model.dto.filters import RequisitionFilterDTO
 from model.dto.entity import RequisitionDTO
 from model.dto.update_entity import RequisitionUpdateDTO
+
 requisitions_router = APIRouter()
 
 
 @requisitions_router.get("/")
 async def get_requisitions_list(
-    limit: int, offset: int, base_session: Session = Depends(get_db)
+    limit: int, offset: int, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
+        base_session: Session = Depends(get_db)
 ) -> List[RequisitionDTO]:
+    if user.role == RoleType.Attendant:
+        return requisitions_service.get_requisitions_by_employee(user.id, limit, offset, base_session)
     requisitions = requisitions_service.get_requisitions(limit, offset, base_session)
     return requisitions
 
