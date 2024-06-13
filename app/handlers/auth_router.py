@@ -3,12 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from db.models.employees import Employee as UserModel
 
 from db.base import get_db
 from service import auth_service
 
-# from app.src.pieces.user.models import UserModel
 from model.dto.auth_models import *
 
 auth_router = APIRouter()

@@ -59,7 +59,6 @@ class Status(enum.Enum):
     INSPECTOR_LATE = 'INSPECTOR_LATE'
 
 
-
 class Weekday(enum.Enum):
     Monday = 'Monday'
     Tuesday = 'Tuesday'
