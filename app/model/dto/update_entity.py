@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 from typing import Union, Optional
 
 import pydantic
@@ -48,8 +48,8 @@ class EmployeeUpdateDto(pydantic.BaseModel):
 class ShiftUpdateDto(pydantic.BaseModel):
     id: int
     employee_id: int
-    time_start: Optional[datetime]
-    time_end: Optional[datetime]
+    time_start: Optional[time]
+    time_end: Optional[time]
     place_start: Optional[int]
     weekday: Optional[Weekday]
 

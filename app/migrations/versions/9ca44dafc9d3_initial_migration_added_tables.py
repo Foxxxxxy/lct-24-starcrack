@@ -25,7 +25,7 @@ def upgrade() -> None:
     VARCHAR(255) NOT NULL, line_id BIGINT NOT NULL, station_name VARCHAR(255) NOT NULL );
     
     CREATE TYPE status_type AS ENUM ('SELECTED_FOR_SCHEDULING', 'FINISHED', 'CANCELLED', 'NEED_DYNAMIC_SCHEDULING', 
-    'SCHEDULED', 'IN_PROGRESS');
+    'SCHEDULED', 'IN_PROGRESS', 'INSPECTOR_EN_ROUTE', 'INSPECTOR_ARRIVED', 'REJECTED', 'PASSENGER_LATE', 'INSPECTOR_LATE');
     
     CREATE TYPE weekday_type AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
     
@@ -72,8 +72,8 @@ def upgrade() -> None:
     CREATE TABLE IF NOT EXISTS shifts(
         id BIGSERIAL PRIMARY KEY,
         employee_id BIGINT NOT NULL,
-        time_start TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-        time_end TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+        time_start TIME WITHOUT TIME ZONE NOT NULL,
+        time_end TIME WITHOUT TIME ZONE NOT NULL,
         place_start BIGINT NOT NULL,
         weekday weekday_type NOT NULL,
         FOREIGN KEY (employee_id) REFERENCES employees(id),

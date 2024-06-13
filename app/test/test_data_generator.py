@@ -10,7 +10,6 @@ import string
 from model.enum.enums import PassengerCategory, RoleType, SubRoleType
 from model.enum.enums import Status as RequisitionStatus
 from model.enum.enums import SexType
-from service.auth_service import pwd_context
 
 
 def generate_phone():
@@ -44,7 +43,6 @@ def generate_test_passengers():
 def generate_test_employees():
     amount = 100
     sql = "INSERT INTO employees(full_name, sex, role, sub_role, password) VALUES" + "\n"
-    password = pwd_context.hash("nB3@#9v^Z$2B")
 
     for i in range(amount):
         full_name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(10))
@@ -54,6 +52,8 @@ def generate_test_employees():
             sub_role = random.choice(list(SubRoleType)).value
         else:
             sub_role = None
+
+        password = '$2b$12$sOrS1IVO5v9dYx963/OE2e/F7cJFkWiZ/PW3HOOpuj7YE.C7OZ7Bm'
 
         cortege = f"('{full_name}', '{sex}'::sex_type, '{role}'::role_type, "
         if sub_role is None:
@@ -130,11 +130,24 @@ def generate_test_requisitions():
         f.write(sql)
 
 
+def generate_test_users():
+    password = '$2b$12$sOrS1IVO5v9dYx963/OE2e/F7cJFkWiZ/PW3HOOpuj7YE.C7OZ7Bm'
+    sql = f"""
+        INSERT INTO employees (full_name, sex, role, sub_role, password) VALUES ('user_admin', 'Male'::sex_type ,'Admin'::role_type, null, '{password}');
+        INSERT INTO employees (full_name, sex, role, sub_role, password) VALUES ('user_specialist', 'Male'::sex_type ,'Specialist'::role_type, null, '{password}');
+        INSERT INTO employees (full_name, sex, role, sub_role, password) VALUES ('user_operator', 'Male'::sex_type ,'Operator'::role_type, null, '{password}');
+        INSERT INTO employees (full_name, sex, role, sub_role, password) VALUES ('user_attendant', 'Male'::sex_type ,'Attendant'::role_type, 'Inspector'::sub_role_type, '{password}');
+    """
+
+    with open(f"{os.path.dirname(os.path.realpath(__file__))}/test_data/test_users.sql", "w+") as f:
+        f.write(sql)
+
 def main():
     generate_metro_stations()
     generate_test_passengers()
     generate_test_employees()
     generate_test_requisitions()
+    generate_test_users()
 
 
 if __name__ == "__main__":

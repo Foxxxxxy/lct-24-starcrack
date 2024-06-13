@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import datetime, time
 from typing import Literal, Union, Optional
 from model.enum.enums import *
 import pydantic
@@ -7,8 +7,8 @@ import pydantic
 
 class ShiftDTO(pydantic.BaseModel):
     employee_id: Optional[int]
-    time_start: datetime
-    time_end: datetime
+    time_start: time
+    time_end: time
     place_start: int
     weekday: Weekday
 

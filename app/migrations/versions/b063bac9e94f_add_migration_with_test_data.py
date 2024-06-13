@@ -20,16 +20,19 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    with open(f"/app/test/test_data/metro_stations.sql", "r") as f:
+    with open(f"/Users/nikitakhaurov/PycharmProjects/lct-24-starcrack/app/test/test_data/metro_stations.sql", "r") as f:
         op.execute(f.read())
 
-    with open(f"/app/test/test_data/passengers.sql", "r") as f:
+    with open(f"/Users/nikitakhaurov/PycharmProjects/lct-24-starcrack/app/test/test_data/passengers.sql", "r") as f:
         op.execute(f.read())
 
-    with open(f"/app/test/test_data/employees.sql", "r") as f:
+    with open(f"/Users/nikitakhaurov/PycharmProjects/lct-24-starcrack/app/test/test_data/employees.sql", "r") as f:
         op.execute(f.read())
 
-    with open(f"/app/test/test_data/requisitions.sql", "r") as f:
+    with open(f"/Users/nikitakhaurov/PycharmProjects/lct-24-starcrack/app/test/test_data/requisitions.sql", "r") as f:
+        op.execute(f.read())
+
+    with open(f"/Users/nikitakhaurov/PycharmProjects/lct-24-starcrack/app/test/test_data/test_users.sql", "r") as f:
         op.execute(f.read())
 
 
