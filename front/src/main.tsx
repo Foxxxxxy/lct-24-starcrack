@@ -9,7 +9,7 @@ import {Layout} from './Layouts/Layout';
 import './styles/globals.scss';
 
 const routes = useRoutes();
-const router = useCreateRoutesWithLayouts({routes});
+export const router = useCreateRoutesWithLayouts({routes});
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(

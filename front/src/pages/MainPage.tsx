@@ -1,39 +1,59 @@
-import {Table, TableColumnConfig} from '@gravity-ui/uikit';
+import {Table as GravityTable, TableColumnConfig, Text, withTableCopy} from '@gravity-ui/uikit';
 import {FC} from 'react';
+import {requests} from 'src/mocks/requests';
+import {RequestItemResolved, useResolvedRequests} from 'src/resolvers/useResolvedRequests';
 
-interface PresetTableData {
-    presetId: string;
-    cpuLimit: string;
-    cpuFraction: string;
-    memoryLimit: string;
-}
+import css from './MainPage.module.scss';
 
-const presetTableColumns = [
+const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
     {
-        id: 'presetId',
-        name: "i18nK('section_resource')",
+        id: 'id',
+        name: 'ID заявки',
+        meta: {copy: ({id}: {id: string}) => id},
     },
     {
-        id: 'cpuLimit',
-        name: "i18nK('label_cpu_limit')",
+        id: 'passenger_id',
+        name: 'ID Пассажира',
+        meta: {copy: ({passenger_id}: {passenger_id: string}) => passenger_id},
     },
     {
-        id: 'cpuFraction',
-        name: "i18nK('label_core-fraction')",
+        id: 'females_males_needed',
+        name: 'Кол-во м / ж',
     },
     {
-        id: 'memoryLimit',
-        name: "i18nK('label_memory_limit')",
+        id: 'route',
+        name: 'Ст. отправления -> прибытия пассажира',
     },
-] as TableColumnConfig<PresetTableData>[];
+    {
+        id: 'status',
+        name: 'Статус заявки',
+    },
+    {
+        id: 'start_time',
+        name: 'Время начала',
+    },
+    {
+        id: 'finish_time',
+        name: 'Время завершения',
+    },
+];
 
 export const MainPage: FC = () => {
-    const result = {
-        presetId: '123',
-        cpuLimit: "i18nK('field_cpu_limit_value', {count: Number(preset.cpuLimit)})",
-        cpuFraction: 'asdadsad',
-        memoryLimit: "i18nK('field_memory_limit_value', {count: memory})",
-    } as PresetTableData;
+    const resolvedRequests = useResolvedRequests(requests);
 
-    return <Table columns={presetTableColumns} data={[result]} onRowClick={() => {}} />;
+    const Table = withTableCopy(GravityTable);
+
+    return (
+        <div className={css.MainPage}>
+            <header className={css.MainPage__header}>
+                <Text variant="display-1">Все заявки</Text>
+            </header>
+            <Table
+                className={css.MainPage__table}
+                columns={requestTableData}
+                data={resolvedRequests}
+                onRowClick={() => {}}
+            />
+        </div>
+    );
 };
