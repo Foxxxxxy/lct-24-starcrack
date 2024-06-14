@@ -18,9 +18,12 @@ class ShiftDTO(pydantic.BaseModel):
 
 class PassengerDTO(pydantic.BaseModel):
     id: Optional[int]
+    sex: SexType
     passenger_category: PassengerCategory
     name: str
     phone: str
+    comment: Optional[str]
+    pacemaker: bool
 
     class Config:
         use_enum_values = True
@@ -29,6 +32,7 @@ class PassengerDTO(pydantic.BaseModel):
 class RequisitionDTO(pydantic.BaseModel):
     id: Optional[int] = None
     passenger_id: int
+    passengers_amount: int
     start_time: datetime
     meet_time: Union[datetime, None]
     finish_time: Optional[datetime] = None
@@ -37,7 +41,12 @@ class RequisitionDTO(pydantic.BaseModel):
     males_needed: int
     females_needed: int
     start_station: Union[str, int]
+    start_station_comment: Optional[str]
     end_station: Union[str, int]
+    end_station_comment: Optional[str]
+    method: MethodType
+    baggage: Optional[str]
+    comment: Optional[str]
 
     class Config:
         use_enum_values = True
@@ -49,6 +58,8 @@ class EmployeeDTO(pydantic.BaseModel):
     sex: SexType
     role: RoleType
     sub_role: Union[SubRoleType, None] = None
+    phone: str
+    easy_work: bool
 
     class Config:
         use_enum_values = True

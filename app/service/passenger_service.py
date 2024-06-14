@@ -40,7 +40,7 @@ def get_passengers_filtered(
 def update_passenger(
     passenger: PassengerUpdateDTO, base_session: Session
 ):
-    db_passenger = get_passenger_by_name(passenger.name, base_session)
+    db_passenger = get_passenger_by_id_crud(passenger.id, base_session)
     db_passenger = update_bd_objects(db_passenger, passenger.dict(exclude_unset=True))
     base_session.commit()
     return db_passenger

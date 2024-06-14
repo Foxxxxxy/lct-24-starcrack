@@ -5,11 +5,14 @@ import pydantic
 
 from db.models.passengers import PassengerCategory
 from db.models.requisitions import Status
+from model.enum.enums import SexType
 
 
 class PassengerFilterDTO(pydantic.BaseModel):
     passenger_category: Optional[PassengerCategory] = None
     name: Optional[str] = None
+    sex: Optional[SexType] = None
+    pacemaker: Optional[bool] = None
 
 
 class RequisitionFilterDTO(pydantic.BaseModel):

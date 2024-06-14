@@ -25,8 +25,8 @@ class RoleType(enum.Enum):
 
 
 class SubRoleType(enum.Enum):
-    Head_of_the_section = 'Head of the section'
-    Senior_inspector = 'Senior inspector'
+    Head_of_the_section = 'Head_of_the_section'
+    Senior_inspector = 'Senior_inspector'
     Inspector = 'Inspector'
 
 
@@ -67,3 +67,8 @@ class Weekday(enum.Enum):
     Friday = 'Friday'
     Saturday = 'Saturday'
     Sunday = 'Sunday'
+
+
+class MethodType(enum.Enum):
+    Telephone = 'Telephone'
+    WebServices = 'WebServices'

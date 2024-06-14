@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import Column, Integer, String, Enum, Text, Boolean
 from db.base import Base
-from model.enum.enums import PassengerCategory
+from model.enum.enums import PassengerCategory, SexType
 
 
 class Passenger(Base):
@@ -10,5 +10,8 @@ class Passenger(Base):
     passenger_category = Column(
         Enum(PassengerCategory),
         nullable=False)
+    sex = Column(Enum(SexType), nullable=False)
     name = Column(String(255), nullable=False)
     phone = Column(String(255), nullable=False)
+    comment = Column(Text, nullable=True)
+    pacemaker = Column(Boolean, nullable=False)

@@ -1,14 +1,17 @@
 from typing import Optional
 
 from pydantic import BaseModel
-from model.enum.enums import RoleType, SexType
+from model.enum.enums import RoleType, SexType, SubRoleType
 
 
 class SignUpSchema(BaseModel):
     password: str
     role: RoleType
+    sub_role: Optional[SubRoleType] = None
     sex: SexType
     full_name: str
+    phone: str
+    easy_work: bool
 
 
 class UserOutputSchema(BaseModel):

@@ -7,7 +7,7 @@ import os
 import random
 import string
 
-from model.enum.enums import PassengerCategory, RoleType, SubRoleType
+from model.enum.enums import PassengerCategory, RoleType, SubRoleType, MethodType
 from model.enum.enums import Status as RequisitionStatus
 from model.enum.enums import SexType
 
@@ -21,14 +21,15 @@ def generate_phone():
 
 def generate_test_passengers():
     amount = 100
-    sql = "INSERT INTO passenger(name, passenger_category, phone)  VALUES" + "\n"
+    sql = "INSERT INTO passenger(name, passenger_category, phone, sex, comment, pacemaker)  VALUES" + "\n"
 
     for i in range(amount):
         passenger_category = random.choice(list(PassengerCategory)).value
         name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(10))
         phone = generate_phone()
+        sex = random.choice(list(SexType)).value
 
-        cortege = f"('{name}', '{passenger_category}'::passenger_category_type, '{phone}')"
+        cortege = f"('{name}', '{passenger_category}'::passenger_category_type, '{phone}', '{sex}'::sex_type, null, false)"
         if i < amount - 1:
             cortege += ",\n"
         else:
@@ -42,7 +43,7 @@ def generate_test_passengers():
 
 def generate_test_employees():
     amount = 100
-    sql = "INSERT INTO employees(full_name, sex, role, sub_role, password) VALUES" + "\n"
+    sql = "INSERT INTO employees(full_name, sex, role, sub_role, password, phone, easy_work) VALUES" + "\n"
 
     for i in range(amount):
         full_name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(10))
@@ -52,14 +53,15 @@ def generate_test_employees():
             sub_role = random.choice(list(SubRoleType)).value
         else:
             sub_role = None
+        phone = generate_phone()
 
         password = '$2b$12$sOrS1IVO5v9dYx963/OE2e/F7cJFkWiZ/PW3HOOpuj7YE.C7OZ7Bm'
 
         cortege = f"('{full_name}', '{sex}'::sex_type, '{role}'::role_type, "
         if sub_role is None:
-            cortege += f"null, '{password}')"
+            cortege += f"null, '{password}', '{phone}', false)"
         else:
-            cortege += f"'{sub_role}'::sub_role_type, '{password}')"
+            cortege += f"'{sub_role}'::sub_role_type, '{password}', '{phone}', false)"
 
         if i < amount - 1:
             cortege += ",\n"
@@ -93,7 +95,7 @@ def generate_metro_stations():
 
 def generate_test_requisitions():
     amount = 30
-    sql = "INSERT INTO requisitions(passenger_id, start_time, meet_time, finish_time, status, creation_time, males_needed, females_needed, start_station, end_station) VALUES" + "\n"
+    sql = "INSERT INTO requisitions(passenger_id, passengers_amount, start_time, meet_time, finish_time, status, creation_time, males_needed, females_needed, start_station, start_station_comment, end_station, end_station_comment, method, baggage, comment) VALUES" + "\n"
 
     for i in range(amount):
         passenger_id = random.randint(1, 100)
@@ -118,7 +120,9 @@ def generate_test_requisitions():
         start_station = random.randint(1, 196)
         end_station = random.randint(1, 196)
 
-        cortege = f"('{passenger_id}', '{start_time}'::timestamp, null, '{finish_time}'::timestamp, '{status}'::status_type, '{creation_time}'::timestamp, {males_needed}, {females_needed}, {start_station}, {end_station})"
+        method = random.choice(list(MethodType)).value
+
+        cortege = f"('{passenger_id}', 1, '{start_time}'::timestamp, null, '{finish_time}'::timestamp, '{status}'::status_type, '{creation_time}'::timestamp, {males_needed}, {females_needed}, {start_station}, null, {end_station}, null, '{method}'::method_type, null, null)"
         if i < amount - 1:
             cortege += ",\n"
         else:
@@ -133,10 +137,10 @@ def generate_test_requisitions():
 def generate_test_users():
     password = '$2b$12$sOrS1IVO5v9dYx963/OE2e/F7cJFkWiZ/PW3HOOpuj7YE.C7OZ7Bm'
     sql = f"""
-        INSERT INTO employees (full_name, sex, role, sub_role, password) VALUES ('user_admin', 'Male'::sex_type ,'Admin'::role_type, null, '{password}');
-        INSERT INTO employees (full_name, sex, role, sub_role, password) VALUES ('user_specialist', 'Male'::sex_type ,'Specialist'::role_type, null, '{password}');
-        INSERT INTO employees (full_name, sex, role, sub_role, password) VALUES ('user_operator', 'Male'::sex_type ,'Operator'::role_type, null, '{password}');
-        INSERT INTO employees (full_name, sex, role, sub_role, password) VALUES ('user_attendant', 'Male'::sex_type ,'Attendant'::role_type, 'Inspector'::sub_role_type, '{password}');
+        INSERT INTO employees (full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_admin', 'Male'::sex_type ,'Admin'::role_type, null, '{password}', '+79999999999', false);
+        INSERT INTO employees (full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_specialist', 'Male'::sex_type ,'Specialist'::role_type, null, '{password}', '+79999999999', false);
+        INSERT INTO employees (full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_operator', 'Male'::sex_type ,'Operator'::role_type, null, '{password}', '+79999999999', false);
+        INSERT INTO employees (full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_attendant', 'Male'::sex_type ,'Attendant'::role_type, 'Inspector'::sub_role_type, '{password}', '+79999999999', false);
     """
 
     with open(f"{os.path.dirname(os.path.realpath(__file__))}/test_data/test_users.sql", "w+") as f:

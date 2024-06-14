@@ -49,7 +49,6 @@ def __apply_filters(query, filter: PassengerFilterDTO):
         if value is None:
             continue
         if type(value) is str:
-            print("here")
             query = query.filter(getattr(Passenger, field).ilike(f"%{value}%"))
         else:
             query = query.filter(getattr(Passenger, field) == value)

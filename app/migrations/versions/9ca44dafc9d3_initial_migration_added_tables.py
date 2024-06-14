@@ -33,13 +33,18 @@ def upgrade() -> None:
     
     CREATE TYPE role_type AS ENUM ('Admin', 'Attendant', 'Operator', 'Specialist'); 
     
-    CREATE TYPE sub_role_type AS ENUM ('Head of the section', 'Senior inspector', 'Inspector');
+    CREATE TYPE sub_role_type AS ENUM ('Head_of_the_section', 'Senior_inspector', 'Inspector');
+    
+    CREATE TYPE method_type AS ENUM ('Telephone', 'WebServices');
     
     CREATE TABLE IF NOT EXISTS passenger(
         id BIGSERIAL PRIMARY KEY,
+        sex sex_type NOT NULL,
         passenger_category passenger_category_type NOT NULL,
         name VARCHAR(255) NOT NULL,
-        phone VARCHAR(255) NOT NULL
+        phone VARCHAR(255) NOT NULL,
+        comment TEXT,
+        pacemaker BOOLEAN NOT NULL
     );
     
 
@@ -49,12 +54,15 @@ def upgrade() -> None:
         sex sex_type NOT NULL,
         role role_type NOT NULL,
         sub_role sub_role_type NULL,
-        password VARCHAR(255) NOT NULL
+        phone TEXT NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        easy_work BOOLEAN NOT NULL
     );
     
     CREATE TABLE IF NOT EXISTS requisitions(
         id BIGSERIAL PRIMARY KEY,
-        passenger_id BIGINT,
+        passenger_id BIGINT NOT NULL,
+        passengers_amount BIGINT NOT NULL,
         start_time TIMESTAMP WITHOUT TIME ZONE NOT NULL,
         meet_time TIMESTAMP WITHOUT TIME ZONE,
         finish_time TIMESTAMP WITHOUT TIME ZONE,
@@ -63,7 +71,12 @@ def upgrade() -> None:
         males_needed INTEGER NOT NULL,
         females_needed INTEGER NOT NULL,
         start_station BIGINT NOT NULL,
+        start_station_comment TEXT,
         end_station BIGINT NOT NULL,
+        end_station_comment TEXT,
+        method method_type NOT NULL,
+        baggage TEXT,
+        comment TEXT,
         FOREIGN KEY (passenger_id) REFERENCES passenger(id),
         FOREIGN KEY (start_station) REFERENCES metro_stations(id),
         FOREIGN KEY (end_station) REFERENCES metro_stations(id)
@@ -126,4 +139,7 @@ def downgrade() -> None:
     """)
     op.execute("""
     DROP TYPE IF EXISTS sub_role_type;
+    """)
+    op.execute("""
+        DROP TYPE IF EXISTS method_type;
     """)
