@@ -6,6 +6,7 @@ import {WorkTimePage} from 'src/pages/WorkTimePage';
 import {PassengerPage} from 'src/pages/PassengerPage';
 import {RequestInfoPage} from 'src/pages/RequestInfoPage';
 import {RequestPage} from 'src/pages/RequestPage';
+import {WorkTimePage} from 'src/pages/WorkTimePage';
 
 export type CustomRoute = {
     name: string;
