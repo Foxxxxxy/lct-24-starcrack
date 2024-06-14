@@ -128,6 +128,7 @@ export const PassengerPage: FC = () => {
                             config={dynamicConfig}
                         />
                         <Button onClick={() => handleFormSubmit(props)}>Создать сотрудника</Button>
+                        <Button onClick={() => handleFormSubmit(props)}>Создать заявку</Button>
                     </div>
                 )}
             ></Form>

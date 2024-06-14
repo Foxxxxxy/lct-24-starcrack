@@ -1,0 +1,13 @@
+.MainPage {
+    padding: 0 var(--g-spacing-6);
+}
+
+.MainPage__header {
+    padding: var(--g-spacing-6) var(--g-spacing-6) var(--g-spacing-3) 0;
+}
+
+.MainPage__table {
+    :global .g-table__table {
+        width: 100%;
+    }
+}

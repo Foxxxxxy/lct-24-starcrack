@@ -1,7 +1,9 @@
-import {ListUl, PencilToLine, Person, PersonGear, ScalesUnbalanced} from '@gravity-ui/icons';
+import {ListUl, PencilToLine, Person, PersonGear, Plus, ScalesUnbalanced} from '@gravity-ui/icons';
 import {MenuItem} from '@gravity-ui/navigation';
+import {router} from 'src/main';
+import {useLocation} from './useLocation';
 
-const menuItems: MenuItem[] = [
+const defaultMenuItems: MenuItem[] = [
     {
         id: 'overview',
         title: 'Все заявки',
@@ -27,8 +29,33 @@ const menuItems: MenuItem[] = [
         title: 'Сотрудники',
         icon: PersonGear,
     },
+    {
+        id: 'divider2',
+        title: '-',
+        type: 'divider',
+    },
 ];
 
-export const useMenuItems = (): typeof menuItems => {
-    return menuItems;
+const filterAside = (items: MenuItem[]): MenuItem[] => {
+    const {name} = useLocation();
+    if (name === 'main') {
+        return [
+            ...items,
+            {
+                id: 'action2',
+                title: 'Создать заявку',
+                type: 'action',
+                icon: Plus,
+                onItemClick() {
+                    router.navigate('/requests/create');
+                },
+            },
+        ];
+    }
+
+    return items;
+};
+
+export const useMenuItems = (): typeof defaultMenuItems => {
+    return filterAside(defaultMenuItems);
 };
