@@ -1,8 +1,9 @@
+import {DatePicker, RangeCalendar} from '@gravity-ui/date-components';
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Button, Text} from '@gravity-ui/uikit';
 import {FC} from 'react';
-import {Form} from 'react-final-form';
-import {passengerCategories} from 'src/constants';
+import {Field as BaseField, Form} from 'react-final-form';
+import {Field} from 'src/components/Field/Field';
 import css from './WorkTimePage.module.scss';
 
 export const WorkTimePage: FC = () => {
@@ -16,107 +17,58 @@ export const WorkTimePage: FC = () => {
                 validate={() => {}}
                 render={(props) => (
                     <div className={css.WorkTimePage__form}>
+                        <Field label="Дата заявки">
+                            <BaseField name="date">{(fieldProps) => <DatePicker />}</BaseField>
+                        </Field>
                         <DynamicField
-                            name={'passengerName'}
-                            spec={{
-                                type: SpecTypes.Object,
-                                properties: {
-                                    value: {
-                                        type: SpecTypes.String,
-                                        viewSpec: {
-                                            type: 'base',
-                                            placeholder: 'Введите ФИО пассажира',
-                                        },
-                                    },
-                                },
-                                viewSpec: {
-                                    type: 'object_value',
-                                    layout: 'row',
-                                    layoutTitle: 'Введите ФИО пассажира',
-                                },
-                                validator: 'number',
-                            }}
-                            config={dynamicConfig}
-                        />
-                        <DynamicField
-                            name={'phone'}
-                            spec={{
-                                type: SpecTypes.Object,
-                                properties: {
-                                    value: {
-                                        type: SpecTypes.String,
-                                        viewSpec: {
-                                            type: 'base',
-                                            placeholder: 'Введите номер телефона',
-                                        },
-                                    },
-                                },
-                                viewSpec: {
-                                    type: 'object_value',
-                                    layout: 'row',
-                                    layoutTitle: 'Введите номер телефона',
-                                },
-                                validator: 'number',
-                            }}
-                            config={dynamicConfig}
-                        />
-                        <DynamicField
-                            name={'sex'}
+                            name={'work_hours'}
                             spec={{
                                 type: SpecTypes.String,
-                                enum: ['М', 'Ж'],
+                                enum: ['07:00-19:00', '08:00-20:00', '20:00-08:00', '08:00-17:00'],
                                 viewSpec: {
                                     type: 'select',
                                     layout: 'row',
-                                    layoutTitle: 'Пол',
-                                    placeholder: 'Выберите пол',
+                                    layoutTitle: 'Время работы',
+                                    placeholder: 'Выберите время работы сотрудника',
                                 },
                             }}
                             config={dynamicConfig}
                         />
+
+                        <Field label="Выходные">
+                            <BaseField name="date">{(fieldProps) => <RangeCalendar />}</BaseField>
+                        </Field>
+
+                        <Field label="Отпуск">
+                            <BaseField name="date">{(fieldProps) => <RangeCalendar />}</BaseField>
+                        </Field>
+
+                        <Field label="Больничный">
+                            <BaseField name="date">{(fieldProps) => <RangeCalendar />}</BaseField>
+                        </Field>
+
+                        <Field label="Дополнительная смена">
+                            <BaseField name="date">{(fieldProps) => <RangeCalendar />}</BaseField>
+                        </Field>
+
+                        <Field label="Учеба с отрывом от производства">
+                            <BaseField name="date">{(fieldProps) => <RangeCalendar />}</BaseField>
+                        </Field>
+
                         <DynamicField
-                            name={'category'}
+                            name={'is_easy'}
                             spec={{
-                                type: SpecTypes.String,
-                                enum: passengerCategories,
+                                type: SpecTypes.Boolean,
                                 viewSpec: {
-                                    type: 'select',
+                                    type: 'switch',
                                     layout: 'row',
-                                    layoutTitle: 'Категория пассажира',
-                                    placeholder: 'Нажмите, чтобы выбрать категорию',
+                                    layoutTitle: 'Стажировка',
                                 },
                             }}
                             config={dynamicConfig}
                         />
-                        <DynamicField
-                            name={'eks'}
-                            spec={{
-                                type: SpecTypes.String,
-                                enum: ['Есть', 'Нет'],
-                                viewSpec: {
-                                    type: 'select',
-                                    layout: 'row',
-                                    layoutTitle: 'ЭКС',
-                                    placeholder: 'Нажмите, чтобы выбрать наличие ЭКС',
-                                },
-                            }}
-                            config={dynamicConfig}
-                        />
-                        <DynamicField
-                            name={'info'}
-                            spec={{
-                                type: SpecTypes.String,
-                                viewSpec: {
-                                    type: 'textarea',
-                                    layout: 'row',
-                                    layoutTitle: 'Дополнительная информация',
-                                    placeholder:
-                                        'Напишите здесь всю необходимую информацию о пассажире',
-                                },
-                            }}
-                            config={dynamicConfig}
-                        />
-                        <Button onClick={() => handleFormSubmit(props)}>Создать сотрудника</Button>
+
+                        <Button onClick={() => {}}>Создать рабочий день</Button>
                     </div>
                 )}
             ></Form>
