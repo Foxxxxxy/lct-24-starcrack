@@ -30,7 +30,7 @@ def get_employees_by_id(
 def suggest_by_name(
     name: str, base_session: Session
 ):
-    employees_list = base_session.query(employees.Employee).filter(employees.Employee.full_name.ilike(name + '%')).all()
+    employees_list = base_session.query(employees.Employee).filter(employees.Employee.username.ilike(name + '%')).all()
     return employees_list
 
 
