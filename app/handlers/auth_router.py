@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import fastapi
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -22,6 +23,9 @@ async def get_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
 async def sign_up(form: SignUpSchema,
                   db: Session = Depends(get_db)
 ):
+    if form.role in [RoleType.Attendant, RoleType.Operator]:
+        raise fastapi.exceptions.HTTPException(status_code=400)
+
     result = auth_service.sign_up(form, db)
     return result
 

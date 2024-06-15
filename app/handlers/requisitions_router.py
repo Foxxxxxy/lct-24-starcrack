@@ -1,9 +1,11 @@
+import datetime
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.base import get_db
 from model.dto.auth_models import UserOutputSchema
+from model.enum.enums import Status
 from service import requisitions_service, auth_service
 from model.dto.filters import RequisitionFilterDTO
 from model.dto.entity import RequisitionDTO
@@ -17,6 +19,14 @@ async def get_requisitions_list(
 ) -> List[RequisitionDTO]:
     requisitions = requisitions_service.get_requisitions(limit, offset, base_session)
     return requisitions
+
+
+@requisitions_router.get("/scheduled")
+async def get_scheduled_for_date(
+    date: datetime.date, user: Annotated[UserOutputSchema, Depends(auth_service.auth_admin_spec_op)],
+        base_session: Session = Depends(get_db)
+) -> List[RequisitionDTO]:
+    return requisitions_service.get_scheduled_by_date(date, base_session)
 
 
 @requisitions_router.get("/id")
@@ -34,6 +44,14 @@ async def get_requisitions_filtered(
         limit: int, offset: int, base_session: Session = Depends(get_db)
 ) -> List[RequisitionDTO]:
     return requisitions_service.get_requisitions_filtered(filter, limit, offset, base_session)
+
+
+@requisitions_router.put("/update-status")
+async def update_requisition_status(
+    id: int, new_status: Status, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
+        base_session: Session = Depends(get_db)
+):
+    return requisitions_service.update_status_by_id(id, new_status, base_session)
 
 
 # дописать

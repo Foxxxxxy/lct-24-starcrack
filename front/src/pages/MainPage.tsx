@@ -3,6 +3,8 @@ import {FC} from 'react';
 import {requests} from 'src/mocks/requests';
 import {RequestItemResolved, useResolvedRequests} from 'src/resolvers/useResolvedRequests';
 
+import axios from 'axios';
+import {useFetchMetroStations} from 'src/api/queries';
 import css from './MainPage.module.scss';
 
 const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
@@ -38,10 +40,19 @@ const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
     },
 ];
 
+const client = axios.create({
+    baseURL: 'http://localhost:8000',
+});
+
 export const MainPage: FC = () => {
     const resolvedRequests = useResolvedRequests(requests);
 
+    const metro = useFetchMetroStations('Алтуфьево');
+
     const Table = withTableCopy(GravityTable);
+
+    // const token = useStore(store, (state) => state['access_token']);
+    // console.log(metro); // IT WORKS
 
     return (
         <div className={css.MainPage}>
