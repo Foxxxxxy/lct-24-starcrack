@@ -23,7 +23,7 @@
     "url": "https://github.com/gravity-ui/gravity-ui-vite-example/issues"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint:js": "eslint --ext .js,.jsx,.ts,.tsx .",

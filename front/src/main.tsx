@@ -5,6 +5,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {useCreateRoutesWithLayouts} from './hooks/useCreateRoutesWithLayouts';
 import {useRoutes} from './hooks/useRoutes';
 import {Layout} from './Layouts/Layout';
+import {ToasterComponent, ToasterProvider} from '@gravity-ui/uikit';
 
 import '@gravity-ui/uikit/styles/fonts.css';
 import '@gravity-ui/uikit/styles/styles.css';
@@ -19,7 +20,10 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
     <QueryClientProvider client={queryClient}>
         <Layout>
-            <RouterProvider router={router}></RouterProvider>
+            <ToasterProvider>
+                <ToasterComponent />
+                <RouterProvider router={router}></RouterProvider>
+            </ToasterProvider>
         </Layout>
     </QueryClientProvider>,
 );

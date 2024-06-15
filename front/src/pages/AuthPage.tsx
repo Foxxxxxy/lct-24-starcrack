@@ -1,37 +1,53 @@
-import {Button, Card, TextInput, Text} from '@gravity-ui/uikit';
+import {Button, Card, TextInput, Text, useToaster} from '@gravity-ui/uikit';
 import {FC} from 'react';
 import {Field} from 'src/components/Field/Field';
 import {Field as BaseField, Form} from 'react-final-form'
+import {useLocation, useNavigate} from 'react-router-dom';
 import { useCallback } from 'react';
 import css from './AuthPage.module.scss';
 
 import {useMutation} from '@tanstack/react-query';
-import {useEffect} from 'react';
 import {fetchGetToken} from 'src/api/mutations';
-import {updateTokens} from 'src/hooks/useAuth';interface FormValues {
-    fullName: string;
+import {updateTokens} from 'src/hooks/useAuth';
+
+interface FormValues {
+    username: string;
     password: string;
 }
 
 const required = (value: any) => (value ? undefined : 'обязательное поле');
 
 export const AuthPage: FC = () => {
+    const navigate = useNavigate();
+    const {add} = useToaster();
+
     const mutationGetToken = useMutation({
         mutationFn: fetchGetToken,
         onSuccess: (data) => {
             updateTokens(data);
+            add({
+                name: 'auth-success',
+                title: 'Авторизация прошла успешно',
+                theme: 'success'
+            
+            })
+            navigate('/');
         },
+        onError: (error) => {
+            console.error(error);
+            add({
+                name: 'auth-error',
+                title: 'Ошибка авторизации',
+                theme: 'danger'
+            });
+        }
     });
 
-    useEffect(() => {
-        mutationGetToken.mutate({
-            username: 'user_admin',
-            password: '12345678',
-        });
-    }, []);
-
     const handleRegister = useCallback((values: FormValues) => {
-        console.log(values); // {username: 'username', password: 'password'}
+        mutationGetToken.mutate({
+            username: values.username,
+            password: values.password,
+        });
     }, []);
 
     return (
@@ -48,11 +64,12 @@ export const AuthPage: FC = () => {
                                         {({input, meta}) => (
                                             <div className={css.AuthPage__field}>
                                                 <TextInput 
+                                                    className={css.AuthPage__input}
                                                     {...input}
                                                     placeholder="Имя пользователя"
                                                     type="text"
                                                     autoComplete="username"
-                                                    errorMessage={meta.touched && meta.error ? meta.error : ''}
+                                                    errorMessage={meta.error}
                                                     validationState={meta.touched && meta.error ? 'invalid' : undefined}
                                                     hasClear
                                                 />
@@ -65,6 +82,7 @@ export const AuthPage: FC = () => {
                                         {({input, meta}) => (
                                             <div className={css.AuthPage__field}>
                                                 <TextInput 
+                                                    className={css.AuthPage__input}
                                                     {...input}
                                                     placeholder="Пароль"
                                                     type="password"

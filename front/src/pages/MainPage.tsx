@@ -41,7 +41,7 @@ const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
 ];
 
 const client = axios.create({
-    baseURL: 'http://localhost:8000',
+    baseURL: 'https://starcrack.ru/',
 });
 
 export const MainPage: FC = () => {
