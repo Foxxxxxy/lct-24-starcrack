@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 
 import {PageLayout} from '@gravity-ui/navigation';
 
@@ -7,10 +7,7 @@ type LayoutProps = {
 };
 
 export const LayoutEmpty: React.FC<LayoutProps> = ({children}) => {
-    const [isCompact] = useState(false);
     return (
-        <PageLayout compact={isCompact}>
-            <PageLayout.Content>{children}</PageLayout.Content>
-        </PageLayout>
+        <PageLayout.Content>{children}</PageLayout.Content>
     );
 };
