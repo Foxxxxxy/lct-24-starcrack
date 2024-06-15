@@ -1,12 +1,14 @@
 import {FC} from 'react';
 import {LayoutMain} from 'src/Layouts/LayoutMain';
-import {AuthPage} from 'src/pages/AuthPage';
+import {LayoutEmpty} from 'src/Layouts/LayoutEmpty';
 import {EmoloyeePage} from 'src/pages/EmoloyeePage';
 import {MainPage} from 'src/pages/MainPage';
 import {PassengerPage} from 'src/pages/PassengerPage';
 import {RequestInfoPage} from 'src/pages/RequestInfoPage';
 import {RequestPage} from 'src/pages/RequestPage';
 import {WorkTimePage} from 'src/pages/WorkTimePage';
+import {AuthPage} from 'src/pages/AuthPage';
+import {MainPageMobile} from 'src/pages/MainPageMobile';
 
 export type CustomRoute = {
     name: string;
@@ -21,12 +23,6 @@ export const routes: CustomRoute[] = [
         path: '/',
         LayoutComponent: LayoutMain,
         PageComponent: MainPage,
-    },
-    {
-        name: 'auth',
-        path: '/auth',
-        LayoutComponent: LayoutMain,
-        PageComponent: AuthPage,
     },
     {
         name: 'requestCreate',
@@ -57,6 +53,18 @@ export const routes: CustomRoute[] = [
         path: '/work-time/create',
         LayoutComponent: LayoutMain,
         PageComponent: WorkTimePage,
+    },
+    {
+        name: 'auth',
+        path: '/auth',
+        LayoutComponent: LayoutEmpty,
+        PageComponent: AuthPage,
+    },
+    {
+        name: 'mainMobile',
+        path: '/mobile',
+        LayoutComponent: LayoutMain,
+        PageComponent: MainPageMobile,
     },
 ];
 
