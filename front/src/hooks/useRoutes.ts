@@ -1,5 +1,6 @@
 import {FC} from 'react';
 import {LayoutMain} from 'src/Layouts/LayoutMain';
+import {AuthPage} from 'src/pages/AuthPage';
 import {EmoloyeePage} from 'src/pages/EmoloyeePage';
 import {MainPage} from 'src/pages/MainPage';
 import {PassengerPage} from 'src/pages/PassengerPage';
@@ -22,6 +23,12 @@ export const routes: CustomRoute[] = [
         PageComponent: MainPage,
     },
     {
+        name: 'auth',
+        path: '/auth',
+        LayoutComponent: LayoutMain,
+        PageComponent: AuthPage,
+    },
+    {
         name: 'requestCreate',
         path: '/requests/create',
         LayoutComponent: LayoutMain,
@@ -38,18 +45,6 @@ export const routes: CustomRoute[] = [
         path: '/passenger',
         LayoutComponent: LayoutMain,
         PageComponent: PassengerPage,
-    },
-    {
-        name: 'employeeCreate',
-        path: '/employee/create',
-        LayoutComponent: LayoutMain,
-        PageComponent: EmoloyeePage,
-    },
-    {
-        name: 'workTimeCreate',
-        path: '/work-time/create',
-        LayoutComponent: LayoutMain,
-        PageComponent: WorkTimePage,
     },
     {
         name: 'employeeCreate',
