@@ -1,10 +1,12 @@
 from typing import Annotated, List
 
+import fastapi.exceptions
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.base import get_db
-from model.dto.auth_models import UserOutputSchema
+from model.dto.auth_models import UserOutputSchema, SignUpSchema
 from model.dto.update_entity import EmployeeUpdateDto
+from model.enum.enums import RoleType
 from service import employee_service, auth_service
 from model.dto.entity import EmployeeDTO
 
@@ -36,6 +38,16 @@ async def suggest_employee(
 ) -> List[EmployeeDTO]:
     suggested_employees = employee_service.suggest_employee_by_name(name, base_session)
     return suggested_employees
+
+
+@employee_router.post("/", response_model=UserOutputSchema)
+async def add_employee(form: SignUpSchema,
+                  db: Session = Depends(get_db)):
+    if form.role not in [RoleType.Attendant, RoleType.Operator]:
+        raise fastapi.exceptions.HTTPException(status_code=400)
+
+    result = auth_service.sign_up(form, db)
+    return result
 
 
 @employee_router.post("/update")

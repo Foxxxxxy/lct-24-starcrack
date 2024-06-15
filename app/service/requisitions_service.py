@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy.orm import Session
 from db.crud_requisitions import *
 from typing import List
@@ -26,6 +28,12 @@ def get_requisitions(
     for requisition in requisitions_l:
         update_requisition_station_to_response(requisition, base_session)
     return requisitions_l
+
+
+def get_scheduled_by_date(
+    date: datetime.date, base_session: Session
+):
+    return get_scheduled(date, base_session)
 
 
 

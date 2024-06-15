@@ -10,6 +10,7 @@ class SignUpSchema(BaseModel):
     sub_role: Optional[SubRoleType] = None
     sex: SexType
     full_name: str
+    username: str
     phone: str
     easy_work: bool
 
@@ -18,6 +19,7 @@ class UserOutputSchema(BaseModel):
     id: int
     role: RoleType
     full_name: str
+    username: str
 
     class Config:
         orm_mode = True

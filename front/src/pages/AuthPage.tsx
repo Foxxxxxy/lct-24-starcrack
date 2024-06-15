@@ -5,7 +5,10 @@ import {Field as BaseField, Form} from 'react-final-form'
 import { useCallback } from 'react';
 import css from './AuthPage.module.scss';
 
-interface FormValues {
+import {useMutation} from '@tanstack/react-query';
+import {useEffect} from 'react';
+import {fetchGetToken} from 'src/api/mutations';
+import {updateTokens} from 'src/hooks/useAuth';interface FormValues {
     fullName: string;
     password: string;
 }
@@ -13,6 +16,20 @@ interface FormValues {
 const required = (value: any) => (value ? undefined : 'обязательное поле');
 
 export const AuthPage: FC = () => {
+    const mutationGetToken = useMutation({
+        mutationFn: fetchGetToken,
+        onSuccess: (data) => {
+            updateTokens(data);
+        },
+    });
+
+    useEffect(() => {
+        mutationGetToken.mutate({
+            username: 'user_admin',
+            password: '12345678',
+        });
+    }, []);
+
     const handleRegister = useCallback((values: FormValues) => {
         console.log(values); // {username: 'username', password: 'password'}
     }, []);

@@ -3,7 +3,6 @@ import {LayoutMain} from 'src/Layouts/LayoutMain';
 import {LayoutEmpty} from 'src/Layouts/LayoutEmpty';
 import {EmoloyeePage} from 'src/pages/EmoloyeePage';
 import {MainPage} from 'src/pages/MainPage';
-import {WorkTimePage} from 'src/pages/WorkTimePage';
 import {PassengerPage} from 'src/pages/PassengerPage';
 import {RequestInfoPage} from 'src/pages/RequestInfoPage';
 import {RequestPage} from 'src/pages/RequestPage';
@@ -23,6 +22,12 @@ export const routes: CustomRoute[] = [
         path: '/',
         LayoutComponent: LayoutMain,
         PageComponent: MainPage,
+    },
+    {
+        name: 'auth',
+        path: '/auth',
+        LayoutComponent: LayoutMain,
+        PageComponent: AuthPage,
     },
     {
         name: 'requestCreate',

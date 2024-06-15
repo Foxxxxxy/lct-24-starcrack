@@ -24,6 +24,7 @@ export const createRoute = (props: CreateRouteProps): RouteObject => {
     return {
         path,
         element,
+        // loader: checkAuthentication,
     };
 };
 

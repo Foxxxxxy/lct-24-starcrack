@@ -1,3 +1,6 @@
+import datetime
+
+import fastapi.exceptions
 from sqlalchemy.orm import Session
 from db.models import requisitions
 from model.dto.filters import RequisitionFilterDTO
@@ -9,6 +12,16 @@ def get_everything(
         limit: int, offset: int, base_session: Session
 ):
     requisitions_list = base_session.query(requisitions.Requisitions).limit(limit).offset(offset).all()
+    return requisitions_list
+
+
+def get_scheduled(
+    date: datetime.date, base_session: Session
+):
+    requisitions_list = base_session.query(requisitions.Requisitions).filter(
+        requisitions.Requisitions.status == Status.SCHEDULED and
+        date <= requisitions.Requisitions.start_time <= date + datetime.timedelta(days=1)
+    ).all()
     return requisitions_list
 
 
@@ -64,3 +77,14 @@ def __apply_filters(query, filter: RequisitionFilterDTO):
         else:
             query = query.filter(getattr(requisitions.Requisitions, field) == value)
     return query
+
+
+def update_status_by_id(
+    id: int, status: Status, base_session: Session
+):
+    requisition = get_requisition_by_id(id, base_session)
+    if requisition is None:
+        raise fastapi.exceptions.HTTPException(status_code=404)
+
+    requisition.status = status
+    base_session.commit()

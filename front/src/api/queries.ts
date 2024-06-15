@@ -1,6 +1,6 @@
-import axios from 'axios';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
 import {PassengersCategories} from 'src/types';
-
 type FetchPassengersResult = {
     id: number;
     passenger_category: PassengersCategories;
@@ -13,11 +13,26 @@ type MetroStation = {
     name: string;
 };
 
-const client = axios.create({
-    baseURL: 'https://httpbin.org',
-});
+import {useQuery} from '@tanstack/react-query';
+import {useEffect, useState} from 'react';
+import {client} from './api';
 
-export const fetchPassenger = (name: string): Promise<FetchPassengersResult[]> => {
+export const useApiGet = (key, fn, options) =>
+    useQuery({
+        queryKey: key,
+        queryFn: fn,
+        ...options,
+    });
+
+export const fetchPassenger = async ({name}: {name: string}): Promise<FetchPassengersResult[]> => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const res = await client.get<FetchPassengersResult[]>(`/passenger/suggestions/?name=${name}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return res.data;
     return Promise.resolve([]);
     return Promise.resolve([
         {
@@ -57,39 +72,25 @@ export const fetchPassenger = (name: string): Promise<FetchPassengersResult[]> =
             phone: '+79027035052',
         },
     ]);
-    return client
-        .get<FetchPassengersResult[]>(`/passenger/suggestions/?name=${name}`)
-        .then((res) => res.data);
 };
 
-type FetchMetroStationsResult = Promise<MetroStation[]>;
+type FetchMetroStationsResult = MetroStation[];
 
-export const fetchMetroStations = (name: string): FetchMetroStationsResult => {
-    return Promise.resolve([
-        {
-            id: 233,
-            name: 'Алтуфьево',
-        },
-        {
-            id: 232,
-            name: 'Бибирево',
-        },
-        {
-            id: 231,
-            name: 'Алтуфьево',
-        },
-        {
-            id: 230,
-            name: 'Алтуфьево',
-        },
-        {
-            id: 235,
-            name: 'Алтуфьево',
-        },
-    ]);
-    return client
-        .get<FetchMetroStationsResult>(`/metro_stations/suggestions/?name=${name}`)
-        .then((res) => res.data);
+export const useFetchMetroStations = (name: string): MetroStation[] | undefined => {
+    const [metro, setMetro] = useState<MetroStation[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+    useEffect(() => {
+        client
+            .get<MetroStation[]>(`/metro_stations/suggestions/?name=${name}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((data) => setMetro(data));
+    }, []);
+
+    return metro;
 };
 
 export type Passenger = {

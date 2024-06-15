@@ -38,6 +38,10 @@ module.exports = {
         project: ['./tsconfig.json'],
     },
     rules: {
+        camelcase: 'off',
+        '@typescript-eslint/camelcase': 'off',
+        'react-hooks/rules-of-hooks': 'off', // Checks rules of hooks
+        'react-hooks/exhaustive-deps': 'warn', // Checks effect dependencies
         'no-unused-vars': 'off', // or "@typescript-eslint/no-unused-vars": "off",
         'unused-imports/no-unused-imports': 'error',
         'unused-imports/no-unused-vars': [
@@ -59,7 +63,7 @@ module.exports = {
                     ['^\\u0000'],
                     // Nodejs builtins. Modules with "node:" prefix come first
                     // eslint-disable-next-line global-require
-                    ['^node:', `^(${require('module').builtinModules.join('|')})(/|$)`],
+                    // ['^node:', `^(${require('module').builtinModules.join('|')})(/|$)`],
                     // Packages. "react" related packages come first, "@gwc" and "@yandex" related packages come last
                     ['^react', '^@?\\w', '^@gwc', '^@yandex'],
                     // Absolute project imports

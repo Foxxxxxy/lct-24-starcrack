@@ -43,10 +43,11 @@ def generate_test_passengers():
 
 def generate_test_employees():
     amount = 100
-    sql = "INSERT INTO employees(full_name, sex, role, sub_role, password, phone, easy_work) VALUES" + "\n"
+    sql = "INSERT INTO employees(username, full_name, sex, role, sub_role, password, phone, easy_work) VALUES" + "\n"
 
     for i in range(amount):
         full_name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(10))
+        username = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(10))
         sex = random.choice(list(SexType)).value
         role = random.choice(list(RoleType)).value
         if role == RoleType.Attendant:
@@ -57,7 +58,7 @@ def generate_test_employees():
 
         password = '$2b$12$sOrS1IVO5v9dYx963/OE2e/F7cJFkWiZ/PW3HOOpuj7YE.C7OZ7Bm'
 
-        cortege = f"('{full_name}', '{sex}'::sex_type, '{role}'::role_type, "
+        cortege = f"('{username}', '{full_name}', '{sex}'::sex_type, '{role}'::role_type, "
         if sub_role is None:
             cortege += f"null, '{password}', '{phone}', false)"
         else:
@@ -137,10 +138,10 @@ def generate_test_requisitions():
 def generate_test_users():
     password = '$2b$12$sOrS1IVO5v9dYx963/OE2e/F7cJFkWiZ/PW3HOOpuj7YE.C7OZ7Bm'
     sql = f"""
-        INSERT INTO employees (full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_admin', 'Male'::sex_type ,'Admin'::role_type, null, '{password}', '+79999999999', false);
-        INSERT INTO employees (full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_specialist', 'Male'::sex_type ,'Specialist'::role_type, null, '{password}', '+79999999999', false);
-        INSERT INTO employees (full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_operator', 'Male'::sex_type ,'Operator'::role_type, null, '{password}', '+79999999999', false);
-        INSERT INTO employees (full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_attendant', 'Male'::sex_type ,'Attendant'::role_type, 'Inspector'::sub_role_type, '{password}', '+79999999999', false);
+        INSERT INTO employees (username, full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_admin', 'full_name', 'Male'::sex_type ,'Admin'::role_type, null, '{password}', '+79999999999', false);
+        INSERT INTO employees (username, full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_specialist', 'full_name', 'Male'::sex_type ,'Specialist'::role_type, null, '{password}', '+79999999999', false);
+        INSERT INTO employees (username, full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_operator', 'full_name', 'Male'::sex_type ,'Operator'::role_type, null, '{password}', '+79999999999', false);
+        INSERT INTO employees (username, full_name, sex, role, sub_role, password, phone, easy_work) VALUES ('user_attendant', 'full_name', 'Male'::sex_type ,'Attendant'::role_type, 'Inspector'::sub_role_type, '{password}', '+79999999999', false);
     """
 
     with open(f"{os.path.dirname(os.path.realpath(__file__))}/test_data/test_users.sql", "w+") as f:

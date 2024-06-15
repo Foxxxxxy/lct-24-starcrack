@@ -51,6 +51,7 @@ def upgrade() -> None:
     CREATE TABLE IF NOT EXISTS employees(
         id BIGSERIAL PRIMARY KEY,
         full_name VARCHAR(255) NOT NULL,
+        username TEXT NOT NULL,
         sex sex_type NOT NULL,
         role role_type NOT NULL,
         sub_role sub_role_type NULL,

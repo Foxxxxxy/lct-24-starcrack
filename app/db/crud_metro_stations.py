@@ -19,3 +19,7 @@ def get_by_name(
         metro_stations.MetroStations.station_name == name
     ).first()
     return metro_station
+
+
+def get_all(base_session: Session):
+    return base_session.query(metro_stations.MetroStations).all()
