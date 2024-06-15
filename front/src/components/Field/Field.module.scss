@@ -5,13 +5,19 @@
     width: 500px;
     max-width: 500px;
     margin-bottom: 15px;
+    &__right {
+        min-width: 60%;
+    }
 }
 
 @media (max-width: 500px) {
     .Field {
         justify-content: center;
-    }
-    .Field__left {
-        display: none;
+        &__left {
+            display: none;
+        }
+        &__right {
+            min-width: 100%;
+        }
     }
 }
