@@ -60,7 +60,7 @@ export const Suggest: FC<SuggestProps> = (props) => {
                 value={value}
             />
             {isFocused ? (
-                <div className={`${css.SuggestSelect}`}>
+                <div className={css.SuggestSelect}>
                     {items && items.length ? (
                         items.map((item, idx) => {
                             return (

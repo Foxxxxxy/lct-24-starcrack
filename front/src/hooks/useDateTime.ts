@@ -1,15 +1,12 @@
-type ParsedDate = {
+// Define the structure for the returned parsed date object
+interface ParsedDate {
     date: string;
     time: string;
     formatted: string;
-};
+}
 
 export const useDateTime = (dateString: string): ParsedDate => {
-    const [datePart, timePart] = dateString.split(' ');
-
-    const combinedDateTime = `${datePart}T${timePart}`;
-
-    const date = new Date(combinedDateTime);
+    const date = new Date(dateString);
 
     const formattedDate = date.toLocaleDateString('ru-RU', {
         month: 'long',
