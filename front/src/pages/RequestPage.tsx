@@ -5,7 +5,7 @@ import {FC, useCallback, useMemo, useState} from 'react';
 import {Field as BaseField, Form} from 'react-final-form';
 
 import {useQuery} from '@tanstack/react-query';
-import {fetchMetroStations, fetchPassenger, fetchPassengerById} from 'src/api/queries';
+import {fetchPassenger, fetchPassengerById} from 'src/api/queries';
 import {Field} from 'src/components/Field/Field';
 import css from './RequestPage.module.scss';
 
@@ -25,10 +25,10 @@ export const RequestPage: FC = () => {
         queryFn: () => fetchPassenger(passengerName),
     });
 
-    const metroStationsQuery = useQuery({
-        queryKey: ['metroStationsData'],
-        queryFn: () => fetchMetroStations(stationStart),
-    });
+    // const metroStationsQuery = useQuery({
+    //     queryKey: ['metroStationsData'],
+    //     queryFn: () => fetchMetroStations(stationStart),
+    // });
 
     const passengerByIdQuery = useQuery({
         queryKey: ['passengerByIdData'],
@@ -57,7 +57,6 @@ export const RequestPage: FC = () => {
             ),
         };
     }, [passengerQuery.data]);
-    console.log(passengerQuerySpec);
 
     const handlePassengerAction = useCallback(() => {
         navigate('/passenger?back=true');
@@ -69,7 +68,6 @@ export const RequestPage: FC = () => {
 
     const handleFormSubmit = useCallback(
         (form) => {
-            console.log(form.form.getState(), 'SF');
             navigate('/requests/123');
         },
         [navigate],
