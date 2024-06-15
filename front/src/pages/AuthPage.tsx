@@ -10,7 +10,7 @@ import {useMutation} from '@tanstack/react-query';
 import {fetchGetToken} from 'src/api/mutations';
 import {updateTokens} from 'src/hooks/useAuth';
 
-interface FormValues {
+type FormValues = {
     username: string;
     password: string;
 }
