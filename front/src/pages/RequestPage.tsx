@@ -2,76 +2,123 @@ import {DatePicker} from '@gravity-ui/date-components';
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Button, Text} from '@gravity-ui/uikit';
 import {FC, useCallback, useMemo, useState} from 'react';
-import {Field as BaseField, Form} from 'react-final-form';
+import {Field as BaseField, Form, FormRenderProps} from 'react-final-form';
 
-import {useQuery} from '@tanstack/react-query';
-import {fetchPassenger, fetchPassengerById} from 'src/api/queries';
 import {Field} from 'src/components/Field/Field';
 import css from './RequestPage.module.scss';
 
+import {DateTime, dateTimeParse} from '@gravity-ui/date-utils';
 import {useNavigate} from 'react-router-dom';
+import {
+    useFetchCreateRequest,
+    useFetchMetroStations,
+    useFetchPassengerSuggestion,
+} from 'src/api/routes';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
 import {passengerCategories} from 'src/constants';
+import {Request} from 'src/types';
 
 export const RequestPage: FC = () => {
     const navigate = useNavigate();
-    const [passengerSuggest, setPassengerSuggest] = useState<SuggestItem>();
+
+    const {fetch: createRequest} = useFetchCreateRequest();
+
+    const [passengerSuggest, setPassengerSuggest] = useState<SuggestItem>({
+        info: '',
+        label: '',
+        customInfo: {},
+    });
+
     const [passengerName, setPassengerName] = useState('');
     const [stationStart, setStationStart] = useState('');
     const [stationEnd, setStationEnd] = useState('');
-
-    const passengerQuery = useQuery({
-        queryKey: ['passengerData'],
-        queryFn: () => fetchPassenger(passengerName),
+    const [date] = useState<{
+        day: number | null;
+        year: number | null;
+        month: number | null;
+    }>({
+        day: null,
+        year: null,
+        month: null,
     });
-
-    // const metroStationsQuery = useQuery({
-    //     queryKey: ['metroStationsData'],
-    //     queryFn: () => fetchMetroStations(stationStart),
-    // });
-
-    const passengerByIdQuery = useQuery({
-        queryKey: ['passengerByIdData'],
-        queryFn: () => fetchPassengerById(passengerSuggest?.customInfo?.id),
-    });
-
-    const passengerQuerySpec = useMemo(() => {
-        if (!passengerQuery.data) {
-            return {
-                enum: [],
-                meta: {},
-                desc: {},
-            };
-        }
-        return {
-            enum: passengerQuery.data.map((item) => String(item.id)),
-            meta: Object.fromEntries(
-                passengerQuery.data.map((item) => {
-                    return [item.id, item.phone];
-                }),
-            ),
-            desc: Object.fromEntries(
-                passengerQuery.data.map((item) => {
-                    return [item.id, item.name];
-                }),
-            ),
-        };
-    }, [passengerQuery.data]);
 
     const handlePassengerAction = useCallback(() => {
         navigate('/passenger?back=true');
     }, [navigate]);
 
-    const handlePassengerSelect = useCallback((item) => {
-        setPassengerSuggest(item);
-    }, []);
+    const handlePassengerSelect = useCallback(
+        (item: SuggestItem) => {
+            passengerSuggest.info = item.info;
+            passengerSuggest.label = item.label;
+            passengerSuggest.customInfo = item.customInfo;
+        },
+        [setPassengerSuggest, passengerSuggest],
+    );
+    const FORMAT = 'YYYY-MM-DDTHH:mm:ssZ';
 
     const handleFormSubmit = useCallback(
-        (form) => {
-            navigate('/requests/123');
+        (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
+            const {values} = form;
+
+            const mapMethod: Record<string, Request['method']> = {
+                'Электронные сервисы': 'Telephone',
+                'По телефону': 'WebServices',
+            };
+
+            const request: Request = {
+                passenger_id: passengerSuggest?.customInfo?.id,
+                passengers_amount: +values['passengers_amount']?.value,
+                start_time:
+                    dateTimeParse({
+                        year: date.year || 0,
+                        month: date.month || 0,
+                        day: date.day || 0,
+                        hours: values['meet_time']?.hours,
+                        minutes: values['meet_time']?.minutes,
+                    })?.format(FORMAT) || '',
+                males_needed: +values['males_needed']?.value,
+                females_needed: +values['females_needed']?.value,
+                start_station: stationStart,
+                end_station: stationEnd,
+                method: mapMethod[values['request_method']],
+                baggage: values['baggage'] ?? '',
+                comment: values['comment'] ?? '',
+                meet_time:
+                    dateTimeParse({
+                        year: date.year || 0,
+                        month: date.month || 0,
+                        day: date.day || 0,
+                        hours: values['meet_time']?.hours,
+                        minutes: values['meet_time']?.minutes,
+                    })?.format(FORMAT) || '',
+                creation_time: dateTimeParse(new Date())?.format(FORMAT) || '',
+                status: 'SCHEDULED',
+                start_station_comment: '',
+                end_station_comment: '',
+            };
+
+            console.log(request, 'SDSD');
+            createRequest(request);
+            // navigate('/requests/123');
         },
         [navigate],
     );
+
+    const handleDateUpdate = useCallback((data: DateTime) => {
+        date.day = data.day();
+        date.year = data.year();
+        date.month = data.month();
+    }, []);
+
+    const passengersSuggestion = useFetchPassengerSuggestion(passengerName);
+    const metroDepartureSuggestion = useFetchMetroStations(stationStart);
+    const metroArrivalSuggestion = useFetchMetroStations(stationEnd);
+
+    const isFormValid = useMemo(() => {
+        // if ()
+    }, []);
+
+    const isValidForm = useCallback(() => {}, []);
 
     return (
         <div className={css.RequestPage}>
@@ -86,7 +133,7 @@ export const RequestPage: FC = () => {
                         {/* {props.form.getState()} */}
                         <div className={css.RequestPage__formLeft}>
                             <Field label="Выбор пассажира">
-                                <BaseField name="pass">
+                                <BaseField name="passenger">
                                     {() => (
                                         <Suggest
                                             placeholder="Начните вводить ФИО"
@@ -95,7 +142,7 @@ export const RequestPage: FC = () => {
                                             onSelect={handlePassengerSelect}
                                             onAction={handlePassengerAction}
                                             value={passengerName}
-                                            items={passengerQuery.data?.map((item) => ({
+                                            items={passengersSuggestion?.map((item) => ({
                                                 label: item.name,
                                                 info: item.phone,
                                                 customInfo: {
@@ -107,28 +154,34 @@ export const RequestPage: FC = () => {
                                 </BaseField>
                             </Field>
                             <Field label="Станция отправления">
-                                <BaseField name="arr">
+                                <BaseField name="metro_departure">
                                     {() => (
                                         <Suggest
-                                            placeholder="Начните вводить название станции прибытия"
+                                            placeholder="Начните вводить название станции отправления"
                                             value={stationStart}
                                             onChange={setStationStart}
-                                            items={metroStationsQuery.data?.map((item) => ({
-                                                label: item.name,
+                                            items={metroDepartureSuggestion?.map((item) => ({
+                                                label: item.station_name,
+                                                customInfo: {
+                                                    id: item.id,
+                                                },
                                             }))}
                                         />
                                     )}
                                 </BaseField>
                             </Field>
                             <Field label="Станция прибытия">
-                                <BaseField name="arr">
+                                <BaseField name="metro_arrival">
                                     {() => (
                                         <Suggest
                                             placeholder="Начните вводить название станции прибытия"
                                             value={stationEnd}
                                             onChange={setStationEnd}
-                                            items={metroStationsQuery.data?.map((item) => ({
-                                                label: item.name,
+                                            items={metroArrivalSuggestion?.map((item) => ({
+                                                label: item.station_name,
+                                                customInfo: {
+                                                    id: item.id,
+                                                },
                                             }))}
                                         />
                                     )}
@@ -136,7 +189,12 @@ export const RequestPage: FC = () => {
                             </Field>
                             <Field label="Дата заявки">
                                 <BaseField name="date">
-                                    {(fieldProps) => <DatePicker value={fieldProps.input.value} />}
+                                    {() => (
+                                        <DatePicker
+                                            format="DD.MM.YYYY"
+                                            onUpdate={handleDateUpdate}
+                                        />
+                                    )}
                                 </BaseField>
                             </Field>
                             <DynamicField
@@ -234,7 +292,7 @@ export const RequestPage: FC = () => {
                                 config={dynamicConfig}
                             /> */}
                             <DynamicField
-                                name={'passengersCount'}
+                                name={'passengers_amount'}
                                 spec={{
                                     type: SpecTypes.Object,
                                     properties: {
@@ -270,7 +328,7 @@ export const RequestPage: FC = () => {
                                 config={dynamicConfig}
                             />
                             <DynamicField
-                                name={'mens_count'}
+                                name={'males_needed'}
                                 spec={{
                                     type: SpecTypes.Object,
                                     properties: {
@@ -291,7 +349,7 @@ export const RequestPage: FC = () => {
                                 config={dynamicConfig}
                             />
                             <DynamicField
-                                name={'womens_count'}
+                                name={'females_needed'}
                                 spec={{
                                     type: SpecTypes.Object,
                                     properties: {
@@ -312,7 +370,7 @@ export const RequestPage: FC = () => {
                                 config={dynamicConfig}
                             />
                             <DynamicField
-                                name={'luggage_info'}
+                                name={'baggage'}
                                 spec={{
                                     type: SpecTypes.String,
                                     viewSpec: {
@@ -325,7 +383,7 @@ export const RequestPage: FC = () => {
                                 config={dynamicConfig}
                             />
                             <DynamicField
-                                name={'info'}
+                                name={'comment'}
                                 spec={{
                                     type: SpecTypes.String,
                                     viewSpec: {
@@ -338,7 +396,9 @@ export const RequestPage: FC = () => {
                                 }}
                                 config={dynamicConfig}
                             />
-                            <Button onClick={() => handleFormSubmit(props)}>Создать заявку</Button>
+                            <Button size="xl" onClick={() => handleFormSubmit(props)}>
+                                Создать заявку
+                            </Button>
                         </div>
                     </div>
                 )}

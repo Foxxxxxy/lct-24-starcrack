@@ -8,7 +8,7 @@ import {RequestInfoPage} from 'src/pages/RequestInfoPage';
 import {RequestPage} from 'src/pages/RequestPage';
 import {WorkTimePage} from 'src/pages/WorkTimePage';
 import {AuthPage} from 'src/pages/AuthPage';
-import { MainPageMobile } from 'src/pages/MainPageMobile';
+import {MainPageMobile} from 'src/pages/MainPageMobile';
 
 export type CustomRoute = {
     name: string;
@@ -65,7 +65,7 @@ export const routes: CustomRoute[] = [
         path: '/mobile',
         LayoutComponent: LayoutMain,
         PageComponent: MainPageMobile,
-    }
+    },
 ];
 
 export const useRoutes = (): typeof routes => {

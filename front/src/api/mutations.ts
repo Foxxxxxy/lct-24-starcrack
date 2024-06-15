@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const client = axios.create({
-    baseURL: 'https://starcrack.ru/',
+    baseURL: 'https://starcrack.ru',
 });
 
 export type FetchGetTokenResult = {
