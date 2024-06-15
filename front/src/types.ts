@@ -38,3 +38,41 @@ export type PassengersCategories =
     | 'ОГД'
     | 'ОВ'
     | 'ИУ';
+
+export type MetroStation = {
+    id: number;
+    line_id: string;
+    line_name: string;
+    station_name: string;
+};
+
+export type Passenger = {
+    id: number;
+    sex: 'Male' | 'Female';
+    passenger_category: PassengersCategories;
+    name: string;
+    phone: string;
+    comment: string;
+    pacemaker: boolean;
+};
+
+export type Request = {
+    id?: number;
+    passenger_id: number;
+    passengers_amount: number;
+    start_time: string;
+    //
+    meet_time: string;
+    status: RequestStatus;
+    creation_time: string;
+    //
+    males_needed: number;
+    females_needed: number;
+    start_station: string;
+    end_station: string;
+    method: 'Telephone' | 'WebServices';
+    baggage: string;
+    comment: string;
+    start_station_comment: string;
+    end_station_comment: string;
+};

@@ -8,13 +8,7 @@ type FetchPassengersResult = {
     phone: string;
 };
 
-type MetroStation = {
-    id: number;
-    name: string;
-};
-
 import {useQuery} from '@tanstack/react-query';
-import {useEffect, useState} from 'react';
 import {client} from './api';
 
 export const useApiGet = (key, fn, options) =>
@@ -72,25 +66,6 @@ export const fetchPassenger = async ({name}: {name: string}): Promise<FetchPasse
             phone: '+79027035052',
         },
     ]);
-};
-
-type FetchMetroStationsResult = MetroStation[];
-
-export const useFetchMetroStations = (name: string): MetroStation[] | undefined => {
-    const [metro, setMetro] = useState<MetroStation[] | undefined>();
-
-    const token = useStore(store, (state) => state['access_token']);
-    useEffect(() => {
-        client
-            .get<MetroStation[]>(`/metro_stations/suggestions/?name=${name}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((data) => setMetro(data));
-    }, []);
-
-    return metro;
 };
 
 export type Passenger = {

@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "@tanstack/react-store": "^0.4.1",
-    "@tanstack/store": "^0.4.1",
-    "react-query": "^3.39.3"
-  }
-}
