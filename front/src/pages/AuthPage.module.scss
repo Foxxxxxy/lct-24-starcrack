@@ -7,18 +7,17 @@
     &__card {
         padding: 20px;
         width: 450px;
-        height: 350px;
+        height: 300px;
         display: flex;
         flex-direction: column;
     }
     &__header {
         text-align: center;
-        padding: var(--g-spacing-6) var(--g-spacing-6) var(--g-spacing-6) 0;
+        padding: var(--g-spacing-6);
     }
     &__form {
         display: flex;
         flex-direction: column;
-        gap: 15px;
         > * {
             max-width: 100%;
         }
@@ -27,5 +26,8 @@
         position: relative;
         max-width: 250px;
         min-width: 250px;
+    }
+    &__submit {
+        align-self: center;
     }
 }

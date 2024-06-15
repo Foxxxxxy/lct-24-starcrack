@@ -34,8 +34,10 @@ export const AuthPage: FC = () => {
                                                     {...input}
                                                     placeholder="Имя пользователя"
                                                     type="text"
+                                                    autoComplete="username"
                                                     errorMessage={meta.touched && meta.error ? meta.error : ''}
                                                     validationState={meta.touched && meta.error ? 'invalid' : undefined}
+                                                    hasClear
                                                 />
                                             </div>
                                         )}
@@ -49,14 +51,16 @@ export const AuthPage: FC = () => {
                                                     {...input}
                                                     placeholder="Пароль"
                                                     type="password"
-                                                    errorMessage={meta.touched && meta.error ? meta.error : ''}
+                                                    autoComplete="current-password"
+                                                    errorMessage={meta.error}
                                                     validationState={meta.touched && meta.error ? 'invalid' : undefined}
+                                                    hasClear
                                                 />
                                             </div>
                                         )}
                                     </BaseField>
                                 </Field>
-                                <Button type="submit" disabled={submitting || pristine || hasValidationErrors}>Подтвердить</Button>
+                                <Button className={css.AuthPage__submit} type="submit" disabled={submitting || pristine || hasValidationErrors}>Подтвердить</Button>
                             </form>
                         )}
                     />
