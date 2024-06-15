@@ -1,38 +1,100 @@
 {
-  "name": "front",
+  "name": "gravity-ui-vite-example",
   "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+  "type": "module",
+  "keywords": [
+    "react",
+    "vite",
+    "template",
+    "typescript",
+    "gravity",
+    "uikit",
+    "sass"
+  ],
+  "description": "Vite template with: typescript, sass and @gravity-ui packages",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gravity-ui/gravity-ui-vite-example"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/gravity-ui/gravity-ui-vite-example/issues"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint:js": "eslint --ext .js,.jsx,.ts,.tsx .",
+    "lint:styles": "stylelint '{styles,src}/**/*.scss'",
+    "lint:prettier": "prettier --check '**/*.md'",
+    "lint": "npm run lint:js && npm run lint:styles && npm run lint:prettier",
+    "test": "exit 0"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "dependencies": {
+    "@gravity-ui/date-components": "^2.4.0",
+    "@gravity-ui/date-utils": "^2.5.3",
+    "@gravity-ui/icons": "^2.6.0",
+    "@gravity-ui/navigation": "^2.14.0",
+    "@gravity-ui/uikit": "^6.13.0",
+    "@svgr/rollup": "^8.1.0",
+    "@tanstack/react-query": "^5.45.0",
+    "@tanstack/react-query-devtools": "^5.45.0",
+    "axios": "^1.7.2",
+    "bem-cn-lite": "^4.1.0",
+    "classnames": "^2.5.1",
+    "localforage": "^1.10.0",
+    "lodash": "^4.17.21",
+    "match-sorter": "^6.3.4",
+    "react-final-form": "^6.5.9",
+    "react-final-form-arrays": "^3.1.4",
+    "react-router-dom": "^6.23.1",
+    "sort-by": "^1.2.0"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+  "devDependencies": {
+    "@gravity-ui/browserslist-config": "^4.1.0",
+    "@gravity-ui/dynamic-forms": "^4.4.0",
+    "@gravity-ui/eslint-config": "^3.1.1",
+    "@gravity-ui/prettier-config": "^1.1.0",
+    "@gravity-ui/stylelint-config": "^4.0.0",
+    "@gravity-ui/tsconfig": "^1.0.0",
+    "@tanstack/eslint-plugin-query": "^5.43.1",
+    "@types/lodash": "^4.17.5",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@typescript-eslint/eslint-plugin": "6.9.0",
+    "@typescript-eslint/parser": "6.9.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "esbuild-sass-plugin": "^2.16.0",
+    "eslint": "^8.53.0",
+    "eslint-plugin-css-modules": "^2.12.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prefer-arrow-functions": "^3.3.2",
+    "eslint-plugin-simple-import-sort": "^12.1.0",
+    "eslint-plugin-unused-imports": "^3.2.0",
+    "sass": "^1.68.0",
+    "stylelint": "15.8.0",
+    "stylelint-scss": "^5.3.2",
+    "ts-node": "10.9.1",
+    "tsconfig-paths": "4.2.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vite-plugin-svgr": "^4.2.0"
+  },
+  "browserslist": [
+    "extends @gravity-ui/browserslist-config"
+  ],
+  "lint-staged": {
+    "*.{scss}": [
+      "stylelint --fix --quiet"
     ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix --quiet",
+      "prettier --write"
+    ],
+    "*.md": [
+      "prettier --write"
     ]
   }
 }
