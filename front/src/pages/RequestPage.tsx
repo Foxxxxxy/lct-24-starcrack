@@ -1,7 +1,7 @@
 import {DatePicker} from '@gravity-ui/date-components';
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Button, Text} from '@gravity-ui/uikit';
-import {FC, useCallback, useState} from 'react';
+import {FC, useCallback, useMemo, useState} from 'react';
 import {Field as BaseField, Form, FormRenderProps} from 'react-final-form';
 
 import {Field} from 'src/components/Field/Field';
@@ -67,7 +67,7 @@ export const RequestPage: FC = () => {
 
             const request: Request = {
                 passenger_id: passengerSuggest?.customInfo?.id,
-                passengers_amount: +values['passengers_amount'].value,
+                passengers_amount: +values['passengers_amount']?.value,
                 start_time:
                     dateTimeParse({
                         year: date.year || 0,
@@ -76,13 +76,13 @@ export const RequestPage: FC = () => {
                         hours: values['meet_time']?.hours,
                         minutes: values['meet_time']?.minutes,
                     })?.format(FORMAT) || '',
-                males_needed: +values['males_needed'].value,
-                females_needed: +values['females_needed'].value,
+                males_needed: +values['males_needed']?.value,
+                females_needed: +values['females_needed']?.value,
                 start_station: stationStart,
                 end_station: stationEnd,
                 method: mapMethod[values['request_method']],
-                baggage: values['baggage'],
-                comment: values['comment'],
+                baggage: values['baggage'] ?? '',
+                comment: values['comment'] ?? '',
                 meet_time:
                     dateTimeParse({
                         year: date.year || 0,
@@ -113,6 +113,12 @@ export const RequestPage: FC = () => {
     const passengersSuggestion = useFetchPassengerSuggestion(passengerName);
     const metroDepartureSuggestion = useFetchMetroStations(stationStart);
     const metroArrivalSuggestion = useFetchMetroStations(stationEnd);
+
+    const isFormValid = useMemo(() => {
+        // if ()
+    }, []);
+
+    const isValidForm = useCallback(() => {}, []);
 
     return (
         <div className={css.RequestPage}>
@@ -183,7 +189,7 @@ export const RequestPage: FC = () => {
                             </Field>
                             <Field label="Дата заявки">
                                 <BaseField name="date">
-                                    {(fieldProps) => (
+                                    {() => (
                                         <DatePicker
                                             format="DD.MM.YYYY"
                                             onUpdate={handleDateUpdate}
@@ -390,7 +396,9 @@ export const RequestPage: FC = () => {
                                 }}
                                 config={dynamicConfig}
                             />
-                            <Button onClick={() => handleFormSubmit(props)}>Создать заявку</Button>
+                            <Button size="xl" onClick={() => handleFormSubmit(props)}>
+                                Создать заявку
+                            </Button>
                         </div>
                     </div>
                 )}

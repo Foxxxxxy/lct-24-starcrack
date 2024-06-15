@@ -1,7 +1,7 @@
 import {useStore} from '@tanstack/react-store';
 import {useCallback, useEffect, useState} from 'react';
 import {store} from 'src/store/state';
-import {MetroStation, Passenger, Request} from 'src/types';
+import {MetroStation, Passenger, Request, RequestItem} from 'src/types';
 
 import {client} from './api';
 
@@ -63,4 +63,53 @@ export const useFetchCreateRequest = () => {
     return {
         fetch,
     };
+};
+
+export const useFetchCreatePassenger = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (request: Passenger) => {
+            return client.post(
+                `/passenger/`,
+                {
+                    ...request,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchRequests = ({
+    limit,
+    offset,
+}: {
+    limit: number;
+    offset: number;
+}): RequestItem[] | undefined => {
+    const [requests, setRequests] = useState<RequestItem[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        client
+            .get<RequestItem[]>(`/requisitions/?limit=${limit}&offset=${offset}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequests(res.data));
+    }, [name, token]);
+
+    return requests;
 };

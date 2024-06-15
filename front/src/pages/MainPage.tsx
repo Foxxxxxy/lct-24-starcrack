@@ -1,8 +1,9 @@
 import {Table as GravityTable, TableColumnConfig, Text, withTableCopy} from '@gravity-ui/uikit';
 import {FC} from 'react';
-import {requests} from 'src/mocks/requests';
+// import {requests} from 'src/mocks/requests';
 import {RequestItemResolved, useResolvedRequests} from 'src/resolvers/useResolvedRequests';
 
+import {useFetchRequests} from 'src/api/routes';
 import css from './MainPage.module.scss';
 
 const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
@@ -39,14 +40,18 @@ const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
 ];
 
 export const MainPage: FC = () => {
+    const requests = useFetchRequests({
+        limit: 100,
+        offset: 0,
+    });
+
+    if (!requests) {
+        return <>Loading</>;
+    }
+
     const resolvedRequests = useResolvedRequests(requests);
 
-    // const metro = useFetchMetroStations('Алтуфьево');
-
     const Table = withTableCopy(GravityTable);
-
-    // const token = useStore(store, (state) => state['access_token']);
-    // console.log(metro); // IT WORKS
 
     return (
         <div className={css.MainPage}>

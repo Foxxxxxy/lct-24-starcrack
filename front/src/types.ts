@@ -1,3 +1,5 @@
+export type RequestMethod = 'Telephone' | 'WebServices';
+
 export type RequestStatus =
     | 'SELECTED_FOR_SCHEDULING'
     | 'NEED_DYNAMIC_SCHEDULING'
@@ -14,15 +16,21 @@ export type RequestStatus =
 export type RequestItem = {
     id: number;
     passenger_id: number;
+    passengers_amount: number;
     start_time: string;
+    meet_time: string | null;
     finish_time: string;
-    meet_time: string;
     status: RequestStatus;
     creation_time: string;
     males_needed: number;
     females_needed: number;
     start_station: string;
+    start_station_comment: string | null;
     end_station: string;
+    end_station_comment: string | null;
+    method: RequestMethod;
+    baggage: string | null;
+    comment: string | null;
 };
 
 export type PassengersCategories =
@@ -47,7 +55,7 @@ export type MetroStation = {
 };
 
 export type Passenger = {
-    id: number;
+    id?: number;
     sex: 'Male' | 'Female';
     passenger_category: PassengersCategories;
     name: string;
@@ -70,7 +78,7 @@ export type Request = {
     females_needed: number;
     start_station: string;
     end_station: string;
-    method: 'Telephone' | 'WebServices';
+    method: RequestMethod;
     baggage: string;
     comment: string;
     start_station_comment: string;

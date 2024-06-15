@@ -23,9 +23,9 @@ export const useResolvedRequests = (requests: RequestItem[]): RequestItemResolve
         females_males_needed: (
             <Text color="complementary">{`${item.males_needed} м / ${item.females_needed} ж`}</Text>
         ),
-        start_time: useDateTime(item.start_time).formatted,
-        finish_time: useDateTime(item.finish_time).formatted,
-        meet_time: useDateTime(item.meet_time).formatted,
+        start_time: useDateTime(item.start_time ?? '').formatted,
+        finish_time: useDateTime(item.finish_time ?? '').formatted,
+        meet_time: useDateTime(item.meet_time ?? '').formatted,
         status: useStatus(item.status),
         creation_time: useDateTime(item.creation_time).formatted,
         route: `${item.start_station} -> ${item.end_station}`,
