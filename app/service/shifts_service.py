@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from db.crud_stations import get_station_by_name
 from . import db_model_from_dto, update_bd_objects
 from sqlalchemy.orm import Session
 from db.crud_shifts import *
@@ -33,6 +35,7 @@ def update_shift(shift: ShiftUpdateDto, base_session: Session):
 def create_shift(
     shift: ShiftDTO, base_session: Session
 ):
+    shift.place_start = get_station_by_name(shift.place_start, base_session)
     db_shift = db_model_from_dto(shift, shifts.Shift)
     return create_new_shift(db_shift, base_session)
 
