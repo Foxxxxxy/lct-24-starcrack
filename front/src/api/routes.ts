@@ -1,7 +1,7 @@
 import {useStore} from '@tanstack/react-store';
 import {useCallback, useEffect, useState} from 'react';
 import {store} from 'src/store/state';
-import {MetroStation, Passenger, Request, RequestItem, RequestStatus, Shift} from 'src/types';
+import {MetroStation, Passenger, Request, RequestItem, RequestStatus, Shift, Employer} from 'src/types';
 
 import {client} from './api';
 
@@ -445,3 +445,71 @@ export const useFetchSheduledRequest = (date: string): Request[] | undefined => 
 
     return requests;
 };
+
+export const useFetchRequestsEmployee = ({
+    limit,
+    offset,
+}: {
+    limit: number;
+    offset: number;
+}): {
+    requests: Employer[] | undefined;
+    refetch: () => void;
+} => {
+    const [requests, setRequests] = useState<Employer[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(() => {
+        return client
+            .get<Employer[]>(`/employee/?limit=${limit}&offset=${offset}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequests(res.data));
+    }, [limit, offset, token]);
+
+    useEffect(() => {
+        fetch();
+    }, [fetch]);
+
+    return {
+        requests,
+        refetch: fetch,
+    }
+}
+
+export const useFetchRequestsPassenger = ({
+    limit,
+    offset,
+}: {
+    limit: number;
+    offset: number;
+}): {
+    requests: Passenger[] | undefined;
+    refetch: () => void;
+} => {
+    const [requests, setRequests] = useState<Passenger[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(() => {
+        return client
+            .get<Passenger[]>(`/passenger/?limit=${limit}&offset=${offset}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequests(res.data));
+    }, [limit, offset, token]);
+
+    useEffect(() => {
+        fetch();
+    }, [fetch]);
+
+    return {
+        requests,
+        refetch: fetch,
+    };
+}

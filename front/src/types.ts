@@ -80,6 +80,16 @@ export type Request = {
     end_station_comment: string;
 };
 
+export type Employer = {
+    id: number;
+    full_name: string;
+    sex: string;
+    role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
+    sub_role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
+    phone: string;
+    easy_work: boolean;
+};
+
 export type Shift = {
     employee_id: number;
     time_start: string;

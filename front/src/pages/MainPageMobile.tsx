@@ -5,9 +5,19 @@ import {MobileTableField} from 'src/components/MobileTableField/MobileTableField
 import {requests} from 'src/mocks/requests';
 import {RequestItemResolved, useResolvedRequests} from 'src/resolvers/useResolvedRequests';
 
+import {useFetchRequests} from 'src/api/routes';
 import css from './MainPageMobile.module.scss';
 
 export const MainPageMobile: FC = () => {
+    const requests = useFetchRequests({
+        limit: 100,
+        offset: 0,
+    });
+
+    if (!requests) {
+        return <>Loading</>;
+    }
+
     const resolvedRequests = useResolvedRequests(requests);
 
     return (

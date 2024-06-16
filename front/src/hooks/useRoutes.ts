@@ -11,6 +11,8 @@ import {PassengerPage} from 'src/pages/PassengerPage';
 import {RequestInfoPage} from 'src/pages/RequestInfoPage';
 import {RequestPage} from 'src/pages/RequestPage';
 import {WorkTimePage} from 'src/pages/WorkTimePage';
+import {EmployeeList} from 'src/pages/EmployeeList';
+import {PassengersList} from 'src/pages/PassengersList';
 
 export type CustomRoute = {
     name: string;
@@ -73,6 +75,18 @@ export const routes: CustomRoute[] = [
         path: '/mobile',
         LayoutComponent: LayoutMain,
         PageComponent: MainPageMobile,
+    },
+    {
+        name: 'employeeList',
+        path: '/employeelist',
+        LayoutComponent: LayoutMain,
+        PageComponent: EmployeeList,
+    },
+    {
+        name: 'passengersList',
+        path: '/passengerslist',
+        LayoutComponent: LayoutMain,
+        PageComponent: PassengersList,
     },
     {
         name: 'gant',
