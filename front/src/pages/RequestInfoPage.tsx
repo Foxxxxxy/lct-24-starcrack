@@ -3,10 +3,21 @@ import {FC} from 'react';
 
 import {DynamicView, dynamicViewConfig, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Form} from 'react-final-form';
+import {useFetchPassengerById, useFetchRequestById} from 'src/api/routes';
+import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
 import css from './RequestInfoPage.module.scss';
 
+export const mapMethod: Record<string, Request['method']> = {
+    Telephone: 'Электронные сервисы',
+    WebServices: 'По телефону',
+};
+
 export const RequestInfoPage: FC = () => {
+    const requestInfo = useFetchRequestById('2');
+
+    const passengerById = useFetchPassengerById(requestInfo?.passenger_id ?? '');
+
     return (
         <div className={css.RequestInfoPage}>
             <header className={css.RequestInfoPage__header}>
@@ -19,7 +30,7 @@ export const RequestInfoPage: FC = () => {
                         <div className={css.RequestInfoPage__status}>{useStatus('FINISHED')}</div>
                         <DynamicView
                             value={{
-                                value: 'Васильев Василий Иваныч',
+                                value: passengerById?.name,
                             }}
                             spec={{
                                 type: SpecTypes.Object,
@@ -42,7 +53,7 @@ export const RequestInfoPage: FC = () => {
                         />
                         <DynamicView
                             value={{
-                                value: 'Алтуфьево -> Бульвар Дмитрия Донского',
+                                value: `${requestInfo?.start_station} -> ${requestInfo?.end_station}`,
                             }}
                             spec={{
                                 type: SpecTypes.Object,
@@ -65,7 +76,7 @@ export const RequestInfoPage: FC = () => {
                         />
                         <DynamicView
                             value={{
-                                value: '23.14.2003, 10:23',
+                                value: useDateTime(requestInfo?.creation_time ?? '').formatted,
                             }}
                             spec={{
                                 type: SpecTypes.Object,
@@ -74,21 +85,67 @@ export const RequestInfoPage: FC = () => {
                                         type: SpecTypes.String,
                                         viewSpec: {
                                             type: 'base',
-                                            placeholder: 'Дата заявки',
+                                            placeholder: 'Дата создания заявки',
                                         },
                                     },
                                 },
                                 viewSpec: {
                                     type: 'object_value',
                                     layout: 'row',
-                                    layoutTitle: 'Дата заявки',
+                                    layoutTitle: 'Дата создания заявки',
                                 },
                             }}
                             config={dynamicViewConfig}
                         />
                         <DynamicView
                             value={{
-                                value: 'По телефону',
+                                value: useDateTime(requestInfo?.start_time ?? '').formatted,
+                            }}
+                            spec={{
+                                type: SpecTypes.Object,
+                                properties: {
+                                    value: {
+                                        type: SpecTypes.String,
+                                        viewSpec: {
+                                            type: 'base',
+                                            placeholder: 'Дата начала выполнения заявки',
+                                        },
+                                    },
+                                },
+                                viewSpec: {
+                                    type: 'object_value',
+                                    layout: 'row',
+                                    layoutTitle: 'Дата начала выполнения заявки',
+                                },
+                            }}
+                            config={dynamicViewConfig}
+                        />
+                        <DynamicView
+                            value={{
+                                value: useDateTime(requestInfo?.finish_time ?? '').formatted,
+                            }}
+                            spec={{
+                                type: SpecTypes.Object,
+                                properties: {
+                                    value: {
+                                        type: SpecTypes.String,
+                                        viewSpec: {
+                                            type: 'base',
+                                            placeholder: 'Дата завершения выполнения заявки',
+                                        },
+                                    },
+                                },
+                                viewSpec: {
+                                    type: 'object_value',
+                                    layout: 'row',
+                                    layoutTitle: 'Дата завершения выполнения заявки',
+                                },
+                            }}
+                            config={dynamicViewConfig}
+                        />
+                        <DynamicView
+                            value={{
+                                value: mapMethod[requestInfo?.method ?? ''],
                             }}
                             spec={{
                                 type: SpecTypes.Object,
@@ -134,7 +191,7 @@ export const RequestInfoPage: FC = () => {
                         />
                         <DynamicView
                             value={{
-                                value: '123',
+                                value: requestInfo?.passengers_amount,
                             }}
                             spec={{
                                 type: SpecTypes.Object,
@@ -157,7 +214,7 @@ export const RequestInfoPage: FC = () => {
                         />
                         <DynamicView
                             value={{
-                                value: 'ИЗ',
+                                value: passengerById?.passenger_category,
                             }}
                             spec={{
                                 type: SpecTypes.Object,
@@ -180,7 +237,7 @@ export const RequestInfoPage: FC = () => {
                         />
                         <DynamicView
                             value={{
-                                value: '10',
+                                value: requestInfo?.males_needed,
                             }}
                             spec={{
                                 type: SpecTypes.Object,
@@ -203,7 +260,7 @@ export const RequestInfoPage: FC = () => {
                         />
                         <DynamicView
                             value={{
-                                value: '10',
+                                value: requestInfo?.females_needed,
                             }}
                             spec={{
                                 type: SpecTypes.Object,
@@ -225,7 +282,7 @@ export const RequestInfoPage: FC = () => {
                             config={dynamicViewConfig}
                         />
                         <DynamicView
-                            value="Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla quod error voluptatibus odio minima assumenda voluptatum harum quidem maxime iste exercitationem, quam numquam, necessitatibus saepe praesentium, commodi beatae. Vitae, odit. Assumenda nobis similique voluptatibus? Sint itaque qui laudantium iste? In doloribus nam vitae quasi suscipit dolores maiores culpa amet quo. Distinctio mollitia ad expedita tempore sit? Nemo odit quae impedit?"
+                            value={requestInfo?.baggage}
                             spec={{
                                 type: SpecTypes.String,
                                 viewSpec: {
@@ -237,7 +294,7 @@ export const RequestInfoPage: FC = () => {
                             config={dynamicViewConfig}
                         />
                         <DynamicView
-                            value="Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla quod error voluptatibus odio minima assumenda voluptatum harum quidem maxime iste exercitationem, quam numquam, necessitatibus saepe praesentium, commodi beatae. Vitae, odit. Assumenda nobis similique voluptatibus? Sint itaque qui laudantium iste? In doloribus nam vitae quasi suscipit dolores maiores culpa amet quo. Distinctio mollitia ad expedita tempore sit? Nemo odit quae impedit?"
+                            value={requestInfo?.comment}
                             spec={{
                                 type: SpecTypes.String,
                                 viewSpec: {

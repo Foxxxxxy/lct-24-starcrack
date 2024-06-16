@@ -1,46 +1,91 @@
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Button, Text} from '@gravity-ui/uikit';
-import {FC, useCallback} from 'react';
+import {FC, useCallback, useMemo} from 'react';
 import {Form, FormRenderProps} from 'react-final-form';
-import {useLocation, useNavigate} from 'react-router-dom';
-import {useFetchCreatePassenger} from 'src/api/routes';
-import {passengerCategories} from 'src/constants';
+import {useLocation, useNavigate, useSearchParams} from 'react-router-dom';
+import {
+    useFetchCreatePassenger,
+    useFetchPassengerById,
+    useFetchRemovePassenger,
+    useFetchUpdatePassenger,
+} from 'src/api/routes';
+import {mapSex, mapSexBack, passengerCategories} from 'src/constants';
 import {Passenger} from 'src/types';
 import css from './PassengerPage.module.scss';
 
 export const PassengerPage: FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
+
+    let [searchParams] = useSearchParams();
+
+    const editId = searchParams.get('editId');
+
     const {fetch: createPassenger} = useFetchCreatePassenger();
+    const {fetch: updatePassenger} = useFetchUpdatePassenger();
+    const {fetch: removePassenger} = useFetchRemovePassenger();
+
+    const passenger = useFetchPassengerById(editId ?? '');
+
+    const initialForm = useMemo(() => {
+        if (!passenger || !editId) {
+            return {};
+        }
+        return {
+            passengerName: {
+                value: passenger.name,
+            },
+            phone: {
+                value: passenger.phone,
+            },
+            sex: mapSexBack[passenger.sex],
+            category: passenger.passenger_category,
+            pacemark: passenger.pacemaker,
+            comment: passenger.comment,
+        };
+    }, [passenger, editId]);
 
     const handleFormSubmit = useCallback(
         async (formProps: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
             const {values} = formProps;
 
-            const mapSex: Record<string, Passenger['sex']> = {
-                М: 'Male',
-                Ж: 'Female',
-            };
-
             const request: Passenger = {
                 name: values['passengerName'].value,
                 phone: values['phone'].value,
                 sex: mapSex[values['sex']],
-                pacemaker: values['pacemaker'],
+                pacemaker: values['pacemaker'] ?? false,
                 passenger_category: values['category'],
                 comment: values['comment'],
             };
 
             const back = location.search.includes('back');
 
-            await createPassenger(request);
+            if (editId) {
+                await updatePassenger({
+                    ...request,
+                    id: +editId,
+                });
+                navigate('/passengers');
+                return;
+            } else {
+                await createPassenger(request);
+            }
 
             if (back) {
                 navigate('/requests/create');
             }
         },
-        [],
+        [createPassenger, navigate, location],
     );
+
+    const handleRemovePassenger = useCallback(async () => {
+        await removePassenger(editId ?? '');
+        navigate('/passengers');
+    }, []);
+
+    if (editId && !passenger) {
+        return 'loading';
+    }
 
     return (
         <div className={css.PassengerPage}>
@@ -48,8 +93,8 @@ export const PassengerPage: FC = () => {
                 <Text variant="display-1">Создание пассажира</Text>
             </header>
             <Form
+                initialValues={initialForm}
                 onSubmit={() => {}}
-                validate={() => {}}
                 render={(props) => (
                     <div className={css.PassengerPage__form}>
                         <DynamicField
@@ -150,7 +195,21 @@ export const PassengerPage: FC = () => {
                             }}
                             config={dynamicConfig}
                         />
-                        <Button onClick={() => handleFormSubmit(props)}>Создать сотрудника</Button>
+
+                        {editId ? (
+                            <div className={css.PassengerPage__actions}>
+                                <Button view="action" onClick={() => handleFormSubmit(props)}>
+                                    Изменить пассажира
+                                </Button>
+                                <Button view="outlined-danger" onClick={handleRemovePassenger}>
+                                    Удалить пассажира
+                                </Button>
+                            </div>
+                        ) : (
+                            <Button view="action" onClick={() => handleFormSubmit(props)}>
+                                Создать пассажира
+                            </Button>
+                        )}
                     </div>
                 )}
             ></Form>
