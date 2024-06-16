@@ -242,6 +242,7 @@ def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
             employee_to_requisition(current_task.id, ex_id, base_session)
             update_requisition_status(current_task.id, "SCHEDULED", base_session)
             current_task.status = "SCHEDULED"
+            update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
             answer.append(current_task)
         current_task = tasks_heap.pop()
 
