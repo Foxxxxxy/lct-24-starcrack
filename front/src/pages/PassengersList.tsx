@@ -32,7 +32,7 @@ const employeeTableData: TableColumnConfig<RequestItemResolvedPassenger>[] = [
 ]
 
 export const PassengersList: FC = () => {
-    const requests = useFetchRequestsPassenger({
+    const {requests, refetch} = useFetchRequestsPassenger({
         limit: 100,
         offset: 0,
     })
@@ -43,18 +43,30 @@ export const PassengersList: FC = () => {
 
     const resolvedRequests = useResolvedRequestsPassenger(requests)
 
-    const MyTable = withTableSorting(withTableActions(withTableCopy(GravityTable)));
+    const Table = withTableSorting(withTableActions(withTableCopy(GravityTable)));
 
-    const getRowActions = (): TableActionConfig<RequestItemResolvedPassenger>[] => {
+    const getRowActions = () => {
         return [
-          {
-            text: 'Remove',
-            handler: () => {
-                console.log('Remove')
+            {
+                text: 'Изменить',
+                handler: () => {
+                    console.log('Изменить')
+                },
             },
-            theme: 'danger' as const,
-          },
-        ];
+            {
+                text: 'Посмотреть',
+                handler: () => {
+                    console.log('Посмотреть')
+                },
+            },
+            {
+                text: 'Удалить',
+                handler: () => {
+                    console.log('Удалить')
+                },
+                theme: 'danger',
+            },
+        ] as TableActionConfig<RequestItemResolvedPassenger>[];
     };
 
     return (
@@ -62,7 +74,7 @@ export const PassengersList: FC = () => {
             <header className={css.EmployeeList__header}>
                 <Text variant="display-1">Все пассажиры</Text>
             </header>
-            <MyTable
+            <Table
                 className={css.EmployeeList__table}
                 columns={employeeTableData}
                 data={resolvedRequests}

@@ -464,20 +464,30 @@ export const useFetchRequestsPassenger = ({
 }: {
     limit: number;
     offset: number;
-}): Passenger[] | undefined => {
+}): {
+    requests: Passenger[] | undefined;
+    refetch: () => void;
+} => {
     const [requests, setRequests] = useState<Passenger[] | undefined>();
 
     const token = useStore(store, (state) => state['access_token']);
 
-    useEffect(() => {
-        client
+    const fetch = useCallback(() => {
+        return client
             .get<Passenger[]>(`/passenger/?limit=${limit}&offset=${offset}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             })
             .then((res) => setRequests(res.data));
-    }, [name, token]);
+    }, [limit, offset, token]);
 
-    return requests;
+    useEffect(() => {
+        fetch();
+    }, [fetch]);
+
+    return {
+        requests,
+        refetch: fetch,
+    };
 }
