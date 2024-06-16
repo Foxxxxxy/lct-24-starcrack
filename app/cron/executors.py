@@ -1,14 +1,12 @@
 import datetime
-import importlib
 from abc import ABC, abstractmethod
 
 from apscheduler.triggers.cron import CronTrigger
-from fastapi import Depends
-from sqlalchemy.orm import Session
 
 from algorithms.CreateTimetableAlgorithm import CreateTimetableAlgorithm
 from db.base import get_db
 from db.crud_requisitions import get_by_status
+from handlers.main import get_dijkstra_algorithm
 from model.enum.enums import Status
 from utils.logger import logger
 
@@ -17,7 +15,7 @@ class Executor(ABC):
 
     @staticmethod
     @abstractmethod
-    def execute_task():
+    def execute_task(*args):
         pass
 
     @staticmethod
@@ -34,16 +32,14 @@ class CreateTimetableExecutor(Executor):
         logger.info(f"Start creating timetable for date {timetable_date}...")
 
         base_session = next(get_db())
-        app = importlib.import_module('handlers.main.app')
-        deikstra_algorithm = app.state.dijkstra_algorithm
         requisitions_list = get_by_status(Status.SELECTED_FOR_SCHEDULING, base_session)
         logger.info(f"Found {len(requisitions_list)} candidates for scheduling...")
 
         algorithm = CreateTimetableAlgorithm()
-        algorithm.create_timetable(base_session, deikstra_algorithm)
+        algorithm.create_timetable(base_session, get_dijkstra_algorithm())
 
         logger.info(f"Finished creating timetable for date {timetable_date}!")
 
     @staticmethod
     def get_cron_trigger() -> CronTrigger:
-        return CronTrigger(hour=0, minute=0, second=0)
+        return CronTrigger(hour=21, minute=0)

@@ -6,7 +6,6 @@ from algorithms.DijkstraAlgorithm import DijkstraAlgorithm
 from handlers.requisitions_router import requisitions_router
 from handlers.employee_router import employee_router
 from handlers.shifts_router import shifts_router
-from cron.Scheduler import Scheduler
 from handlers.passenger_router import passenger_router
 from handlers.auth_router import auth_router
 from .metro_stations_router import metro_stations_router
@@ -43,15 +42,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-scheduler = Scheduler(BackgroundScheduler())
+scheduler = None
+
+dijkstra_algorithm = None
+
+
+def get_dijkstra_algorithm() -> DijkstraAlgorithm:
+    return dijkstra_algorithm
 
 
 @app.on_event("startup")
 def startup_actions():
+    global dijkstra_algorithm, scheduler
+    dijkstra_algorithm = DijkstraAlgorithm()
+    app.state.dijkstra_algorithm = dijkstra_algorithm
+
+    from cron.Scheduler import Scheduler
+    scheduler = Scheduler(BackgroundScheduler())
     scheduler.register_executors()
     scheduler.start()
-
-    app.state.dijkstra_algorithm = DijkstraAlgorithm()
 
 
 @app.on_event("shutdown")
