@@ -430,22 +430,32 @@ export const useFetchRequestsEmployee = ({
 }: {
     limit: number;
     offset: number;
-}): Employer[] | undefined => {
+}): {
+    requests: Employer[] | undefined;
+    refetch: () => void;
+} => {
     const [requests, setRequests] = useState<Employer[] | undefined>();
 
     const token = useStore(store, (state) => state['access_token']);
 
-    useEffect(() => {
-        client
+    const fetch = useCallback(() => {
+        return client
             .get<Employer[]>(`/employee/?limit=${limit}&offset=${offset}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             })
             .then((res) => setRequests(res.data));
-    }, [name, token]);
+    }, [limit, offset, token]);
 
-    return requests;
+    useEffect(() => {
+        fetch();
+    }, [fetch]);
+
+    return {
+        requests,
+        refetch: fetch,
+    }
 }
 
 export const useFetchRequestsPassenger = ({
@@ -468,5 +478,6 @@ export const useFetchRequestsPassenger = ({
             })
             .then((res) => setRequests(res.data));
     }, [name, token]);
+
     return requests;
 }

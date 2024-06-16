@@ -1,4 +1,4 @@
-import {Table as GravityTable, TableColumnConfig, Text, withTableActions, withTableCopy, withTableSorting, TableActionConfig} from '@gravity-ui/uikit';
+import {Table as GravityTable, TableColumnConfig, Text, withTableActions, withTableCopy, TableActionConfig} from '@gravity-ui/uikit';
 import React, {FC} from "react"
 import {RequestItemResolvedEmployee, useResolvedRequestsEmployee} from "src/resolvers/useResolvedRequests"
 import {useFetchRequestsEmployee} from "src/api/routes"
@@ -36,7 +36,7 @@ const employeeTableData: TableColumnConfig<RequestItemResolvedEmployee>[] = [
 ]
 
 export const EmployeeList: FC = () => {
-    const requests = useFetchRequestsEmployee({
+    const {requests, refetch} = useFetchRequestsEmployee({
         limit: 100,
         offset: 0,
     })
@@ -47,18 +47,30 @@ export const EmployeeList: FC = () => {
 
     const resolvedRequests = useResolvedRequestsEmployee(requests)
 
-    const MyTable = withTableSorting(withTableActions(withTableCopy(GravityTable)));
+    const Table = withTableActions(withTableCopy(GravityTable));
 
-    const getRowActions = (): TableActionConfig<RequestItemResolvedEmployee>[] => {
+    const getRowActions = () => {
         return [
-          {
-            text: 'Remove',
-            handler: () => {
-                console.log('Remove')
+            {
+                text: 'Изменить',
+                handler: () => {
+                    console.log('Изменить')
+                },
             },
-            theme: 'danger' as const,
-          },
-        ];
+            {
+                text: 'Посмотреть',
+                handler: () => {
+                    console.log('Посмотреть')
+                },
+            },
+            {
+                text: 'Удалить',
+                handler: () => {
+                    console.log('Удалить')
+                },
+                theme: 'danger',
+            },
+        ] as TableActionConfig<RequestItemResolvedEmployee>[];
     };
 
     return (
@@ -66,7 +78,7 @@ export const EmployeeList: FC = () => {
             <header className={css.EmployeeList__header}>
                 <Text variant="display-1">Все сотрудники</Text>
             </header>
-            <MyTable
+            <Table
                 className={css.EmployeeList__table}
                 columns={employeeTableData}
                 data={resolvedRequests}
