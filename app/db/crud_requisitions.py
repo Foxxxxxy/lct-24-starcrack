@@ -13,6 +13,7 @@ from db.models import requisitions
 from model.dto.filters import RequisitionFilterDTO
 from db.models import executer_to_requisition
 from model.enum.enums import Status
+from utils.logger import logger
 
 
 def get_everything(
@@ -29,9 +30,18 @@ def get_scheduled(
         requisitions.Requisitions.status == Status.SCHEDULED and
         date <= requisitions.Requisitions.start_time <= date + datetime.timedelta(days=1)
     ).all()
+
+    employees_dict = {}
     for requisition in requisitions_list:
-        requisition.employees = get_employees_by_requisitions(requisition.id, base_session)
-    return requisitions_list
+        employees = get_employees_by_requisitions(requisition.id, base_session)
+        for employee in employees:
+            if employee not in employees_dict:
+                employees_dict[employee] = []
+            employees_dict[employee].append(requisition)
+
+    res = [{"employee": e, "requisitions": r} for e, r in employees_dict.items()]
+    logger.info(res)
+    return res
 
 
 def get_requisition_by_id(

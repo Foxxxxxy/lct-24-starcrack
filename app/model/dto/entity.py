@@ -67,3 +67,6 @@ class RequisitionDTO(pydantic.BaseModel):
         use_enum_values = True
 
 
+class ScheduledRequisitionDTO(pydantic.BaseModel):
+    employee: EmployeeDTO
+    requisitions: List[RequisitionDTO]

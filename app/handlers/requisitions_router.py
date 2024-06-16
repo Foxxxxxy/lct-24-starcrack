@@ -8,7 +8,7 @@ from model.dto.auth_models import UserOutputSchema
 from model.enum.enums import Status, RoleType
 from service import requisitions_service, auth_service
 from model.dto.filters import RequisitionFilterDTO
-from model.dto.entity import RequisitionDTO
+from model.dto.entity import RequisitionDTO, ScheduledRequisitionDTO
 from model.dto.update_entity import RequisitionUpdateDTO
 
 requisitions_router = APIRouter()
@@ -29,7 +29,7 @@ async def get_requisitions_list(
 async def get_scheduled_for_date(
         date: datetime.date, user: Annotated[UserOutputSchema, Depends(auth_service.auth_admin_spec_op)],
         base_session: Session = Depends(get_db)
-) -> List[RequisitionDTO]:
+) -> List[ScheduledRequisitionDTO]:
     return requisitions_service.get_scheduled_by_date(date, base_session)
 
 
