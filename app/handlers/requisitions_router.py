@@ -71,7 +71,7 @@ async def update_requisitions(
 async def create_requisition(
     requisition: RequisitionDTO, user: Annotated[UserOutputSchema, Depends(auth_service.auth_admin_spec_op)],
         base_session: Session = Depends(get_db)
-) -> int:
+):
     return requisitions_service.create_requisition(requisition, base_session)
 
 
