@@ -129,7 +129,7 @@ export const RequestPage: FC = () => {
     );
 
     const handleDateUpdate = useCallback((data: DateTime) => {
-        date.day = data.day();
+        date.day = data.date();
         date.year = data.year();
         date.month = data.month();
     }, []);

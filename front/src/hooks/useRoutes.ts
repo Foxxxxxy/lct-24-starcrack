@@ -3,6 +3,7 @@ import {LayoutEmpty} from 'src/Layouts/LayoutEmpty';
 import {LayoutMain} from 'src/Layouts/LayoutMain';
 import {AuthPage} from 'src/pages/AuthPage';
 import {EmoloyeePage} from 'src/pages/EmoloyeePage';
+import {GantPage} from 'src/pages/GantPage';
 import {MainPage} from 'src/pages/MainPage';
 import {MainPageMobile} from 'src/pages/MainPageMobile';
 import {PassengerInfoPage} from 'src/pages/PassengerInfoPage';
@@ -86,7 +87,13 @@ export const routes: CustomRoute[] = [
         path: '/passengerslist',
         LayoutComponent: LayoutMain,
         PageComponent: PassengersList,
-    }
+    },
+    {
+        name: 'gant',
+        path: '/gant',
+        LayoutComponent: LayoutMain,
+        PageComponent: GantPage,
+    },
 ];
 
 export const useRoutes = (): typeof routes => {
