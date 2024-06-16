@@ -8,12 +8,10 @@ const employeeTableData: TableColumnConfig<RequestItemResolvedPassenger>[] = [
     {
         id: 'id',
         name: 'ID пассажира',
-        meta: {copy: ({id}: {id: string}) => id},
     },
     {
         id: 'name',
         name: 'ФИО пассажира',
-        meta: {copy: ({full_name}: {full_name: string}) => full_name},
     },
     {
         id: 'passenger_category',
@@ -62,7 +60,7 @@ export const PassengersList: FC = () => {
     return (
         <div className={css.EmployeeList}>
             <header className={css.EmployeeList__header}>
-                <Text variant="display-1">Все сотрудники</Text>
+                <Text variant="display-1">Все пассажиры</Text>
             </header>
             <MyTable
                 className={css.EmployeeList__table}
