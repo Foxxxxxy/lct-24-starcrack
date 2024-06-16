@@ -1,7 +1,7 @@
 import {useStore} from '@tanstack/react-store';
 import {useCallback, useEffect, useState} from 'react';
 import {store} from 'src/store/state';
-import {MetroStation, Passenger, Request, RequestItem, RequestStatus, Shift} from 'src/types';
+import {MetroStation, Passenger, Request, RequestItem, RequestStatus, Shift, RequestEmployer} from 'src/types';
 
 import {client} from './api';
 
