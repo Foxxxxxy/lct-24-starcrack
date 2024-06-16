@@ -14,5 +14,6 @@ app/service/__pycache__/
 */*/*/__pycache__/
 
 front/node_modules
+node_modules
 
 

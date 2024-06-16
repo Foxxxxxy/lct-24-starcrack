@@ -9,7 +9,7 @@ import {useFetchRequests} from 'src/api/routes';
 import css from './MainPageMobile.module.scss';
 
 export const MainPageMobile: FC = () => {
-    const requests = useFetchRequests({
+    const {requests, refetch} = useFetchRequests({
         limit: 100,
         offset: 0,
     });
