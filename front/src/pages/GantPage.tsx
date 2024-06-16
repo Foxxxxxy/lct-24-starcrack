@@ -398,7 +398,7 @@ export const GantPage: FC = () => {
                     onUpdate={handleDateUpdate}
                 />
             </div>
-            <Button onClick={handleDynamicSchedule}>Динамичическое распределение</Button>
+            <Button onClick={handleDynamicSchedule}>Динамическое распределение</Button>
             <div className={css.appContainer}>
                 <GanttSidebar requests={sheduledRequests} />
                 <GanttChart requests={sheduledRequests} openModal={handleOpenModal} />

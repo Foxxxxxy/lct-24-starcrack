@@ -57,7 +57,17 @@ export const RequestPage: FC = () => {
     const [stationEnd, setStationEnd] = useState('');
     const [date, setDate] = useState<DateTime>(dateTime());
 
-    const fetchMetroRoute = useFetchMetroRoute({from: stationStart, to: stationEnd});
+    const [stationStartForRoute, setStationStartForRoute] = useState('');
+    const [stationEndForRoute, setStationEndForRoute] = useState('');
+
+    const passengersSuggestion = useFetchPassengerSuggestion(passengerName);
+    const metroDepartureSuggestion = useFetchMetroStations(stationStart);
+    const metroArrivalSuggestion = useFetchMetroStations(stationEnd);
+
+    const fetchMetroRoute = useFetchMetroRoute({
+        from: stationStartForRoute,
+        to: stationEndForRoute,
+    });
 
     const metroRoute = useMemo(() => {
         return fetchMetroRoute?.path.join(' -> ');
@@ -128,10 +138,6 @@ export const RequestPage: FC = () => {
         [setDate],
     );
 
-    const passengersSuggestion = useFetchPassengerSuggestion(passengerName);
-    const metroDepartureSuggestion = useFetchMetroStations(stationStart);
-    const metroArrivalSuggestion = useFetchMetroStations(stationEnd);
-
     useEffect(() => {
         if (editId && passengerById && requestInfo) {
             setPassengerName(passengerById.name);
@@ -190,9 +196,24 @@ export const RequestPage: FC = () => {
         [useStatus, setCurrentStatus],
     );
 
+    const handleSelectMetroStart = useCallback(
+        (item) => {
+            setStationStartForRoute(item.label);
+        },
+        [setStationStartForRoute],
+    );
+
+    const handleSelectMetroEnd = useCallback(
+        (item) => {
+            setStationEndForRoute(item.label);
+        },
+        [setStationEndForRoute],
+    );
+
     if (editId && (!requestInfo || !passengerById)) {
         return 'loading';
     }
+
     return (
         <div className={css.RequestPage}>
             <header className={css.RequestPage__header}>
@@ -203,12 +224,15 @@ export const RequestPage: FC = () => {
                 onSubmit={() => {}}
                 render={(props) => (
                     <div className={css.RequestPage__form}>
+                        <Text className={css.RequestPage__statusTitle}>
+                            Нажмите чтобы выбрать новый статус:
+                        </Text>
                         <Select
                             className={css.RequestPage__status}
                             onUpdate={handleSelectUpdate}
-                            renderControl={({onClick, onKeyDown, ref}) => {
+                            renderControl={({onClick, ref}) => {
                                 return (
-                                    <div ref={ref} onClick={onClick} extraProps={{onKeyDown}}>
+                                    <div ref={ref} onClick={onClick}>
                                         {useStatus(currentStatus)}
                                     </div>
                                 );
@@ -308,6 +332,7 @@ export const RequestPage: FC = () => {
                                             placeholder="Начните вводить название станции отправления"
                                             value={stationStart}
                                             onChange={setStationStart}
+                                            onSelect={handleSelectMetroStart}
                                             items={metroDepartureSuggestion?.map((item) => ({
                                                 label: item.station_name,
                                                 customInfo: {
@@ -325,6 +350,7 @@ export const RequestPage: FC = () => {
                                             placeholder="Начните вводить название станции прибытия"
                                             value={stationEnd}
                                             onChange={setStationEnd}
+                                            onSelect={handleSelectMetroEnd}
                                             items={metroArrivalSuggestion?.map((item) => ({
                                                 label: item.station_name,
                                                 customInfo: {

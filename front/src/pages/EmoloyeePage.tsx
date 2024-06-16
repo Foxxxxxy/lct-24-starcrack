@@ -56,7 +56,7 @@ export const EmoloyeePage: FC = () => {
                 username: values['username']?.value,
                 password: values['password']?.value,
                 role: values['role'] ?? '',
-                sub_role: values['sub_role'] ?? '',
+                sub_role: values['sub_role'] ?? null,
                 sex: mapSex[values['sex']],
                 full_name: values['full_name']?.value ?? '',
                 phone: values['phone']?.value ?? '',

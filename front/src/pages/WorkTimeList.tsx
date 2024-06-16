@@ -91,7 +91,7 @@ export const WorkTimeList: FC = () => {
             {
                 text: 'Изменить',
                 handler: (row) => {
-                    // navigate(`/employee/create?editId=${row._id}`);
+                    handleRowClick(row);
                 },
             },
             {
