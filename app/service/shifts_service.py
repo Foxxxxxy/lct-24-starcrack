@@ -26,6 +26,7 @@ def get_shifts_day(
 
 
 def update_shift(shift: ShiftUpdateDto, base_session: Session):
+    shift.place_start = get_station_by_name(shift.place_start, base_session)
     db_shift = get_shifts_by_id(shift.id, base_session)
     db_shift = update_bd_objects(db_shift, shift.dict(exclude_unset=True))
     base_session.commit()

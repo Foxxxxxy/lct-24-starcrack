@@ -176,7 +176,7 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
     executors, latest_shift_time = get_executors(start, base_session)
     tasks_heap = get_heap(tasks)
     answer = []
-    if not tasks_heap.is_empty() or not executors:
+    if tasks_heap.is_empty() or not executors:
         return "No task or no executors"
     current_task = tasks_heap.pop()
     latest_shift_time = datetime.combine(current_task.finish_time.date(), latest_shift_time)
@@ -214,7 +214,7 @@ def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
     executors, latest_shift_time = get_executor_dynamic(start, base_session)
     tasks_heap = get_heap(tasks)
     answer = []
-    if not tasks_heap.is_empty() or not executors:
+    if tasks_heap.is_empty() or not executors:
         return "No task or no executors"
     current_task = tasks_heap.pop()
     latest_shift_time = datetime.combine(current_task.finish_time.date(), latest_shift_time)

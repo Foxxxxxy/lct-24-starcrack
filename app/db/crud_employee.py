@@ -34,5 +34,12 @@ def suggest_by_name(
     return employees_list
 
 
+def suggest_by_username(
+    name: str, base_session: Session
+):
+    employees_list = base_session.query(employees.Employee).filter(employees.Employee.username == name).all()
+    return employees_list
+
+
 def get_employee_by_name(db: Session, name: str) -> employees.Employee:
     return db.query(employees.Employee).filter(employees.Employee.full_name == name).first()

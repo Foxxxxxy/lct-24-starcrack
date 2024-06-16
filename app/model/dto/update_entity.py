@@ -58,11 +58,11 @@ class EmployeeUpdateDto(pydantic.BaseModel):
 
 class ShiftUpdateDto(pydantic.BaseModel):
     id: int
-    employee_id: int
-    time_start: Optional[time]
-    time_end: Optional[time]
-    place_start: Optional[int]
-    weekday: Optional[Weekday]
+    employee_id: Optional[int] = None
+    time_start: Optional[time] = None
+    time_end: Optional[time] = None
+    place_start: Optional[Union[int, str]] = None
+    weekday: Optional[Weekday] = None
 
     class Config:
         use_enum_values = True

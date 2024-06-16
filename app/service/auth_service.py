@@ -22,7 +22,7 @@ def verify_password(plain_password, hashed_password):
 
 
 def authenticate_user(name: str, password: str, db: Session) -> Union[UserOutputSchema, None]:
-    user = suggest_by_name(name, db)[0]
+    user = suggest_by_username(name, db)[0]
     if not user:
         return None
     if not verify_password(password, user.password):
