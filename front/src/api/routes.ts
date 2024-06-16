@@ -1,7 +1,7 @@
 import {useStore} from '@tanstack/react-store';
 import {useCallback, useEffect, useState} from 'react';
 import {store} from 'src/store/state';
-import {MetroStation, Passenger, Request, RequestItem, RequestStatus, Shift, RequestEmployer} from 'src/types';
+import {MetroStation, Passenger, Request, RequestItem, RequestStatus, Shift, Employer} from 'src/types';
 
 import {client} from './api';
 
@@ -430,14 +430,14 @@ export const useFetchRequestsEmployee = ({
 }: {
     limit: number;
     offset: number;
-}): RequestEmployer[] | undefined => {
-    const [requests, setRequests] = useState<RequestEmployer[] | undefined>();
+}): Employer[] | undefined => {
+    const [requests, setRequests] = useState<Employer[] | undefined>();
 
     const token = useStore(store, (state) => state['access_token']);
 
     useEffect(() => {
         client
-            .get<RequestEmployer[]>(`/employee/?limit=${limit}&offset=${offset}`, {
+            .get<Employer[]>(`/employee/?limit=${limit}&offset=${offset}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -445,5 +445,28 @@ export const useFetchRequestsEmployee = ({
             .then((res) => setRequests(res.data));
     }, [name, token]);
 
+    return requests;
+}
+
+export const useFetchRequestsPassenger = ({
+    limit,
+    offset,
+}: {
+    limit: number;
+    offset: number;
+}): Passenger[] | undefined => {
+    const [requests, setRequests] = useState<Passenger[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        client
+            .get<Passenger[]>(`/passenger/?limit=${limit}&offset=${offset}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequests(res.data));
+    }, [name, token]);
     return requests;
 }

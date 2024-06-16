@@ -80,7 +80,7 @@ export type Request = {
     end_station_comment: string;
 };
 
-export type RequestEmployer = {
+export type Employer = {
     id: number;
     full_name: string;
     sex: string;

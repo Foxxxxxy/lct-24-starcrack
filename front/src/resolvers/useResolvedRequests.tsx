@@ -2,7 +2,7 @@ import {Text} from '@gravity-ui/uikit';
 import {ReactNode} from 'react';
 import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
-import {RequestItem, RequestEmployer} from 'src/types';
+import {RequestItem, Employer, Passenger} from 'src/types';
 import {Icon} from '@gravity-ui/uikit';
 import {CircleXmarkFill, CircleCheckFill} from '@gravity-ui/icons';
 
@@ -30,6 +30,16 @@ export type RequestItemResolvedEmployee = {
     easy_work: ReactNode | boolean;
 }
 
+export type RequestItemResolvedPassenger = {
+    id: ReactNode | number;
+    name: ReactNode | string;
+    passenger_category: ReactNode | string;
+    phone: ReactNode | string;
+    sex: ReactNode | string;
+    pacemaker: ReactNode | boolean;
+    comment: ReactNode | string | null;
+}
+
 export const useResolvedRequests = (requests: RequestItem[] | undefined): RequestItemResolved[] => {
     if (!requests) {
         return [];
@@ -51,7 +61,7 @@ export const useResolvedRequests = (requests: RequestItem[] | undefined): Reques
     }));
 };
 
-export const useResolvedRequestsEmployee = (requests: RequestEmployer[]): RequestItemResolvedEmployee[] => {
+export const useResolvedRequestsEmployee = (requests: Employer[]): RequestItemResolvedEmployee[] => {
     return requests.map((item) => ({
         id: <Text color="secondary">{item.id}</Text>,
         full_name: <Text color="complementary">{item.full_name}</Text>,
@@ -63,3 +73,14 @@ export const useResolvedRequestsEmployee = (requests: RequestEmployer[]): Reques
     }));
 };
 
+export const useResolvedRequestsPassenger = (requests: Passenger[]): RequestItemResolvedPassenger[] => {
+    return requests.map((item) => ({
+        id: <Text color="secondary">{item.id}</Text>,
+        name: <Text color="complementary">{item.name}</Text>,
+        passenger_category: <Text color="complementary">{item.passenger_category}</Text>,
+        phone: <Text color="complementary">{item.phone}</Text>,
+        sex: <Text color="complementary">{item.sex}</Text>,
+        pacemaker: <Icon data={item.pacemaker ? CircleCheckFill : CircleXmarkFill}></Icon>,
+        comment: item.comment ? <Text color="complementary">{item.comment}</Text> : null,
+    }));
+}
