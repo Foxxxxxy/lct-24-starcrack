@@ -34,6 +34,7 @@ def get_scheduled(
     employees_dict = {}
     for requisition in requisitions_list:
         employees = get_employees_by_requisitions(requisition.id, base_session)
+        requisition.employees = employees
         for employee in employees:
             if employee not in employees_dict:
                 employees_dict[employee] = []
