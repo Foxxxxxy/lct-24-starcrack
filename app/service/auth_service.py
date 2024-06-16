@@ -14,7 +14,7 @@ from db.crud_employee import *
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-password_pattern = r'[A-Za-z0-9@#$%^&+=]{8,}'
+# password_pattern = r'[A-Za-z0-9@#$%^&+=]{8,}'
 
 
 def verify_password(plain_password, hashed_password):
@@ -124,8 +124,8 @@ async def auth_admin(user: Employee = Depends(get_user_secured)) -> Employee:
 
 
 def sign_up(form: SignUpSchema, db: Session):
-    if not re.fullmatch(password_pattern, form.password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    # if not re.fullmatch(password_pattern, form.password):
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     form.password = get_password_hash(form.password)
     check_user_level(form.role)
     if get_employee_by_name(db, form.full_name) is not None:

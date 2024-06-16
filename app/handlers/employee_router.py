@@ -65,7 +65,7 @@ async def add_employee(form: SignUpSchema, user: Annotated[UserOutputSchema, Dep
 async def update_employee(
         employee: EmployeeUpdateDto, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
         base_session: Session = Depends(get_db)
-) -> EmployeeDTO:
+) -> EmployeeUpdateDto:
     return employee_service.update_employee(employee, base_session)
 
 

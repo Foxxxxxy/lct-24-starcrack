@@ -35,7 +35,7 @@ class EmployeeDTO(pydantic.BaseModel):
     full_name: str
     sex: SexType
     role: RoleType
-    sub_role: Union[SubRoleType, None] = None
+    sub_role: Optional[SubRoleType] = None
     phone: str
     easy_work: bool
 
