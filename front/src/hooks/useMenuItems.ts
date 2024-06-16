@@ -1,4 +1,4 @@
-import {ListUl, PencilToLine, Person, PersonGear, Plus, ScalesUnbalanced} from '@gravity-ui/icons';
+import {ListUl, Person, PersonGear, Plus} from '@gravity-ui/icons';
 import {MenuItem} from '@gravity-ui/navigation';
 import {router} from 'src/main';
 import {useLocation} from './useLocation';
@@ -11,30 +11,35 @@ const defaultMenuItems: MenuItem[] = [
         icon: ListUl,
     },
     {
-        id: 'overview',
-        title: 'Распределение заявок',
-        icon: ScalesUnbalanced,
-    },
-    {
-        id: 'requestInfo',
-        title: 'Информация о заявке',
-        icon: PencilToLine,
-    },
-    {
-        id: 'requestCreate',
-        title: 'Создание заявки',
-        icon: PencilToLine,
-    },
-    {
-        id: 'overview',
-        title: 'Пассажир',
+        id: 'passengers',
+        title: 'Все пассажиры',
         icon: Person,
     },
     {
-        id: 'overview',
-        title: 'Сотрудники',
+        id: 'employees',
+        title: 'Все сотрудники',
         icon: PersonGear,
     },
+    // {
+    //     id: 'requestInfo',
+    //     title: 'Информация о заявке',
+    //     icon: PencilToLine,
+    // },
+    // {
+    //     id: 'requestCreate',
+    //     title: 'Создание заявки',
+    //     icon: PencilToLine,
+    // },
+    // {
+    //     id: 'overview',
+    //     title: 'Пассажир',
+    //     icon: Person,
+    // },
+    // {
+    //     id: 'overview',
+    //     title: 'Сотрудники',
+    //     icon: PersonGear,
+    // },
     {
         id: 'divider2',
         title: '-',

@@ -1,7 +1,7 @@
 import {useStore} from '@tanstack/react-store';
 import {useCallback, useEffect, useState} from 'react';
 import {store} from 'src/store/state';
-import {MetroStation, Passenger, Request, RequestItem} from 'src/types';
+import {MetroStation, Passenger, Request, RequestItem, RequestStatus, Shift, Employer} from 'src/types';
 
 import {client} from './api';
 
@@ -47,7 +47,7 @@ export const useFetchCreateRequest = () => {
 
     const fetch = useCallback(
         (request: Request) => {
-            client.post(
+            return client.post<{id: number}>(
                 `/requisitions/`,
                 {
                     ...request,
@@ -255,3 +255,261 @@ export const useFetchUpdatePassenger = () => {
         fetch,
     };
 };
+
+export const useFetchMetroRoute = ({from, to}: {from: string; to: string}) => {
+    const [metroRoute, setMetro] = useState<
+        | {
+              path: string[];
+              eta: number;
+          }
+        | undefined
+    >();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!from || !to) {
+            return;
+        }
+        client
+            .get<{path: string[]; eta: number}>(
+                `/routes/?start_station_name=${from}&end_station_name=${to}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            )
+            .then((res) => setMetro(res.data))
+            .catch(() => {});
+    }, [from, to, token, setMetro]);
+
+    return metroRoute;
+};
+
+export const useFetchUpdateStatus = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (request: {id: number; new_status: RequestStatus}) => {
+            return client.put(
+                `/requisitions/update-status?id=${request.id}&new_status=${request.new_status}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchCreateShift = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (request: Shift) => {
+            return client.post(`/shifts`, request, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchShiftsByDate = ({
+    date_start,
+    date_end,
+    limit,
+    offset,
+}: {
+    date_start: string;
+    date_end: string;
+    limit: number;
+    offset: number;
+}): Shift[] | undefined => {
+    const [shifts, setShifts] = useState<Shift[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!date_start || !date_end) {
+            return;
+        }
+        client
+            .get<Shift[]>(
+                `/passenger/id?date_start=${date_start}&date_end=${date_end}&limit=${limit}&offset=${offset}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            )
+            .then((res) => setShifts(res.data));
+    }, [date_start, date_end, limit, offset, token]);
+
+    return shifts;
+};
+
+export const useFetchShiftsByEmployee = ({
+    employee_id,
+    limit,
+    offset,
+}: {
+    employee_id: string | number;
+    limit: number;
+    offset: number;
+}): Shift[] | undefined => {
+    const [shifts, setShifts] = useState<Shift[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!employee_id) {
+            return;
+        }
+        client
+            .get<Shift[]>(
+                `/passenger/id?employee_id=${employee_id}&limit=${limit}&offset=${offset}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            )
+            .then((res) => setShifts(res.data));
+    }, [employee_id, limit, offset, token]);
+
+    return shifts;
+};
+
+export const useFetchShiftsByDay = ({
+    day,
+    limit,
+    offset,
+}: {
+    day: string | number;
+    limit: number;
+    offset: number;
+}): Shift[] | undefined => {
+    const [shifts, setShifts] = useState<Shift[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!day) {
+            return;
+        }
+        client
+            .get<Shift[]>(`/passenger/id?day=${day}&limit=${limit}&offset=${offset}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setShifts(res.data));
+    }, [day, limit, offset, token]);
+
+    return shifts;
+};
+
+export const useFetchSheduledRequest = (date: string): Request[] | undefined => {
+    const [requests, setRequests] = useState<Request[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!date) {
+            return;
+        }
+        client
+            .get<Request[]>(`/requisitions/scheduled?date=${date}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequests(res.data))
+            .catch(() => {});
+    }, [date, token]);
+
+    return requests;
+};
+
+export const useFetchRequestsEmployee = ({
+    limit,
+    offset,
+}: {
+    limit: number;
+    offset: number;
+}): {
+    requests: Employer[] | undefined;
+    refetch: () => void;
+} => {
+    const [requests, setRequests] = useState<Employer[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(() => {
+        return client
+            .get<Employer[]>(`/employee/?limit=${limit}&offset=${offset}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequests(res.data));
+    }, [limit, offset, token]);
+
+    useEffect(() => {
+        fetch();
+    }, [fetch]);
+
+    return {
+        requests,
+        refetch: fetch,
+    }
+}
+
+export const useFetchRequestsPassenger = ({
+    limit,
+    offset,
+}: {
+    limit: number;
+    offset: number;
+}): {
+    requests: Passenger[] | undefined;
+    refetch: () => void;
+} => {
+    const [requests, setRequests] = useState<Passenger[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(() => {
+        return client
+            .get<Passenger[]>(`/passenger/?limit=${limit}&offset=${offset}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequests(res.data));
+    }, [limit, offset, token]);
+
+    useEffect(() => {
+        fetch();
+    }, [fetch]);
+
+    return {
+        requests,
+        refetch: fetch,
+    };
+}

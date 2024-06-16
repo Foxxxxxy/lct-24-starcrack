@@ -69,11 +69,6 @@ export type Request = {
     passenger_id: number;
     passengers_amount: number;
     start_time: string;
-    //
-    meet_time: string;
-    status: RequestStatus;
-    creation_time: string;
-    //
     males_needed: number;
     females_needed: number;
     start_station: string;
@@ -83,4 +78,22 @@ export type Request = {
     comment: string;
     start_station_comment: string;
     end_station_comment: string;
+};
+
+export type Employer = {
+    id: number;
+    full_name: string;
+    sex: string;
+    role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
+    sub_role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
+    phone: string;
+    easy_work: boolean;
+};
+
+export type Shift = {
+    employee_id: number;
+    time_start: string;
+    time_end: string;
+    place_start: string;
+    weekday: string;
 };

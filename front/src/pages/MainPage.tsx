@@ -20,12 +20,10 @@ const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
     {
         id: 'id',
         name: 'ID заявки',
-        meta: {copy: ({id}: {id: string}) => id},
     },
     {
         id: 'passenger_id',
         name: 'ID Пассажира',
-        meta: {copy: ({passenger_id}: {passenger_id: string}) => passenger_id},
     },
     {
         id: 'females_males_needed',
@@ -70,7 +68,7 @@ export const MainPage: FC = () => {
 
     const handleRowEdit = useCallback(
         (row: RequestItemResolved) => {
-            navigate(`/requests/${row._id}`);
+            navigate(`/requests/create?editId=${row._id}`);
         },
         [navigate],
     );

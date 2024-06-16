@@ -14,7 +14,6 @@ export const WorkTimePage: FC = () => {
             </header>
             <Form
                 onSubmit={() => {}}
-                validate={() => {}}
                 render={(props) => (
                     <div className={css.WorkTimePage__form}>
                         <Field label="Дата заявки">

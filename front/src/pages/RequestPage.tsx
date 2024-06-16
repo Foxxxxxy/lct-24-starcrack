@@ -1,6 +1,12 @@
 import {DatePicker} from '@gravity-ui/date-components';
-import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
-import {Button, Text} from '@gravity-ui/uikit';
+import {
+    dynamicConfig,
+    DynamicField,
+    DynamicView,
+    dynamicViewConfig,
+    SpecTypes,
+} from '@gravity-ui/dynamic-forms';
+import {Button, Select, Text} from '@gravity-ui/uikit';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Field as BaseField, Form, FormRenderProps} from 'react-final-form';
 
@@ -12,15 +18,18 @@ import {useNavigate, useSearchParams} from 'react-router-dom';
 import {
     useFetchCreateRequest,
     useFetchDeleteRequest,
+    useFetchMetroRoute,
     useFetchMetroStations,
     useFetchPassengerById,
     useFetchPassengerSuggestion,
     useFetchRequestById,
     useFetchUpdateRequest,
+    useFetchUpdateStatus,
 } from 'src/api/routes';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
-import {FORMAT, passengerCategories} from 'src/constants';
-import {Request} from 'src/types';
+import {FORMAT} from 'src/constants';
+import {statuses, useStatus} from 'src/hooks/useStatus';
+import {Request, RequestStatus} from 'src/types';
 import {mapMethod} from './RequestInfoPage';
 
 export const RequestPage: FC = () => {
@@ -56,6 +65,12 @@ export const RequestPage: FC = () => {
         month: dateTimeParse(new Date())?.month(),
     });
 
+    const fetchMetroRoute = useFetchMetroRoute({from: stationStart, to: stationEnd});
+
+    const metroRoute = useMemo(() => {
+        return fetchMetroRoute?.path.join(' -> ');
+    }, [fetchMetroRoute]);
+
     const handlePassengerAction = useCallback(() => {
         navigate('/passengers/create?back=true');
     }, [navigate]);
@@ -66,11 +81,11 @@ export const RequestPage: FC = () => {
             passengerSuggest.label = item.label;
             passengerSuggest.customInfo = item.customInfo;
         },
-        [setPassengerSuggest, passengerSuggest],
+        [passengerSuggest],
     );
 
     const handleFormSubmit = useCallback(
-        (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
+        async (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
             const {values} = form;
 
             const mapMethod: Record<string, Request['method']> = {
@@ -96,16 +111,6 @@ export const RequestPage: FC = () => {
                 method: mapMethod[values['request_method']],
                 baggage: values['baggage'] ?? '',
                 comment: values['comment'] ?? '',
-                meet_time:
-                    dateTimeParse({
-                        year: date.year || 0,
-                        month: date.month || 0,
-                        day: date.day || 0,
-                        hours: values['meet_time']?.hours,
-                        minutes: values['meet_time']?.minutes,
-                    })?.format(FORMAT) || '',
-                creation_time: dateTimeParse(new Date())?.format(FORMAT) || '',
-                status: 'SCHEDULED',
                 start_station_comment: '',
                 end_station_comment: '',
             };
@@ -116,15 +121,15 @@ export const RequestPage: FC = () => {
                     id: +editId,
                 });
             } else {
-                createRequest(request);
+                const res = await createRequest(request);
+                navigate(`/requests/${res.data.id}`);
             }
-            // navigate('/requests/123');
         },
-        [navigate],
+        [navigate, stationEnd, stationStart, date],
     );
 
     const handleDateUpdate = useCallback((data: DateTime) => {
-        date.day = data.day();
+        date.day = data.date();
         date.year = data.year();
         date.month = data.month();
     }, []);
@@ -173,6 +178,27 @@ export const RequestPage: FC = () => {
         navigate('/');
     }, [navigate]);
 
+    const [currentStatus, setCurrentStatus] = useState(requestInfo?.status);
+
+    useEffect(() => {
+        setCurrentStatus(requestInfo?.status);
+    }, [requestInfo]);
+
+    const {fetch: updateStatus} = useFetchUpdateStatus();
+
+    const handleSelectUpdate = useCallback(
+        (status) => {
+            setCurrentStatus(status[0]);
+
+            //@ts-ignore
+            updateStatus({
+                id: editId,
+                new_status: status[0],
+            });
+        },
+        [useStatus, setCurrentStatus],
+    );
+
     if (editId && (!requestInfo || !passengerById)) {
         return 'loading';
     }
@@ -186,8 +212,83 @@ export const RequestPage: FC = () => {
                 onSubmit={() => {}}
                 render={(props) => (
                     <div className={css.RequestPage__form}>
-                        {/* {props.form.getState()} */}
+                        <Select
+                            className={css.RequestPage__status}
+                            onUpdate={handleSelectUpdate}
+                            // value={['IN_PROGRESS']}
+                            renderControl={({onClick, onKeyDown, ref}) => {
+                                return (
+                                    <div ref={ref} onClick={onClick} extraProps={{onKeyDown}}>
+                                        {useStatus(currentStatus)}
+                                    </div>
+                                );
+                            }}
+                        >
+                            {Object.keys(statuses).map((status: RequestStatus) => {
+                                return (
+                                    <Select.Option key={statuses[status].name} value={status}>
+                                        {useStatus(status)}
+                                    </Select.Option>
+                                );
+                            })}
+                        </Select>
                         <div className={css.RequestPage__formLeft}>
+                            <DynamicView
+                                value={{
+                                    value: fetchMetroRoute?.eta ? fetchMetroRoute?.eta + 'м' : null,
+                                }}
+                                spec={{
+                                    type: SpecTypes.Object,
+                                    properties: {
+                                        value: {
+                                            type: SpecTypes.String,
+                                            viewSpec: {
+                                                type: 'base',
+                                            },
+                                        },
+                                    },
+                                    viewSpec: {
+                                        type: 'object_value',
+                                        layout: 'row',
+                                        layoutTitle: 'Приблизительное время прибытия',
+                                    },
+                                }}
+                                config={dynamicViewConfig}
+                            />
+                            <DynamicView
+                                value={{
+                                    value: passengerSuggest.customInfo?.passenger_category,
+                                }}
+                                spec={{
+                                    type: SpecTypes.Object,
+                                    properties: {
+                                        value: {
+                                            type: SpecTypes.String,
+                                            viewSpec: {
+                                                type: 'base',
+                                            },
+                                        },
+                                    },
+                                    viewSpec: {
+                                        type: 'object_value',
+                                        layout: 'row',
+                                        layoutTitle: 'Категория заявки',
+                                    },
+                                }}
+                                config={dynamicViewConfig}
+                            />
+                            <DynamicView
+                                value={metroRoute}
+                                spec={{
+                                    type: SpecTypes.String,
+                                    viewSpec: {
+                                        type: 'textarea',
+                                        layout: 'row',
+                                        layoutTitle: 'Путь',
+                                    },
+                                }}
+                                config={dynamicViewConfig}
+                            />
                             <Field label="Выбор пассажира">
                                 <BaseField name="passenger">
                                     {() => (
@@ -203,6 +304,7 @@ export const RequestPage: FC = () => {
                                                 info: item.phone,
                                                 customInfo: {
                                                     id: item.id,
+                                                    passenger_category: item.passenger_category,
                                                 },
                                             }))}
                                         />
@@ -305,9 +407,6 @@ export const RequestPage: FC = () => {
                                 }}
                                 config={dynamicConfig}
                             />
-                            <Field name="date" label="Пересадки">
-                                <Text>Пересадки</Text>
-                            </Field>
                             <DynamicField
                                 name={'passengers_amount'}
                                 spec={{
@@ -327,20 +426,6 @@ export const RequestPage: FC = () => {
                                         layoutTitle: 'Количество пассажиров',
                                     },
                                     validator: 'number',
-                                }}
-                                config={dynamicConfig}
-                            />
-                            <DynamicField
-                                name={'request_category'}
-                                spec={{
-                                    type: SpecTypes.String,
-                                    enum: passengerCategories,
-                                    viewSpec: {
-                                        type: 'select',
-                                        layout: 'row',
-                                        layoutTitle: 'Категория заявки',
-                                        placeholder: 'Нажмите, чтобы выбрать метод',
-                                    },
                                 }}
                                 config={dynamicConfig}
                             />

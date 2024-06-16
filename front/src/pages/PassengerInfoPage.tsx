@@ -17,6 +17,7 @@ export const PassengerInfoPage: FC = () => {
     const navigate = useNavigate();
 
     const handleEditPassenger = useCallback(() => {
+        // console.log(passenger, 'asdasd');
         navigate(`/passengers/create?editId=${passenger?.id}`);
     }, []);
 
