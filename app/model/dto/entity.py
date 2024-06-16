@@ -9,7 +9,7 @@ class ShiftDTO(pydantic.BaseModel):
     employee_id: Optional[int]
     time_start: time
     time_end: time
-    place_start: int
+    place_start: Union[int, str]
     weekday: Weekday
 
     class Config:
