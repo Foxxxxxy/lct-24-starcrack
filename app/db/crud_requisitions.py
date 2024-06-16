@@ -3,7 +3,7 @@ import datetime
 
 import fastapi.exceptions
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
@@ -26,9 +26,12 @@ def get_everything(
 def get_scheduled(
     date: datetime.date, base_session: Session
 ):
-    requisitions_list = base_session.query(requisitions.Requisitions).filter(
-        requisitions.Requisitions.status == Status.SCHEDULED and
-        date <= requisitions.Requisitions.start_time <= date + datetime.timedelta(days=1)
+    next_day = date + timedelta(days=1)
+    requisitions_list = base_session.query(requisitions.Requisitions).filter(and_(
+            requisitions.Requisitions.status == requisitions.Status.SCHEDULED,
+            requisitions.Requisitions.start_time >= date,
+            requisitions.Requisitions.start_time < next_day
+        )
     ).all()
 
     employees_dict = {}

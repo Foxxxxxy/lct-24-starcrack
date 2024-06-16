@@ -46,11 +46,11 @@ class PassengerUpdateDTO(pydantic.BaseModel):
 class EmployeeUpdateDto(pydantic.BaseModel):
     id: int
     full_name: str
-    sex: Optional[SexType]
-    role: Optional[RoleType]
-    sub_role: Optional[SubRoleType] = None
-    phone: Optional[str]
-    easy_work: Optional[bool]
+    sex: Optional[SexType] = None
+    role: Optional[RoleType] = None
+    sub_role: Optional[Union[SubRoleType, None]] = None
+    phone: Optional[str] = None
+    easy_work: Optional[bool] = None
 
     class Config:
         use_enum_values = True
