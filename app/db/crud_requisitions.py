@@ -137,6 +137,19 @@ def get_requisition_by_timedelta_status(
     return requisitions_list
 
 
+def update_requisition_time(
+    req_id: int, start_time: datetime, end_time: datetime, base_session
+):
+    requisition = base_session.query(requisitions.Requisitions).filter(
+        requisitions.Requisitions.id == req_id
+    ).first()
+    requisition.start_time = start_time
+    requisition.finish_time = end_time
+    base_session.add(requisition)
+    base_session.commit()
+    return
+
+
 def update_requisition_status(
     req_id: int, status: str, base_session: Session
 ):

@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from db.crud_stations import get_station_by_id
 from db.crud_requisitions import update_requisition_employee, update_requisition_status, \
-    employee_to_requisition, get_requisition_by_timedelta_status, get_requisitions_by_employee_id
+    employee_to_requisition, get_requisition_by_timedelta_status, get_requisitions_by_employee_id, \
+    update_requisition_time
 from db.crud_shifts import get_shifts_by_day
 from db.crud_employee import get_employees_by_id
 from model.enum.enums import SexType
@@ -200,6 +201,7 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
             executors[ex_id].free_from = current_task.finish_time.time()
             employee_to_requisition(current_task.id, ex_id, base_session)
             update_requisition_status(current_task.id, "SCHEDULED", base_session)
+            update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
             current_task.status = "SCHEDULED"
             answer.append(current_task)
         current_task = tasks_heap.pop()
