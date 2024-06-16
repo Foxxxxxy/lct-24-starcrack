@@ -1,5 +1,6 @@
-import datetime
+from datetime import timedelta
 
+import pytz
 from sqlalchemy.orm import Session
 from db.crud_requisitions import *
 from typing import List
@@ -7,6 +8,19 @@ from . import db_model_from_dto, update_bd_objects
 from model.dto.entity import RequisitionDTO
 from model.dto.update_entity import RequisitionUpdateDTO
 from db.crud_stations import *
+
+
+def determine_status(start_time):
+    now = datetime.now()
+    local_tz = pytz.timezone('Europe/Moscow')
+    now = local_tz.localize(now)
+
+    time_difference = start_time - now
+
+    if time_difference < timedelta(hours=24):
+        return "NEED_DYNAMIC_SCHEDULING"
+    else:
+        return "SELECTED_FOR_SCHEDULING"
 
 
 def update_requisition_station_to_add(new_requisition, base_session):
@@ -49,6 +63,8 @@ def create_requisition(
     requisition: RequisitionDTO, base_session: Session
 ):
     update_requisition_station_to_add(requisition, base_session)
+    requisition.creation_time = datetime.now()
+    requisition.status = determine_status(requisition.start_time)
     db_requisition = db_model_from_dto(requisition, requisitions.Requisitions)
     new_requisition = add_new_requisition(db_requisition, base_session)
     update_requisition_station_to_response(requisition, base_session)

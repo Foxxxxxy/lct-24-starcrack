@@ -199,6 +199,7 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
             executors[ex_id].free_from = current_task.finish_time.time()
             employee_to_requisition(current_task.id, ex_id, base_session)
             update_requisition_status(current_task.id, "SCHEDULED", base_session)
+            current_task.status = "SCHEDULED"
             answer.append(current_task)
         current_task = tasks_heap.pop()
 
@@ -236,6 +237,7 @@ def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
             executors[ex_id].free_from = current_task.finish_time.time()
             employee_to_requisition(current_task.id, ex_id, base_session)
             update_requisition_status(current_task.id, "SCHEDULED", base_session)
+            current_task.status = "SCHEDULED"
             answer.append(current_task)
         current_task = tasks_heap.pop()
 
