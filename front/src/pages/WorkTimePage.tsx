@@ -150,12 +150,12 @@ export const WorkTimePage: FC = () => {
                 employee_id: emplpoyeeSuggest.customInfo?.id,
                 weekday: weeks[date.weekday()],
                 time_start: formatToTimestamp(
-                    values['finish_time']?.hours,
-                    values['finish_time']?.minutes,
-                ),
-                time_end: formatToTimestamp(
                     values['start_time']?.hours,
                     values['start_time']?.minutes,
+                ),
+                time_end: formatToTimestamp(
+                    values['finish_time']?.hours,
+                    values['finish_time']?.minutes,
                 ),
                 place_start: editId ? shift?.place_start : metroSuggest.label,
             };
