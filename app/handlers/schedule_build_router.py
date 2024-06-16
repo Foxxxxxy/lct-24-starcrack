@@ -32,8 +32,7 @@ async def get_sorted_schedules_dynamic(
 ):
     if not date_end or date_start:
         now = datetime.now()
-        date_start = now + timedelta(hours=24)
-
-        date_end = now + timedelta(hours=48)
+        date_start = now
+        date_end = now + timedelta(hours=24)
 
     return build_dynamic_schedule_func(date_start, date_end, base_session, algorithm)

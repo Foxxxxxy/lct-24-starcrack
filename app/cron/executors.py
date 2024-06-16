@@ -38,10 +38,10 @@ class CreateTimetableExecutor(Executor):
         logger.info(f"Found {len(requisitions_list)} candidates for scheduling...")
 
         algorithm = CreateTimetableAlgorithm()
-        algorithm.create_timetable()
+        algorithm.create_timetable(base_session)
 
         logger.info(f"Finished creating timetable for date {timetable_date}!")
 
     @staticmethod
     def get_cron_trigger() -> CronTrigger:
-        return CronTrigger(second="*/10")
+        return CronTrigger(hour=0, minute=0, second=0)
