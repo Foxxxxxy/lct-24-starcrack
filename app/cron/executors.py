@@ -39,6 +39,7 @@ class CreateTimetableExecutor(Executor):
         algorithm.create_timetable(base_session, get_dijkstra_algorithm())
 
         logger.info(f"Finished creating timetable for date {timetable_date}!")
+        base_session.close()
 
     @staticmethod
     def get_cron_trigger() -> CronTrigger:
