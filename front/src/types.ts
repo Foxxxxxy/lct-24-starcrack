@@ -69,11 +69,6 @@ export type Request = {
     passenger_id: number;
     passengers_amount: number;
     start_time: string;
-    //
-    meet_time: string;
-    status: RequestStatus;
-    creation_time: string;
-    //
     males_needed: number;
     females_needed: number;
     start_station: string;
@@ -83,4 +78,12 @@ export type Request = {
     comment: string;
     start_station_comment: string;
     end_station_comment: string;
+};
+
+export type Shift = {
+    employee_id: number;
+    time_start: string;
+    time_end: string;
+    place_start: string;
+    weekday: string;
 };
