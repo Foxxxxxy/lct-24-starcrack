@@ -1,5 +1,5 @@
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
-import {Button, Text} from '@gravity-ui/uikit';
+import {Button, Text, useToaster} from '@gravity-ui/uikit';
 import {FC, useCallback, useMemo} from 'react';
 import {Form, FormRenderProps} from 'react-final-form';
 import {useLocation, useNavigate, useSearchParams} from 'react-router-dom';
@@ -11,11 +11,13 @@ import {
 } from 'src/api/routes';
 import {mapSex, mapSexBack, passengerCategories} from 'src/constants';
 import {Passenger} from 'src/types';
+import {Loader} from 'src/components/Loader/Loader';
 import css from './PassengerPage.module.scss';
 
 export const PassengerPage: FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const {add} = useToaster();
 
     let [searchParams] = useSearchParams();
 
@@ -64,11 +66,39 @@ export const PassengerPage: FC = () => {
                 await updatePassenger({
                     ...request,
                     id: +editId,
-                });
-                navigate('/passengers');
+                })
+                    .then(() => {
+                        add({
+                            name: 'passenger-edit-success',
+                            title: 'Пассажир успешно изменен',
+                            theme: 'success',
+                        });
+                        navigate('/passengers');
+                    })
+                    .catch(() => {
+                        add({
+                            name: 'passenger-edit-error',
+                            title: 'Что-то пошло не так :(',
+                            theme: 'danger',
+                        });
+                    });
             } else {
-                await createPassenger(request);
-                navigate('/passengers');
+                await createPassenger(request)
+                    .then(() => {
+                        add({
+                            name: 'passenger-create-success',
+                            title: 'Пассажир успешно создан',
+                            theme: 'success',
+                        });
+                        navigate('/passengers');
+                    })
+                    .catch(() => {
+                        add({
+                            name: 'passenger-create-error',
+                            title: 'Что-то пошло не так :(',
+                            theme: 'danger',
+                        });
+                    })
             }
 
             if (back) {
@@ -79,12 +109,26 @@ export const PassengerPage: FC = () => {
     );
 
     const handleRemovePassenger = useCallback(async () => {
-        await removePassenger(editId ?? '');
-        navigate('/passengers');
-    }, []);
+        await removePassenger(editId ?? '')
+            .then(() => {
+                add({
+                    name: 'passenger-remove-success',
+                    title: 'Пассажир успешно удален',
+                    theme: 'success',
+                });
+                navigate('/passengers');
+            })
+            .catch(() => {
+                add({
+                    name: 'passenger-remove-error',
+                    title: 'Что-то пошло не так :(',
+                    theme: 'danger',
+                });
+            });
+    }, [navigate, removePassenger, editId]);
 
     if (editId && !passenger) {
-        return 'loading';
+        return <Loader />;
     }
 
     return (

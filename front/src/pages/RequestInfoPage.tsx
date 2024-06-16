@@ -8,16 +8,17 @@ import {useFetchMetroRoute, useFetchPassengerById, useFetchRequestById} from 'sr
 import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
 import css from './RequestInfoPage.module.scss';
-
-export const mapMethod: Record<string, Request['method']> = {
-    Telephone: 'Электронные сервисы',
-    WebServices: 'По телефону',
-};
+import {mapMethod} from 'src/constants';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
 
 export const RequestInfoPage: FC = () => {
     const params = useParams();
     const navigate = useNavigate();
     const requestInfo = useFetchRequestById(params.id ?? '');
+
+    const user = useStore(store, (state) => state['user']);
+    const userRole = user?.role;
 
     const passengerById = useFetchPassengerById(requestInfo?.passenger_id ?? '');
 
@@ -312,7 +313,10 @@ export const RequestInfoPage: FC = () => {
                             }}
                             config={dynamicViewConfig}
                         />
+                        {userRole === 'Admin' ?
                         <Button onClick={handleUpdate}>Изменить заявку</Button>
+                        : null
+                        }
                     </div>
                 )}
             ></Form>

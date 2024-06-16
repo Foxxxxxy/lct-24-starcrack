@@ -32,7 +32,7 @@ export const SidebarPopup: FC<SidebarPopupProps> = (props) => {
             <User
                 avatar={
                     <Avatar
-                        imgUrl="https://lh3.googleusercontent.com/ogw/AF2bZyjQPFn3Mvwvp3JNzQqP7Xo_V9jGARrJ8RHSAxCG_09c7Ac=s64-c-mo"
+                        text={username}
                         size="m"
                     />
                 }

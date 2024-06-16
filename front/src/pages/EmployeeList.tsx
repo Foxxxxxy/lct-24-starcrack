@@ -18,6 +18,8 @@ import {
     RequestItemResolvedEmployee,
     useResolvedRequestsEmployee,
 } from 'src/resolvers/useResolvedRequests';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
 import css from './EmployeeList.module.scss';
 
 const employeeTableData: TableColumnConfig<RequestItemResolvedEmployee>[] = [
@@ -39,7 +41,7 @@ const employeeTableData: TableColumnConfig<RequestItemResolvedEmployee>[] = [
     },
     {
         id: 'sub_role',
-        name: 'Подроль',
+        name: 'Должность',
     },
     {
         id: 'phone',
@@ -60,6 +62,9 @@ export const EmployeeList: FC = () => {
     });
 
     const [name, setName] = useState('');
+
+    const user = useStore(store, (state) => state['user']);
+    const userRole = user?.role;
 
     const employeeList = useFetchEmployeeSuggestion(name);
     const {fetch: deleteEmployee} = useFetchRemoveEmployee();
@@ -83,28 +88,38 @@ export const EmployeeList: FC = () => {
     );
 
     const getRowActions = () => {
-        return [
-            {
-                text: 'Изменить',
-                handler: (row) => {
-                    navigate(`/employee/create?editId=${row._id}`);
+        if (userRole === 'Admin') {
+            return [
+                {
+                    text: 'Изменить',
+                    handler: (row) => {
+                        navigate(`/employee/create?editId=${row._id}`);
+                    },
                 },
-            },
+                {
+                    text: 'Посмотреть',
+                    handler: (row) => {
+                        handleRowClick(row);
+                    },
+                },
+                {
+                    text: 'Удалить',
+                    handler: async (row) => {
+                        await deleteEmployee(row._id);
+                        setName('');
+                        refetch();
+                    },
+                    theme: 'danger',
+                },
+            ] as TableActionConfig<RequestItemResolvedEmployee>[];
+        }
+        return [
             {
                 text: 'Посмотреть',
                 handler: (row) => {
                     handleRowClick(row);
                 },
-            },
-            {
-                text: 'Удалить',
-                handler: async (row) => {
-                    await deleteEmployee(row._id);
-                    setName('');
-                    refetch();
-                },
-                theme: 'danger',
-            },
+            }
         ] as TableActionConfig<RequestItemResolvedEmployee>[];
     };
 

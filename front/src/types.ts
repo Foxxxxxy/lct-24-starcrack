@@ -81,7 +81,7 @@ export type Request = {
 };
 
 export type Employer = {
-    id: number;
+    id?: number;
     full_name: string;
     sex: 'Male' | 'Female';
     role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
@@ -93,10 +93,11 @@ export type Employer = {
 };
 
 export type Shift = {
+    id?: number;
     employee_id: number;
     time_start: string;
     time_end: string;
-    place_start: string;
+    place_start: string | undefined;
     weekday: string;
 };
 

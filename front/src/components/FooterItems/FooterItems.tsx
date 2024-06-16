@@ -27,7 +27,7 @@ export const FooterItems: FC<FooterItemsProps> = (props) => {
                         title,
                         icon: (
                             <Avatar
-                                imgUrl="https://lh3.googleusercontent.com/ogw/AF2bZyjQPFn3Mvwvp3JNzQqP7Xo_V9jGARrJ8RHSAxCG_09c7Ac=s64-c-mo"
+                                text={user?.full_name}
                                 size="m"
                             />
                         ),

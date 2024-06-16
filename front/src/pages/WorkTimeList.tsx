@@ -5,6 +5,8 @@ import {useNavigate} from 'react-router-dom';
 import {useFetchEmployeeSuggestion, useFetchShifts, useFetchShiftsByEmployee} from 'src/api/routes';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
 import {useResolvedShifts} from 'src/resolvers/useResolvedRequests';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
 import css from './WorkTimeList.module.scss';
 
 const requestTableData = [
@@ -36,6 +38,9 @@ const requestTableData = [
 
 export const WorkTimeList: FC = () => {
     const navigate = useNavigate();
+
+    const user = useStore(store, (state) => state['user']);
+    const userRole = user?.role;
 
     const [employeeName, setEmployeeName] = useState('');
     const employeesSuggestions = useFetchEmployeeSuggestion(employeeName);
@@ -81,20 +86,25 @@ export const WorkTimeList: FC = () => {
 
     const handleRowClick = useCallback(
         (row) => {
-            navigate(`/work-time/create?editId=${row._id}`);
+            if (userRole == 'Admin') {
+                navigate(`/work-time/create?editId=${row._id}`);
+            }
         },
         [navigate],
     );
 
     const getRowActions = useCallback(() => {
-        return [
-            {
-                text: 'Изменить',
-                handler: (row) => {
-                    handleRowClick(row);
+        if (userRole == 'Admin') {
+            return [
+                {
+                    text: 'Изменить',
+                    handler: (row) => {
+                        handleRowClick(row);
+                    },
                 },
-            },
-        ];
+            ];
+        }
+        return [];
     }, [handleRowClick]);
 
     const Table = withTableActions(withTableCopy(GravityTable));

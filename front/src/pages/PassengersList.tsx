@@ -19,6 +19,8 @@ import {
     RequestItemResolvedPassenger,
     useResolvedRequestsPassenger,
 } from 'src/resolvers/useResolvedRequests';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
 import css from './PassengersList.module.scss';
 
 const employeeTableData: TableColumnConfig<RequestItemResolvedPassenger>[] = [
@@ -58,6 +60,9 @@ export const PassengersList: FC = () => {
 
     const [name, setName] = useState('');
 
+    const user = useStore(store, (state) => state['user']);
+    const userRole = user?.role;
+
     const passengersList = useFetchPassengerSuggestion(name);
 
     const handleInputChange = useCallback(
@@ -88,28 +93,38 @@ export const PassengersList: FC = () => {
     );
 
     const getRowActions = () => {
-        return [
-            {
-                text: 'Изменить',
-                handler: (row) => {
-                    navigate(`/passengers/create?editId=${row._id}`);
+        if (userRole === 'Admin') {
+            return [
+                {
+                    text: 'Изменить',
+                    handler: (row) => {
+                        navigate(`/passengers/create?editId=${row._id}`);
+                    },
                 },
-            },
+                {
+                    text: 'Посмотреть',
+                    handler: (row) => {
+                        handleRowClick(row);
+                    },
+                },
+                {
+                    text: 'Удалить',
+                    handler: async (row) => {
+                        await deletePassenger(row._id);
+                        setName('');
+                        refetch();
+                    },
+                    theme: 'danger',
+                },
+            ] as TableActionConfig<RequestItemResolvedPassenger>[];
+        }
+        return [
             {
                 text: 'Посмотреть',
                 handler: (row) => {
                     handleRowClick(row);
                 },
-            },
-            {
-                text: 'Удалить',
-                handler: async (row) => {
-                    await deletePassenger(row._id);
-                    setName('');
-                    refetch();
-                },
-                theme: 'danger',
-            },
+            }
         ] as TableActionConfig<RequestItemResolvedPassenger>[];
     };
 

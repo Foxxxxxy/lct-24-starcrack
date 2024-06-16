@@ -1,8 +1,9 @@
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
-import {Button, Text} from '@gravity-ui/uikit';
+import {Button, Text, useToaster} from '@gravity-ui/uikit';
 import {FC, useCallback, useMemo} from 'react';
 import {Form, FormRenderProps} from 'react-final-form';
 import {useNavigate, useSearchParams} from 'react-router-dom';
+import {Employer} from 'src/types';
 import {
     useFetchCreateEmployee,
     useFetchEmployeeById,
@@ -10,11 +11,13 @@ import {
     useFetchUpdateEmployee,
 } from 'src/api/routes';
 import {mapSex, mapSexBack} from 'src/constants';
+import {Loader} from 'src/components/Loader/Loader';
 import css from './EmoloyeePage.module.scss';
 
 export const EmoloyeePage: FC = () => {
     const navigate = useNavigate();
     let [searchParams] = useSearchParams();
+    const {add} = useToaster();
 
     const {fetch: createEmployee} = useFetchCreateEmployee();
     const {fetch: updateEmployee} = useFetchUpdateEmployee();
@@ -52,7 +55,7 @@ export const EmoloyeePage: FC = () => {
         async (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
             const {values} = form;
 
-            const request = {
+            const request: Employer = {
                 username: values['username']?.value,
                 password: values['password']?.value,
                 role: values['role'] ?? '',
@@ -64,14 +67,42 @@ export const EmoloyeePage: FC = () => {
             };
 
             if (editId) {
-                await updateEmployee({
+                updateEmployee({
                     ...request,
                     id: +editId,
-                });
-                navigate('/employee');
+                })
+                    .then(() => {
+                        add({
+                            name: 'employee-edit-success',
+                            title: 'Сотрудник успешно изменен',
+                            theme: 'success',
+                        });
+                        navigate('/employee');
+                    })
+                    .catch(() => {
+                        add({
+                            name: 'employee-edit-error',
+                            title: 'Что-то пошло не так :(',
+                            theme: 'danger',
+                        });
+                    });
+        
             } else {
-                await createEmployee(request);
-                navigate('/employee');
+                try {
+                    await createEmployee(request);
+                    add({
+                        name: 'employee-create-success',
+                        title: 'Сотрудник успешно создан',
+                        theme: 'success',
+                    });
+                    navigate('/employee');
+                } catch {
+                    add({
+                        name: 'employee-create-error',
+                        title: 'Что-то пошло не так :(',
+                        theme: 'danger',
+                    })
+                }
             }
 
             if (request.sub_role === 'Attendant' && !editId) {
@@ -84,12 +115,28 @@ export const EmoloyeePage: FC = () => {
     );
 
     const handleRemoveEmployee = useCallback(async () => {
-        await removeEmployee(editId ?? '');
-        navigate('/employee');
+        await removeEmployee(editId ?? '')
+            .then(() => {
+                add({
+                    name: 'employee-remove-success',
+                    title: 'Сотрудник успешно удален',
+                    theme: 'success',
+                });
+                navigate('/employee');
+            })
+            .catch(() => {
+                add({
+                    name: 'employee-remove-error',
+                    title: 'Что-то пошло не так :(',
+                    theme: 'danger',
+                });
+            });
     }, [editId]);
 
     if (editId && !employee) {
-        return 'loading';
+        return (
+            <Loader />
+        )
     }
 
     return (

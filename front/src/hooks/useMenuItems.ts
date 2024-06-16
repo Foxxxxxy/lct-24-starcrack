@@ -3,10 +3,14 @@ import {MenuItem} from '@gravity-ui/navigation';
 import {router} from 'src/main';
 import {useLocation} from './useLocation';
 import {routes} from './useRoutes';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
+import {accessPages} from 'src/constants';
 
 const defaultMenuItems: MenuItem[] = [
     {
         id: 'main',
+        name: 'main',
         title: 'Все заявки',
         icon: ListUl,
         onItemClick() {
@@ -15,6 +19,7 @@ const defaultMenuItems: MenuItem[] = [
     },
     {
         id: 'gant',
+        name: 'gant',
         title: 'Экран распределения',
         icon: PencilToLine,
         onItemClick() {
@@ -23,6 +28,7 @@ const defaultMenuItems: MenuItem[] = [
     },
     {
         id: 'passengers2',
+        name: 'passengersList',
         title: 'Все пассажиры',
         icon: Person,
         onItemClick(pr) {
@@ -31,6 +37,7 @@ const defaultMenuItems: MenuItem[] = [
     },
     {
         id: 'employees3',
+        name: 'employeeList',
         title: 'Все сотрудники',
         icon: PersonGear,
         onItemClick() {
@@ -39,6 +46,7 @@ const defaultMenuItems: MenuItem[] = [
     },
     {
         id: 'employees4s',
+        name: 'workTimeList',
         title: 'Все рабочие смены',
         icon: PersonGear,
         onItemClick() {
@@ -74,23 +82,29 @@ const defaultMenuItems: MenuItem[] = [
 
 const filterAside = (items: MenuItem[]): MenuItem[] => {
     const {name} = useLocation();
-    const idx = items.findIndex((item) => item.id === name);
-    if (idx !== -1) {
-        items[idx].current = true;
-    }
-    const patchedItems = items.map((item) => {
-        const route = routes.find((route) => route.name === name);
-        return {
-            ...item,
-            // onItemClick() {
-            //     router.navigate(route?.path ?? '/');
-            // },
-        };
-    });
-    return [
+    const user = useStore(store, (state) => state['user']);
+    const userRole = user?.role;
+    items = items.map((item) => ({
+        ...item,
+        current: item.name === name,
+    }));
+    // if (idx !== -1) {
+    //     items[idx].current = true;
+    // }
+    // const patchedItems = items.map((item) => {
+    //     const route = routes.find((route) => route.name === name);
+    //     return {
+    //         ...item,
+    //         // onItemClick() {
+    //         //     router.navigate(route?.path ?? '/');
+    //         // },
+    //     };
+    // });
+    let allItems = [
         ...items,
         {
             id: 'action2',
+            name: 'createRequest',
             title: 'Создать заявку',
             type: 'action',
             icon: Plus,
@@ -100,6 +114,7 @@ const filterAside = (items: MenuItem[]): MenuItem[] => {
         },
         {
             id: 'action2',
+            name: 'createPassenger',
             title: 'Создать пассажира',
             type: 'action',
             icon: Plus,
@@ -109,6 +124,7 @@ const filterAside = (items: MenuItem[]): MenuItem[] => {
         },
         {
             id: 'action2',
+            name: 'createEmployee',
             title: 'Создать сотрудника',
             type: 'action',
             icon: Plus,
@@ -118,6 +134,7 @@ const filterAside = (items: MenuItem[]): MenuItem[] => {
         },
         {
             id: 'action2',
+            name: 'createWorkTime',
             title: 'Создать расписание',
             type: 'action',
             icon: Plus,
@@ -125,9 +142,14 @@ const filterAside = (items: MenuItem[]): MenuItem[] => {
                 router.navigate('/work-time/create');
             },
         },
-    ];
+    ] as MenuItem[];
 
-    return items;
+    // if (userRole) {
+    //     allItems = allItems.filter((item) => accessPages[userRole].includes(item.name) || item.type === 'divider');
+    //     return allItems;
+    // }
+
+    return allItems;
 };
 
 export const useMenuItems = (): typeof defaultMenuItems => {

@@ -17,6 +17,8 @@ import {useNavigate} from 'react-router-dom';
 import {useFetchDeleteRequest, useFetchFilteredRequests, useFetchRequests} from 'src/api/routes';
 import {statuses, useStatus} from 'src/hooks/useStatus';
 import {RequestStatus} from 'src/types';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
 import css from './MainPage.module.scss';
 
 const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
@@ -57,6 +59,9 @@ export const MainPage: FC = () => {
     });
 
     const navigate = useNavigate();
+
+    const user = useStore(store, (state) => state['user']);
+    const userRole = user?.role;
 
     const [settings, setSettings] = useState([{id: '_status', isSelected: true}]);
 
@@ -100,20 +105,28 @@ export const MainPage: FC = () => {
     );
 
     const getRowActions = () => {
+        if (userRole === 'Admin') {
+            return [
+                {
+                    text: 'Изменить',
+                    handler: handleRowEdit,
+                },
+                {
+                    text: 'Посмотреть',
+                    handler: handleRowClick,
+                },
+                {
+                    text: 'Удалить',
+                    handler: handleRowDelete,
+                    theme: 'danger',
+                },
+            ] as TableActionConfig<TableDataItem>[];
+        }
         return [
-            {
-                text: 'Изменить',
-                handler: handleRowEdit,
-            },
             {
                 text: 'Посмотреть',
                 handler: handleRowClick,
-            },
-            {
-                text: 'Удалить',
-                handler: handleRowDelete,
-                theme: 'danger',
-            },
+            }
         ] as TableActionConfig<TableDataItem>[];
     };
 

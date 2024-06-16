@@ -1,5 +1,7 @@
 .SidebarPopup {
-    padding: 15px;
     display: flex;
+    justify-content: space-between;
+    padding: 15px;
     gap: 10px;
+    min-width: 200px;
 }

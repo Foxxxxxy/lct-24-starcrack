@@ -8,12 +8,15 @@
 }
 
 .SuggestSelect {
-    background-color: #393439;
+    background-color: var(--g-color-base-background);
     position: absolute;
     width: 100%;
     z-index: 1;
     max-height: 250px;
     overflow: scroll;
+    border: 1px solid rgba(0, 0, 0, 0.20);
+    border-radius: 0 0 5px 5px;
+    border-top: none;
 }
 
 .SuggestSelect_active {

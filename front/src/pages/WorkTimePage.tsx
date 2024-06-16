@@ -1,10 +1,11 @@
 import {DatePicker, RangeCalendar} from '@gravity-ui/date-components';
 import {DateTime, dateTime} from '@gravity-ui/date-utils';
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
-import {Button, Text} from '@gravity-ui/uikit';
+import {Button, Text, useToaster} from '@gravity-ui/uikit';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Field as BaseField, Form, FormRenderProps} from 'react-final-form';
 import {useNavigate, useSearchParams} from 'react-router-dom';
+import {Shift} from 'src/types';
 import {
     useFetchCreateShift,
     useFetchEmployeeById,
@@ -17,6 +18,7 @@ import {
 import {Field} from 'src/components/Field/Field';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
 import {weeks} from 'src/constants';
+import {Loader} from 'src/components/Loader/Loader';
 import css from './WorkTimePage.module.scss';
 
 function parseTimeToHoursAndMinutes(timeStr: string): {hours: number; minutes: number} {
@@ -37,6 +39,7 @@ function parseTimeToHoursAndMinutes(timeStr: string): {hours: number; minutes: n
 export const WorkTimePage: FC = () => {
     const navigate = useNavigate();
     let [searchParams] = useSearchParams();
+    const {add} = useToaster();
 
     const {fetch: createShift} = useFetchCreateShift();
     const {fetch: updateShift} = useFetchUpdateShift();
@@ -138,15 +141,29 @@ export const WorkTimePage: FC = () => {
     }, []);
 
     const handleFormDelete = useCallback(async () => {
-        await removeShift(String(editId));
-        navigate('/work-time');
+        await removeShift(String(editId))
+            .then(() => {
+                add({
+                    name: 'shift-delete-success',
+                    title: 'Рабочий день успешно удален',
+                    theme: 'success',
+                });
+                navigate('/work-time');
+            })
+            .catch(() => {
+                add({
+                    name: 'shift-delete-error',
+                    title: 'Что-то пошло не так :(',
+                    theme: 'danger',
+                });
+            })
     }, [navigate]);
 
     const handleSubmit = useCallback(
         async (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
             const {values} = form;
 
-            const request = {
+            const request: Shift = {
                 employee_id: emplpoyeeSuggest.customInfo?.id,
                 weekday: weeks[date.weekday()],
                 time_start: formatToTimestamp(
@@ -164,17 +181,48 @@ export const WorkTimePage: FC = () => {
                 await updateShift({
                     ...request,
                     id: +editId,
-                });
+                })
+                    .then(() => {
+                        add({
+                            name: 'shift-edit-success',
+                            title: 'Рабочий день успешно изменен',
+                            theme: 'success',
+                        });
+                        navigate(`/work-time`);
+                    })
+                    .catch(() => {
+                        add({
+                            name: 'shift-edit-error',
+                            title: 'Что-то пошло не так :(',
+                            theme: 'danger',
+                        });
+                    });
             } else {
-                await createShift(request);
+                await createShift(request)
+                    .then(() => {
+                        add({
+                            name: 'shift-create-success',
+                            title: 'Рабочий день успешно создан',
+                            theme: 'success',
+                        });
+                        navigate(`/work-time`);
+                    })
+                    .catch(() => {
+                        add({
+                            name: 'shift-create-error',
+                            title: 'Что-то пошло не так :(',
+                            theme: 'danger',
+                        })
+                    });
             }
-            navigate(`/work-time`);
         },
         [shift, emplpoyeeSuggest, weeks, date, metroSuggest],
     );
 
     if (editId && (!shift || !employeeById || !metroName)) {
-        return 'loading';
+        return (
+            <Loader />
+        )
     }
 
     return (

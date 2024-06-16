@@ -5,6 +5,8 @@ import {Form} from 'react-final-form';
 import {useNavigate, useParams} from 'react-router-dom';
 import {useFetchEmployeeById, useFetchRemoveEmployee} from 'src/api/routes';
 import {mapSex} from 'src/constants';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
 import css from './EmployeeInfoPage.module.scss';
 
 export const EmployeeInfoPage: FC = () => {
@@ -15,6 +17,9 @@ export const EmployeeInfoPage: FC = () => {
     const {fetch: removeEmployee} = useFetchRemoveEmployee();
 
     const navigate = useNavigate();
+
+    const user = useStore(store, (state) => state['user']);
+    const userRole = user?.role;
 
     const handleEditEmployee = useCallback(() => {
         navigate(`/employee/create?editId=${employee?.id}`);
@@ -28,7 +33,7 @@ export const EmployeeInfoPage: FC = () => {
     return (
         <div className={css.EmployeeInfoPage}>
             <header className={css.EmployeeInfoPage__header}>
-                <Text variant="display-1">Информация о пассажире</Text>
+                <Text variant="display-1">Информация о сотруднике</Text>
             </header>
             <Form
                 onSubmit={() => {}}
@@ -155,6 +160,7 @@ export const EmployeeInfoPage: FC = () => {
                             }}
                             config={dynamicViewConfig}
                         />
+                        {userRole === 'Admin' ?
                         <div className={css.EmployeeInfoPage__actions}>
                             <Button view="action" onClick={handleEditEmployee}>
                                 Изменить сотрудника
@@ -163,6 +169,8 @@ export const EmployeeInfoPage: FC = () => {
                                 Удалить сотрудника
                             </Button>
                         </div>
+                        : undefined
+                        }
                     </div>
                 )}
             ></Form>

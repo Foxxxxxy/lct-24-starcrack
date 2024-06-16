@@ -1,6 +1,6 @@
 import {Text} from '@gravity-ui/uikit';
 import {ReactNode} from 'react';
-import {mapSexBack} from 'src/constants';
+import {mapSexBack, mapWeeksBack} from 'src/constants';
 import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
 import {Employer, Passenger, RequestItem, Shift} from 'src/types';
@@ -98,6 +98,6 @@ export const useResolvedShifts = (requests: Shift[]) => {
         time_start: <Text>{item.time_start}</Text>,
         time_end: <Text>{item.time_end}</Text>,
         place_start: <Text>{item.place_start}</Text>,
-        weekday: <Text>{item.weekday}</Text>,
+        weekday: <Text>{mapWeeksBack[item.weekday]}</Text>,
     }));
 };

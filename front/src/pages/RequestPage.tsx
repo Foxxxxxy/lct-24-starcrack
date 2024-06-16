@@ -6,7 +6,7 @@ import {
     dynamicViewConfig,
     SpecTypes,
 } from '@gravity-ui/dynamic-forms';
-import {Button, Select, Text} from '@gravity-ui/uikit';
+import {Button, Select, Text, useToaster} from '@gravity-ui/uikit';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Field as BaseField, Form, FormRenderProps} from 'react-final-form';
 
@@ -27,14 +27,21 @@ import {
     useFetchUpdateStatus,
 } from 'src/api/routes';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
-import {FORMAT} from 'src/constants';
+import {FORMAT, mapMethodBack, mapMethod} from 'src/constants';
 import {statuses, useStatus} from 'src/hooks/useStatus';
 import {Request, RequestStatus} from 'src/types';
-import {mapMethod} from './RequestInfoPage';
+import {Loader} from 'src/components/Loader/Loader';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
+import { getSelectedSettingsPart } from '@gravity-ui/navigation/build/esm/components/Settings/collect-settings';
 
 export const RequestPage: FC = () => {
     const navigate = useNavigate();
     let [searchParams] = useSearchParams();
+    const {add} = useToaster();
+
+    const user = useStore(store, (state) => state['user']);
+    const userRole = user?.role;
 
     const editId = searchParams.get('editId');
 
@@ -90,11 +97,6 @@ export const RequestPage: FC = () => {
         async (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
             const {values} = form;
 
-            const mapMethod: Record<string, Request['method']> = {
-                'Электронные сервисы': 'Telephone',
-                'По телефону': 'WebServices',
-            };
-
             const request: Request = {
                 passenger_id: passengerSuggest?.customInfo?.id,
                 passengers_amount: +values['passengers_amount']?.value,
@@ -110,7 +112,7 @@ export const RequestPage: FC = () => {
                 females_needed: +values['females_needed']?.value,
                 start_station: stationStart,
                 end_station: stationEnd,
-                method: mapMethod[values['request_method']],
+                method: mapMethodBack[values['request_method']],
                 baggage: values['baggage'] ?? '',
                 comment: values['comment'] ?? '',
                 start_station_comment: '',
@@ -118,14 +120,41 @@ export const RequestPage: FC = () => {
             };
 
             if (editId) {
-                updateRequest({
+                await updateRequest({
                     ...request,
                     id: +editId,
-                });
-                navigate(`/requests/${editId}`);
+                })
+                    .then(() => {
+                        add({
+                            name: 'requests-edit-success',
+                            title: 'Заявка успешно изменена',
+                            theme: 'success',
+                        });
+                        navigate(`/requests/${editId}`);
+                    })
+                    .catch(() => {
+                        add({
+                            name: 'requests-edit-failture',
+                            title: 'Что-то пошло не так :(',
+                            theme: 'danger',
+                        });
+                    });
             } else {
-                const res = await createRequest(request);
-                navigate(`/requests/${res.data.id}`);
+                try {
+                    const res = await createRequest(request);
+                    add({
+                        name: 'requests-create-success',
+                        title: 'Заявка успешно создана',
+                        theme: 'success',
+                    });
+                    navigate(`/requests/${res.data.id}`);
+                } catch {
+                    add({
+                        name: 'requests-create-failture',
+                        title: 'Что-то пошло не так :(',
+                        theme: 'danger',
+                    });
+                }
             }
         },
         [navigate, stationEnd, stationStart, date],
@@ -145,8 +174,10 @@ export const RequestPage: FC = () => {
             setStationStart(requestInfo.start_station);
             setStationEnd(requestInfo.end_station);
             setDate(dateTimeParse(requestInfo.start_time));
+            setStationStartForRoute(requestInfo.start_station);
+            setStationEndForRoute(requestInfo.end_station);
         }
-    }, [requestInfo, passengerById, dateTimeParse, mapMethod]);
+    }, [requestInfo, passengerById, dateTimeParse, mapMethod, setStationStart, setPassengerName, setDate, setStationStartForRoute, setStationEndForRoute]);
 
     const initialForm = useMemo(() => {
         return {
@@ -171,8 +202,22 @@ export const RequestPage: FC = () => {
     }, [requestInfo, passengerById, dateTimeParse, mapMethod]);
 
     const handleFormDelete = useCallback(async () => {
-        await fetchDeleteRequest(String(editId));
-        navigate('/');
+        await fetchDeleteRequest(String(editId))
+            .then(() => {
+                add({
+                    name: 'requests-delete-success',
+                    title: 'Заявка успешно удалена',
+                    theme: 'success',
+                });
+                navigate('/');
+            })
+            .catch(() => {
+                add({
+                    name: 'requests-delete-failture',
+                    title: 'Что-то пошло не так :(',
+                    theme: 'danger',
+                });
+            });
     }, [navigate]);
 
     const [currentStatus, setCurrentStatus] = useState(requestInfo?.status);
@@ -211,7 +256,9 @@ export const RequestPage: FC = () => {
     );
 
     if (editId && (!requestInfo || !passengerById)) {
-        return 'loading';
+        return (
+            <Loader />
+        );
     }
 
     return (
@@ -224,9 +271,9 @@ export const RequestPage: FC = () => {
                 onSubmit={() => {}}
                 render={(props) => (
                     <div className={css.RequestPage__form}>
-                        <Text className={css.RequestPage__statusTitle}>
+                        {editId && <Text className={css.RequestPage__statusTitle}>
                             Нажмите чтобы выбрать новый статус:
-                        </Text>
+                        </Text>}
                         <Select
                             className={css.RequestPage__status}
                             onUpdate={handleSelectUpdate}
@@ -249,7 +296,7 @@ export const RequestPage: FC = () => {
                         <div className={css.RequestPage__formLeft}>
                             <DynamicView
                                 value={{
-                                    value: fetchMetroRoute?.eta ? fetchMetroRoute?.eta + 'м' : null,
+                                    value: fetchMetroRoute?.eta ? Math.round(fetchMetroRoute?.eta * 100) / 100 + 'м' : null,
                                 }}
                                 spec={{
                                     type: SpecTypes.Object,
@@ -518,13 +565,18 @@ export const RequestPage: FC = () => {
                             <div className={css.RequestPage__actions}>
                                 {editId ? (
                                     <>
+                                        {userRole === 'Admin' ? 
                                         <Button
                                             size="xl"
                                             view="action"
                                             onClick={() => handleFormSubmit(props)}
                                         >
                                             Изменить заявку
-                                        </Button>
+                                        </Button> 
+                                        : 
+                                            undefined
+                                        }
+                                        
                                         <Button
                                             size="xl"
                                             view="outlined-danger"

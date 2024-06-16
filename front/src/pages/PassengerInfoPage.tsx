@@ -5,6 +5,8 @@ import {Form} from 'react-final-form';
 import {useNavigate, useParams} from 'react-router-dom';
 import {useFetchPassengerById, useFetchRemovePassenger} from 'src/api/routes';
 import {mapSex, passengerCategories} from 'src/constants';
+import {useStore} from '@tanstack/react-store';
+import {store} from 'src/store/state';
 import css from './PassengerInfoPage.module.scss';
 
 export const PassengerInfoPage: FC = () => {
@@ -15,6 +17,9 @@ export const PassengerInfoPage: FC = () => {
     const {fetch: removePassenger} = useFetchRemovePassenger();
 
     const navigate = useNavigate();
+
+    const user = useStore(store, (state) => state['user']);
+    const userRole = user?.role;
 
     const handleEditPassenger = useCallback(() => {
         navigate(`/passengers/create?editId=${passenger?.id}`);
@@ -134,6 +139,7 @@ export const PassengerInfoPage: FC = () => {
                             }}
                             config={dynamicViewConfig}
                         />
+                        {userRole === 'Admin' ? 
                         <div className={css.PassengerInfoPage__actions}>
                             <Button view="action" onClick={handleEditPassenger}>
                                 Изменить пассажира
@@ -142,6 +148,7 @@ export const PassengerInfoPage: FC = () => {
                                 Удалить пассажира
                             </Button>
                         </div>
+                        : undefined}
                     </div>
                 )}
             ></Form>
