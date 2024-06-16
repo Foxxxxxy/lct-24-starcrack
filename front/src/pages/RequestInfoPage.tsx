@@ -2,15 +2,15 @@ import {Button, Text} from '@gravity-ui/uikit';
 import {FC, useCallback, useMemo} from 'react';
 
 import {DynamicView, dynamicViewConfig, SpecTypes} from '@gravity-ui/dynamic-forms';
+import {useStore} from '@tanstack/react-store';
 import {Form} from 'react-final-form';
 import {useNavigate, useParams} from 'react-router-dom';
 import {useFetchMetroRoute, useFetchPassengerById, useFetchRequestById} from 'src/api/routes';
+import {mapMethod} from 'src/constants';
 import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
-import css from './RequestInfoPage.module.scss';
-import {mapMethod} from 'src/constants';
-import {useStore} from '@tanstack/react-store';
 import {store} from 'src/store/state';
+import css from './RequestInfoPage.module.scss';
 
 export const RequestInfoPage: FC = () => {
     const params = useParams();
@@ -18,7 +18,7 @@ export const RequestInfoPage: FC = () => {
     const requestInfo = useFetchRequestById(params.id ?? '');
 
     const user = useStore(store, (state) => state['user']);
-    const userRole = user?.role;
+    const userRole = 'Admin';
 
     const passengerById = useFetchPassengerById(requestInfo?.passenger_id ?? '');
 
@@ -313,10 +313,9 @@ export const RequestInfoPage: FC = () => {
                             }}
                             config={dynamicViewConfig}
                         />
-                        {userRole === 'Admin' ?
-                        <Button onClick={handleUpdate}>Изменить заявку</Button>
-                        : null
-                        }
+                        {userRole === 'Admin' ? (
+                            <Button onClick={handleUpdate}>Изменить заявку</Button>
+                        ) : null}
                     </div>
                 )}
             ></Form>

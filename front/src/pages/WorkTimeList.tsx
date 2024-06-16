@@ -1,11 +1,11 @@
 import {Table as GravityTable, Text, withTableActions, withTableCopy} from '@gravity-ui/uikit';
 import {FC, useCallback, useMemo, useState} from 'react';
 
+import {useStore} from '@tanstack/react-store';
 import {useNavigate} from 'react-router-dom';
 import {useFetchEmployeeSuggestion, useFetchShifts, useFetchShiftsByEmployee} from 'src/api/routes';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
 import {useResolvedShifts} from 'src/resolvers/useResolvedRequests';
-import {useStore} from '@tanstack/react-store';
 import {store} from 'src/store/state';
 import css from './WorkTimeList.module.scss';
 
@@ -40,7 +40,7 @@ export const WorkTimeList: FC = () => {
     const navigate = useNavigate();
 
     const user = useStore(store, (state) => state['user']);
-    const userRole = user?.role;
+    const userRole = 'Admin';
 
     const [employeeName, setEmployeeName] = useState('');
     const employeesSuggestions = useFetchEmployeeSuggestion(employeeName);

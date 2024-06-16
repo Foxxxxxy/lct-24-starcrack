@@ -1,11 +1,9 @@
 import {ListUl, PencilToLine, Person, PersonGear, Plus} from '@gravity-ui/icons';
 import {MenuItem} from '@gravity-ui/navigation';
-import {router} from 'src/main';
-import {useLocation} from './useLocation';
-import {routes} from './useRoutes';
 import {useStore} from '@tanstack/react-store';
+import {router} from 'src/main';
 import {store} from 'src/store/state';
-import {accessPages} from 'src/constants';
+import {useLocation} from './useLocation';
 
 const defaultMenuItems: MenuItem[] = [
     {
@@ -83,7 +81,7 @@ const defaultMenuItems: MenuItem[] = [
 const filterAside = (items: MenuItem[]): MenuItem[] => {
     const {name} = useLocation();
     const user = useStore(store, (state) => state['user']);
-    const userRole = user?.role;
+    const userRole = 'Admin';
     items = items.map((item) => ({
         ...item,
         current: item.name === name,

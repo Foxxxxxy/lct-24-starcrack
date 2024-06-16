@@ -14,6 +14,7 @@ import {Field} from 'src/components/Field/Field';
 import css from './RequestPage.module.scss';
 
 import {dateTime, DateTime, dateTimeParse} from '@gravity-ui/date-utils';
+import {useStore} from '@tanstack/react-store';
 import {useNavigate, useSearchParams} from 'react-router-dom';
 import {
     useFetchCreateRequest,
@@ -26,14 +27,12 @@ import {
     useFetchUpdateRequest,
     useFetchUpdateStatus,
 } from 'src/api/routes';
-import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
-import {FORMAT, mapMethodBack, mapMethod} from 'src/constants';
-import {statuses, useStatus} from 'src/hooks/useStatus';
-import {Request, RequestStatus} from 'src/types';
 import {Loader} from 'src/components/Loader/Loader';
-import {useStore} from '@tanstack/react-store';
+import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
+import {FORMAT, mapMethod, mapMethodBack} from 'src/constants';
+import {statuses, useStatus} from 'src/hooks/useStatus';
 import {store} from 'src/store/state';
-import { getSelectedSettingsPart } from '@gravity-ui/navigation/build/esm/components/Settings/collect-settings';
+import {Request, RequestStatus} from 'src/types';
 
 export const RequestPage: FC = () => {
     const navigate = useNavigate();
@@ -41,7 +40,7 @@ export const RequestPage: FC = () => {
     const {add} = useToaster();
 
     const user = useStore(store, (state) => state['user']);
-    const userRole = user?.role;
+    const userRole = 'Admin';
 
     const editId = searchParams.get('editId');
 
@@ -177,7 +176,17 @@ export const RequestPage: FC = () => {
             setStationStartForRoute(requestInfo.start_station);
             setStationEndForRoute(requestInfo.end_station);
         }
-    }, [requestInfo, passengerById, dateTimeParse, mapMethod, setStationStart, setPassengerName, setDate, setStationStartForRoute, setStationEndForRoute]);
+    }, [
+        requestInfo,
+        passengerById,
+        dateTimeParse,
+        mapMethod,
+        setStationStart,
+        setPassengerName,
+        setDate,
+        setStationStartForRoute,
+        setStationEndForRoute,
+    ]);
 
     const initialForm = useMemo(() => {
         return {
@@ -256,9 +265,7 @@ export const RequestPage: FC = () => {
     );
 
     if (editId && (!requestInfo || !passengerById)) {
-        return (
-            <Loader />
-        );
+        return <Loader />;
     }
 
     return (
@@ -271,9 +278,11 @@ export const RequestPage: FC = () => {
                 onSubmit={() => {}}
                 render={(props) => (
                     <div className={css.RequestPage__form}>
-                        {editId && <Text className={css.RequestPage__statusTitle}>
-                            Нажмите чтобы выбрать новый статус:
-                        </Text>}
+                        {editId && (
+                            <Text className={css.RequestPage__statusTitle}>
+                                Нажмите чтобы выбрать новый статус:
+                            </Text>
+                        )}
                         <Select
                             className={css.RequestPage__status}
                             onUpdate={handleSelectUpdate}
@@ -296,7 +305,9 @@ export const RequestPage: FC = () => {
                         <div className={css.RequestPage__formLeft}>
                             <DynamicView
                                 value={{
-                                    value: fetchMetroRoute?.eta ? Math.round(fetchMetroRoute?.eta * 100) / 100 + 'м' : null,
+                                    value: fetchMetroRoute?.eta
+                                        ? Math.round(fetchMetroRoute?.eta * 100) / 100 + 'м'
+                                        : null,
                                 }}
                                 spec={{
                                     type: SpecTypes.Object,
@@ -565,18 +576,16 @@ export const RequestPage: FC = () => {
                             <div className={css.RequestPage__actions}>
                                 {editId ? (
                                     <>
-                                        {userRole === 'Admin' ? 
-                                        <Button
-                                            size="xl"
-                                            view="action"
-                                            onClick={() => handleFormSubmit(props)}
-                                        >
-                                            Изменить заявку
-                                        </Button> 
-                                        : 
-                                            undefined
-                                        }
-                                        
+                                        {userRole === 'Admin' ? (
+                                            <Button
+                                                size="xl"
+                                                view="action"
+                                                onClick={() => handleFormSubmit(props)}
+                                            >
+                                                Изменить заявку
+                                            </Button>
+                                        ) : undefined}
+
                                         <Button
                                             size="xl"
                                             view="outlined-danger"

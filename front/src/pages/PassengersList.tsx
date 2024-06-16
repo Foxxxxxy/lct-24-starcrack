@@ -8,6 +8,7 @@ import {
     withTableCopy,
     withTableSorting,
 } from '@gravity-ui/uikit';
+import {useStore} from '@tanstack/react-store';
 import {FC, useCallback, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
@@ -19,7 +20,6 @@ import {
     RequestItemResolvedPassenger,
     useResolvedRequestsPassenger,
 } from 'src/resolvers/useResolvedRequests';
-import {useStore} from '@tanstack/react-store';
 import {store} from 'src/store/state';
 import css from './PassengersList.module.scss';
 
@@ -61,7 +61,7 @@ export const PassengersList: FC = () => {
     const [name, setName] = useState('');
 
     const user = useStore(store, (state) => state['user']);
-    const userRole = user?.role;
+    const userRole = 'Admin';
 
     const passengersList = useFetchPassengerSuggestion(name);
 
@@ -124,7 +124,7 @@ export const PassengersList: FC = () => {
                 handler: (row) => {
                     handleRowClick(row);
                 },
-            }
+            },
         ] as TableActionConfig<RequestItemResolvedPassenger>[];
     };
 

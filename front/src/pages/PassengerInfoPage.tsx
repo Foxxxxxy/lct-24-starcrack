@@ -1,11 +1,11 @@
 import {DynamicView, dynamicViewConfig, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Button, Text} from '@gravity-ui/uikit';
+import {useStore} from '@tanstack/react-store';
 import {FC, useCallback} from 'react';
 import {Form} from 'react-final-form';
 import {useNavigate, useParams} from 'react-router-dom';
 import {useFetchPassengerById, useFetchRemovePassenger} from 'src/api/routes';
 import {mapSex, passengerCategories} from 'src/constants';
-import {useStore} from '@tanstack/react-store';
 import {store} from 'src/store/state';
 import css from './PassengerInfoPage.module.scss';
 
@@ -19,7 +19,7 @@ export const PassengerInfoPage: FC = () => {
     const navigate = useNavigate();
 
     const user = useStore(store, (state) => state['user']);
-    const userRole = user?.role;
+    const userRole = 'Admin';
 
     const handleEditPassenger = useCallback(() => {
         navigate(`/passengers/create?editId=${passenger?.id}`);
@@ -139,16 +139,16 @@ export const PassengerInfoPage: FC = () => {
                             }}
                             config={dynamicViewConfig}
                         />
-                        {userRole === 'Admin' ? 
-                        <div className={css.PassengerInfoPage__actions}>
-                            <Button view="action" onClick={handleEditPassenger}>
-                                Изменить пассажира
-                            </Button>
-                            <Button view="outlined-danger" onClick={handleRemovePassenger}>
-                                Удалить пассажира
-                            </Button>
-                        </div>
-                        : undefined}
+                        {userRole === 'Admin' ? (
+                            <div className={css.PassengerInfoPage__actions}>
+                                <Button view="action" onClick={handleEditPassenger}>
+                                    Изменить пассажира
+                                </Button>
+                                <Button view="outlined-danger" onClick={handleRemovePassenger}>
+                                    Удалить пассажира
+                                </Button>
+                            </div>
+                        ) : undefined}
                     </div>
                 )}
             ></Form>

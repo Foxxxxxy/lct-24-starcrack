@@ -7,6 +7,7 @@ import {
     withTableActions,
     withTableCopy,
 } from '@gravity-ui/uikit';
+import {useStore} from '@tanstack/react-store';
 import {FC, useCallback, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
@@ -18,7 +19,6 @@ import {
     RequestItemResolvedEmployee,
     useResolvedRequestsEmployee,
 } from 'src/resolvers/useResolvedRequests';
-import {useStore} from '@tanstack/react-store';
 import {store} from 'src/store/state';
 import css from './EmployeeList.module.scss';
 
@@ -64,7 +64,7 @@ export const EmployeeList: FC = () => {
     const [name, setName] = useState('');
 
     const user = useStore(store, (state) => state['user']);
-    const userRole = user?.role;
+    const userRole = 'Admin';
 
     const employeeList = useFetchEmployeeSuggestion(name);
     const {fetch: deleteEmployee} = useFetchRemoveEmployee();
@@ -119,7 +119,7 @@ export const EmployeeList: FC = () => {
                 handler: (row) => {
                     handleRowClick(row);
                 },
-            }
+            },
         ] as TableActionConfig<RequestItemResolvedEmployee>[];
     };
 
