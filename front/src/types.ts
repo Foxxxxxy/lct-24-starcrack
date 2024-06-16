@@ -97,3 +97,10 @@ export type Shift = {
     place_start: string;
     weekday: string;
 };
+
+export type UserData = {
+    id: number;
+    role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator';
+    full_name: string;
+    username: string;
+}

@@ -3,6 +3,7 @@ import {FC} from 'react';
 import {FooterItem} from '@gravity-ui/navigation';
 import {Avatar} from '@gravity-ui/uikit';
 import {SidebarPopup} from 'src/components/SidebarPopup/SidebarPopup';
+import {useFetchUserData} from 'src/api/routes';
 
 type FooterItemsProps = {
     compact: boolean;
@@ -12,6 +13,7 @@ type FooterItemsProps = {
 export const FooterItems: FC<FooterItemsProps> = (props) => {
     const {compact} = props
     const [popupVisible, setPopupVisible] = useState(false);
+    const {requests, refetch} = useFetchUserData();
 
     const footerItems = [
         <FooterItem 
@@ -35,7 +37,7 @@ export const FooterItems: FC<FooterItemsProps> = (props) => {
             onClosePopup={() => setPopupVisible(false)}
             renderPopupContent={() => {
                 return (
-                    <SidebarPopup username='Рыбко Алексей Александрович' status='Администратор' />
+                    <SidebarPopup username={requests.full_name} status={requests.role} />
                 )
             }}
         />,
