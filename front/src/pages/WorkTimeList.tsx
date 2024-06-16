@@ -1,8 +1,8 @@
 import {Table as GravityTable, Text, withTableActions, withTableCopy} from '@gravity-ui/uikit';
-import {FC, useCallback, useState} from 'react';
+import {FC, useCallback, useMemo, useState} from 'react';
 
 import {useNavigate} from 'react-router-dom';
-import {useFetchEmployeeSuggestion, useFetchShiftsByEmployee} from 'src/api/routes';
+import {useFetchEmployeeSuggestion, useFetchShifts, useFetchShiftsByEmployee} from 'src/api/routes';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
 import {useResolvedShifts} from 'src/resolvers/useResolvedRequests';
 import css from './WorkTimeList.module.scss';
@@ -52,7 +52,19 @@ export const WorkTimeList: FC = () => {
         employee_id: emplpoyeeSuggest.customInfo?.id,
     });
 
-    const resolvedRequests = useResolvedShifts(shifts ?? []);
+    const shiftsAll = useFetchShifts({
+        limit: 1000,
+        offset: 0,
+    });
+
+    const allShifts = useMemo(() => {
+        if (!shifts?.length) {
+            return shiftsAll;
+        }
+        return shifts;
+    }, [shiftsAll, shifts]);
+
+    const resolvedRequests = useResolvedShifts(allShifts ?? []);
 
     const handleEmployeeAction = useCallback(() => {
         navigate('/employee/create');

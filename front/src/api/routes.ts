@@ -535,6 +535,34 @@ export const useFetchShiftsByEmployee = ({
     return shifts;
 };
 
+export const useFetchShifts = ({
+    limit,
+    offset,
+}: {
+    limit: number;
+    offset: number;
+}): Shift[] | undefined => {
+    const [shifts, setShifts] = useState<Shift[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        client
+            .post<Shift[]>(
+                `/shifts/filtered?limit=${limit}&offset=${offset}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            )
+            .then((res) => setShifts(res.data));
+    }, [limit, offset, token]);
+
+    return shifts;
+};
+
 export const useFetchShiftsByDay = ({
     day,
     limit,

@@ -18,12 +18,12 @@ export const PassengerInfoPage: FC = () => {
 
     const handleEditPassenger = useCallback(() => {
         navigate(`/passengers/create?editId=${passenger?.id}`);
-    }, []);
+    }, [passenger]);
 
     const handleRemovePassenger = useCallback(async () => {
         await removePassenger(passenger?.id ?? '');
         navigate('/passengers');
-    }, []);
+    }, [passenger]);
 
     return (
         <div className={css.PassengerInfoPage}>
