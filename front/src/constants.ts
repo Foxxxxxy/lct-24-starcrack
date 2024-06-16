@@ -26,3 +26,5 @@ export const mapSexBack: Record<Passenger['sex'], string> = {
     Male: 'М',
     Female: 'Ж',
 };
+
+export const weeks = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];

@@ -1,10 +1,10 @@
 import {Button, Text} from '@gravity-ui/uikit';
-import {FC, useCallback} from 'react';
+import {FC, useCallback, useMemo} from 'react';
 
 import {DynamicView, dynamicViewConfig, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Form} from 'react-final-form';
 import {useNavigate, useParams} from 'react-router-dom';
-import {useFetchPassengerById, useFetchRequestById} from 'src/api/routes';
+import {useFetchMetroRoute, useFetchPassengerById, useFetchRequestById} from 'src/api/routes';
 import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
 import css from './RequestInfoPage.module.scss';
@@ -25,6 +25,15 @@ export const RequestInfoPage: FC = () => {
         navigate(`/requests/create?editId=${params.id}`);
     }, [navigate, params]);
 
+    const fetchMetroRoute = useFetchMetroRoute({
+        from: requestInfo?.start_station ?? '',
+        to: requestInfo?.end_station ?? '',
+    });
+
+    const metroRoute = useMemo(() => {
+        return fetchMetroRoute?.path.join(' -> ');
+    }, [fetchMetroRoute]);
+
     return (
         <div className={css.RequestInfoPage}>
             <header className={css.RequestInfoPage__header}>
@@ -34,7 +43,9 @@ export const RequestInfoPage: FC = () => {
                 onSubmit={() => {}}
                 render={() => (
                     <div>
-                        <div className={css.RequestInfoPage__status}>{useStatus('FINISHED')}</div>
+                        <div className={css.RequestInfoPage__status}>
+                            {useStatus(requestInfo?.status ?? '')}
+                        </div>
                         <DynamicView
                             value={{
                                 value: passengerById?.name,
@@ -129,7 +140,7 @@ export const RequestInfoPage: FC = () => {
                         />
                         <DynamicView
                             value={{
-                                value: useDateTime(requestInfo?.finish_time ?? '').formatted,
+                                value: useDateTime(requestInfo?.finish_time).formatted,
                             }}
                             spec={{
                                 type: SpecTypes.Object,
@@ -174,24 +185,13 @@ export const RequestInfoPage: FC = () => {
                             config={dynamicViewConfig}
                         />
                         <DynamicView
-                            value={{
-                                value: 'Алтуфьево -> авывы фыво фыолвфы вфыол вло фыв олфыолв фыол в лофывол фвол фыло во лфывол фыло вло фыв',
-                            }}
+                            value={metroRoute}
                             spec={{
-                                type: SpecTypes.Object,
-                                properties: {
-                                    value: {
-                                        type: SpecTypes.String,
-                                        viewSpec: {
-                                            type: 'base',
-                                            placeholder: 'Пересадки',
-                                        },
-                                    },
-                                },
+                                type: SpecTypes.String,
                                 viewSpec: {
-                                    type: 'object_value',
+                                    type: 'textarea',
                                     layout: 'row',
-                                    layoutTitle: 'Пересадки',
+                                    layoutTitle: 'Путь',
                                 },
                             }}
                             config={dynamicViewConfig}

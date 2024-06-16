@@ -3,16 +3,17 @@ import {LayoutEmpty} from 'src/Layouts/LayoutEmpty';
 import {LayoutMain} from 'src/Layouts/LayoutMain';
 import {AuthPage} from 'src/pages/AuthPage';
 import {EmoloyeePage} from 'src/pages/EmoloyeePage';
+import {EmployeeList} from 'src/pages/EmployeeList';
 import {GantPage} from 'src/pages/GantPage';
 import {MainPage} from 'src/pages/MainPage';
 import {MainPageMobile} from 'src/pages/MainPageMobile';
 import {PassengerInfoPage} from 'src/pages/PassengerInfoPage';
 import {PassengerPage} from 'src/pages/PassengerPage';
+import {PassengersList} from 'src/pages/PassengersList';
 import {RequestInfoPage} from 'src/pages/RequestInfoPage';
 import {RequestPage} from 'src/pages/RequestPage';
+import {WorkTimeList} from 'src/pages/WorkTimeList';
 import {WorkTimePage} from 'src/pages/WorkTimePage';
-import {EmployeeList} from 'src/pages/EmployeeList';
-import {PassengersList} from 'src/pages/PassengersList';
 
 export type CustomRoute = {
     name: string;
@@ -78,13 +79,13 @@ export const routes: CustomRoute[] = [
     },
     {
         name: 'employeeList',
-        path: '/employeelist',
+        path: '/employee',
         LayoutComponent: LayoutMain,
         PageComponent: EmployeeList,
     },
     {
         name: 'passengersList',
-        path: '/passengerslist',
+        path: '/passengers',
         LayoutComponent: LayoutMain,
         PageComponent: PassengersList,
     },
@@ -93,6 +94,12 @@ export const routes: CustomRoute[] = [
         path: '/gant',
         LayoutComponent: LayoutMain,
         PageComponent: GantPage,
+    },
+    {
+        name: 'workTimeList',
+        path: '/work-time',
+        LayoutComponent: LayoutMain,
+        PageComponent: WorkTimeList,
     },
 ];
 

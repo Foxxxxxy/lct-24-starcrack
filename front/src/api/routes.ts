@@ -1,8 +1,18 @@
 import {useStore} from '@tanstack/react-store';
 import {useCallback, useEffect, useState} from 'react';
 import {store} from 'src/store/state';
-import {MetroStation, Passenger, Request, RequestItem, RequestStatus, Shift, Employer} from 'src/types';
+import {
+    Employer,
+    MetroStation,
+    Passenger,
+    Request,
+    RequestItem,
+    RequestStatus,
+    Shift,
+    User,
+} from 'src/types';
 
+import {RequestShedule} from 'src/pages/GantPage';
 import {client} from './api';
 
 export const useFetchMetroStations = (name: string): MetroStation[] | undefined => {
@@ -231,6 +241,25 @@ export const useFetchRemovePassenger = () => {
     };
 };
 
+export const useFetchRemoveEmployee = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (id: string | number) => {
+            return client.delete(`/employee/?employee_id=${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
 export const useFetchUpdatePassenger = () => {
     const token = useStore(store, (state) => state['access_token']);
 
@@ -382,7 +411,7 @@ export const useFetchShiftsByEmployee = ({
         }
         client
             .get<Shift[]>(
-                `/passenger/id?employee_id=${employee_id}&limit=${limit}&offset=${offset}`,
+                `/shifts/employee?employee_id=${employee_id}&limit=${limit}&offset=${offset}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -424,17 +453,22 @@ export const useFetchShiftsByDay = ({
     return shifts;
 };
 
-export const useFetchSheduledRequest = (date: string): Request[] | undefined => {
-    const [requests, setRequests] = useState<Request[] | undefined>();
+export const useFetchSheduledRequest = (
+    date: string,
+): {
+    requests: RequestShedule[] | undefined;
+    refetch: () => void;
+} => {
+    const [requests, setRequests] = useState<RequestShedule[] | undefined>();
 
     const token = useStore(store, (state) => state['access_token']);
 
-    useEffect(() => {
+    const fetch = useCallback(() => {
         if (!date) {
             return;
         }
-        client
-            .get<Request[]>(`/requisitions/scheduled?date=${date}`, {
+        return client
+            .get<RequestShedule[]>(`/requisitions/scheduled?date=${date}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -443,7 +477,10 @@ export const useFetchSheduledRequest = (date: string): Request[] | undefined => 
             .catch(() => {});
     }, [date, token]);
 
-    return requests;
+    return {
+        requests,
+        refetch: fetch,
+    };
 };
 
 export const useFetchRequestsEmployee = ({
@@ -477,8 +514,29 @@ export const useFetchRequestsEmployee = ({
     return {
         requests,
         refetch: fetch,
-    }
-}
+    };
+};
+
+export const useFetchCreateEmployee = (): {
+    fetch: (request: Employer) => void;
+} => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (request: Employer) => {
+            return client.post<Employer[]>(`/employee/`, request, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
 
 export const useFetchRequestsPassenger = ({
     limit,
@@ -512,4 +570,99 @@ export const useFetchRequestsPassenger = ({
         requests,
         refetch: fetch,
     };
-}
+};
+
+export const useFetchDynamicSchedule = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(() => {
+        return client.get(`/schedule/dynamic`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    }, [token]);
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchFilteredRequests = ({
+    limit,
+    offset,
+}: {
+    limit: number;
+    offset: number;
+}): {
+    requests: RequestItem[] | undefined;
+    refetch: (requests: Partial<Request>) => void;
+} => {
+    const [requests, setRequests] = useState<RequestItem[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (request: Partial<Request>) => {
+            return client
+                .post<RequestItem[]>(
+                    `/requisitions/filtered/?limit=${limit}&offset=${offset}`,
+                    request,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                )
+                .then((res) => setRequests(res.data));
+        },
+        [limit, offset, token],
+    );
+
+    return {
+        requests,
+        refetch: fetch,
+    };
+};
+
+export const useFetchEmployeeSuggestion = (name: string): Employer[] | undefined => {
+    const [employees, setEmployees] = useState<Employer[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+    useEffect(() => {
+        client
+            .get<Employer[]>(`/employee/suggestions/?name=${name}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setEmployees(res.data))
+            .catch(() => {});
+    }, [name, token]);
+
+    return employees;
+};
+
+export const useFetchUserMe = (): {fetch: (token: string) => void} => {
+    const fetch = useCallback((token: string) => {
+        return client
+            .get<User[]>(`/user/me`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => {
+                store.setState((state) => {
+                    return {
+                        ...state,
+                        user: res.data,
+                    };
+                });
+            })
+            .catch(() => {});
+    }, []);
+
+    return {
+        fetch,
+    };
+};

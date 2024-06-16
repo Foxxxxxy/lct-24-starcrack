@@ -1,8 +1,24 @@
-import {Table as GravityTable, TableColumnConfig, Text, withTableActions, withTableCopy, TableActionConfig} from '@gravity-ui/uikit';
-import React, {FC} from "react"
-import {RequestItemResolvedEmployee, useResolvedRequestsEmployee} from "src/resolvers/useResolvedRequests"
-import {useFetchRequestsEmployee} from "src/api/routes"
-import css from "./EmployeeList.module.scss"
+import {
+    Table as GravityTable,
+    TableActionConfig,
+    TableColumnConfig,
+    Text,
+    TextInput,
+    withTableActions,
+    withTableCopy,
+} from '@gravity-ui/uikit';
+import {FC, useCallback, useMemo, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {
+    useFetchEmployeeSuggestion,
+    useFetchRemoveEmployee,
+    useFetchRequestsEmployee,
+} from 'src/api/routes';
+import {
+    RequestItemResolvedEmployee,
+    useResolvedRequestsEmployee,
+} from 'src/resolvers/useResolvedRequests';
+import css from './EmployeeList.module.scss';
 
 const employeeTableData: TableColumnConfig<RequestItemResolvedEmployee>[] = [
     {
@@ -32,59 +48,91 @@ const employeeTableData: TableColumnConfig<RequestItemResolvedEmployee>[] = [
     {
         id: 'easy_work',
         name: 'Легкая работа',
-    }
-]
+    },
+];
 
 export const EmployeeList: FC = () => {
+    const navigate = useNavigate();
+
     const {requests, refetch} = useFetchRequestsEmployee({
         limit: 100,
         offset: 0,
-    })
+    });
 
-    if (!requests) {
-        return <>Loading</>
-    }
+    const [name, setName] = useState('');
 
-    const resolvedRequests = useResolvedRequestsEmployee(requests)
+    const employeeList = useFetchEmployeeSuggestion(name);
+    const {fetch: deleteEmployee} = useFetchRemoveEmployee();
+
+    const currentList = useMemo(() => {
+        if (name) {
+            return employeeList;
+        }
+        return requests;
+    }, [name, employeeList, requests]);
+
+    const resolvedRequests = useResolvedRequestsEmployee(currentList ?? []);
 
     const Table = withTableActions(withTableCopy(GravityTable));
+
+    const handleRowClick = useCallback(
+        (row) => {
+            navigate(`/employee/${row._id}`);
+        },
+        [navigate],
+    );
 
     const getRowActions = () => {
         return [
             {
                 text: 'Изменить',
-                handler: () => {
-                    console.log('Изменить')
+                handler: (row) => {
+                    navigate(`/employee/create?editId=${row._id}`);
                 },
             },
             {
                 text: 'Посмотреть',
-                handler: () => {
-                    console.log('Посмотреть')
+                handler: (row) => {
+                    handleRowClick(row);
                 },
             },
             {
                 text: 'Удалить',
-                handler: () => {
-                    console.log('Удалить')
+                handler: async (row) => {
+                    await deleteEmployee(row._id);
+                    setName('');
+                    refetch();
                 },
                 theme: 'danger',
             },
         ] as TableActionConfig<RequestItemResolvedEmployee>[];
     };
 
+    const handleInputChange = useCallback(
+        (el) => {
+            setName(el.target.value);
+        },
+        [setName],
+    );
+
     return (
         <div className={css.EmployeeList}>
             <header className={css.EmployeeList__header}>
                 <Text variant="display-1">Все сотрудники</Text>
             </header>
+            <div className={css.EmployeeList__filter}>
+                <TextInput
+                    placeholder="Начните вводить имя сотрудника"
+                    onChange={handleInputChange}
+                />
+            </div>
             <Table
                 className={css.EmployeeList__table}
                 columns={employeeTableData}
                 data={resolvedRequests}
-                onRowClick={() => {}}
+                onRowClick={handleRowClick}
                 getRowActions={getRowActions}
             />
         </div>
-    )
-}
+    );
+};

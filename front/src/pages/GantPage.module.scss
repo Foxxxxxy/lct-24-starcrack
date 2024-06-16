@@ -23,6 +23,7 @@
     display: flex;
     align-items: center;
     border-bottom: 1px solid var(--g-color-private-white-50);
+    word-break: break-all;
 }
 
 .GanttChart {
@@ -47,11 +48,11 @@
 }
 
 .GanttChart__taskBar {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    min-height: 50px;
     display: flex;
     align-items: center;
-    background: #007bff;
+    justify-content: center;
     color: #fff;
     text-align: center;
     border-radius: 4px;
@@ -60,10 +61,26 @@
     text-overflow: ellipsis;
 }
 
-.GanttChart__line {
-    height: 50px;
-    border-bottom: 1px solid var(--g-color-private-white-50);
-    // border-top: 1px solid var(--g-color-private-white-50);
-    &:last-child {
+.GantPage__month {
+    margin-bottom: 16px;
+}
+
+.GanttChart__status {
+    min-height: 45px;
+    width: 100%;
+    :global {
+        .g-label__text {
+            justify-content: center;
+        }
+        .g-label__content {
+            font-size: 9px;
+        }
     }
+}
+
+.GanttChart__line {
+    min-height: 50px;
+    border-bottom: 1px solid var(--g-color-private-white-50);
+    width: 1440px;
+    cursor: pointer;
 }

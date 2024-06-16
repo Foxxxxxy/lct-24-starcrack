@@ -5,3 +5,13 @@
 .EmployeeList__header {
     padding: var(--g-spacing-6) var(--g-spacing-6) var(--g-spacing-3) 0;
 }
+
+.EmployeeList__table {
+    :global .g-table__table {
+        width: 100%;
+    }
+}
+
+.EmployeeList__filter {
+    max-width: 400px;
+}

@@ -1,8 +1,25 @@
-import {Table as GravityTable, TableColumnConfig, Text, withTableActions, withTableCopy, withTableSorting, TableActionConfig} from '@gravity-ui/uikit';
-import {FC} from "react"
-import {RequestItemResolvedPassenger, useResolvedRequestsPassenger} from "src/resolvers/useResolvedRequests"
-import {useFetchRequestsPassenger} from "src/api/routes"
-import css from "./EmployeeList.module.scss"
+import {
+    Table as GravityTable,
+    TableActionConfig,
+    TableColumnConfig,
+    Text,
+    TextInput,
+    withTableActions,
+    withTableCopy,
+    withTableSorting,
+} from '@gravity-ui/uikit';
+import {FC, useCallback, useMemo, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {
+    useFetchPassengerSuggestion,
+    useFetchRemovePassenger,
+    useFetchRequestsPassenger,
+} from 'src/api/routes';
+import {
+    RequestItemResolvedPassenger,
+    useResolvedRequestsPassenger,
+} from 'src/resolvers/useResolvedRequests';
+import css from './PassengersList.module.scss';
 
 const employeeTableData: TableColumnConfig<RequestItemResolvedPassenger>[] = [
     {
@@ -28,41 +45,68 @@ const employeeTableData: TableColumnConfig<RequestItemResolvedPassenger>[] = [
     {
         id: 'pacemaker',
         name: 'кардиостимулятор',
-    }
-]
+    },
+];
 
 export const PassengersList: FC = () => {
+    const navigate = useNavigate();
+
     const {requests, refetch} = useFetchRequestsPassenger({
         limit: 100,
         offset: 0,
-    })
+    });
 
-    if (!requests) {
-        return <>Loading</>
-    }
+    const [name, setName] = useState('');
 
-    const resolvedRequests = useResolvedRequestsPassenger(requests)
+    const passengersList = useFetchPassengerSuggestion(name);
+
+    const handleInputChange = useCallback(
+        (el) => {
+            setName(el.target.value);
+        },
+        [setName],
+    );
+
+    const currentList = useMemo(() => {
+        if (name) {
+            return passengersList;
+        }
+        return requests;
+    }, [name, passengersList, requests]);
+
+    const resolvedRequests = useResolvedRequestsPassenger(currentList ?? []);
 
     const Table = withTableSorting(withTableActions(withTableCopy(GravityTable)));
+
+    const {fetch: deletePassenger} = useFetchRemovePassenger();
+
+    const handleRowClick = useCallback(
+        (row) => {
+            navigate(`/passengers/${row._id}`);
+        },
+        [navigate],
+    );
 
     const getRowActions = () => {
         return [
             {
                 text: 'Изменить',
-                handler: () => {
-                    console.log('Изменить')
+                handler: (row) => {
+                    navigate(`/passengers/create?editId=${row._id}`);
                 },
             },
             {
                 text: 'Посмотреть',
-                handler: () => {
-                    console.log('Посмотреть')
+                handler: (row) => {
+                    handleRowClick(row);
                 },
             },
             {
                 text: 'Удалить',
-                handler: () => {
-                    console.log('Удалить')
+                handler: async (row) => {
+                    await deletePassenger(row._id);
+                    setName('');
+                    refetch();
                 },
                 theme: 'danger',
             },
@@ -70,17 +114,23 @@ export const PassengersList: FC = () => {
     };
 
     return (
-        <div className={css.EmployeeList}>
-            <header className={css.EmployeeList__header}>
+        <div className={css.PassengersList}>
+            <header className={css.PassengersList__header}>
                 <Text variant="display-1">Все пассажиры</Text>
             </header>
+            <div className={css.PassengersList__filter}>
+                <TextInput
+                    placeholder="Начните вводить имя пассажира"
+                    onChange={handleInputChange}
+                />
+            </div>
             <Table
-                className={css.EmployeeList__table}
+                className={css.PassengersList__table}
                 columns={employeeTableData}
                 data={resolvedRequests}
-                onRowClick={() => {}}
+                onRowClick={handleRowClick}
                 getRowActions={getRowActions}
             />
         </div>
-    )
-}
+    );
+};

@@ -20,7 +20,7 @@ export const LayoutMain: React.FC<LayoutProps> = ({children}) => {
                 headerDecoration
                 menuItems={menuItems}
                 logo={{
-                    text: 'Service',
+                    text: 'Starcrack',
                     icon: metroLogo,
                 }}
                 onChangeCompact={(val) => setIsCompact(val)}

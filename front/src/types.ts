@@ -83,11 +83,13 @@ export type Request = {
 export type Employer = {
     id: number;
     full_name: string;
-    sex: string;
+    sex: 'Male' | 'Female';
     role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
-    sub_role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
+    sub_role: 'Head_of_the_section' | 'Senior_inspector' | 'Attendant' | 'Inspector'; //TODO check sub_roles
     phone: string;
     easy_work: boolean;
+    password?: string;
+    username?: string;
 };
 
 export type Shift = {
@@ -96,4 +98,11 @@ export type Shift = {
     time_end: string;
     place_start: string;
     weekday: string;
+};
+
+export type User = {
+    id: number;
+    role: string;
+    full_name: string;
+    username: string;
 };

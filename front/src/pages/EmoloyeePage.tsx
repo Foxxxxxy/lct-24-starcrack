@@ -1,10 +1,43 @@
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Button, Text} from '@gravity-ui/uikit';
-import {FC} from 'react';
-import {Form} from 'react-final-form';
+import {FC, useCallback} from 'react';
+import {Form, FormRenderProps} from 'react-final-form';
+import {useNavigate} from 'react-router-dom';
+import {useFetchCreateEmployee} from 'src/api/routes';
+import {mapSex} from 'src/constants';
 import css from './EmoloyeePage.module.scss';
 
 export const EmoloyeePage: FC = () => {
+    const navigate = useNavigate();
+
+    const {fetch: createEmployee} = useFetchCreateEmployee();
+
+    const handleFormSubmit = useCallback(
+        async (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
+            const {values} = form;
+
+            const request = {
+                username: values['username']?.value,
+                password: values['password']?.value,
+                role: values['role'],
+                sub_role: values['sub_role'],
+                sex: mapSex[values['sex']],
+                full_name: values['full_name']?.value,
+                phone: values['phone']?.value,
+                easy_work: values['easy_work'],
+            };
+
+            await createEmployee(request);
+
+            if (request.sub_role === 'Attendant') {
+                navigate('/work-time/create');
+            } else {
+                navigate('/employee');
+            }
+        },
+        [],
+    );
+
     return (
         <div className={css.EmoloyeePage}>
             <header className={css.EmoloyeePage__header}>
@@ -12,11 +45,10 @@ export const EmoloyeePage: FC = () => {
             </header>
             <Form
                 onSubmit={() => {}}
-                validate={() => {}}
                 render={(props) => (
                     <div className={css.PassengerPage__form}>
                         <DynamicField
-                            name={'passengerName'}
+                            name={'username'}
                             spec={{
                                 type: SpecTypes.Object,
                                 properties: {
@@ -24,7 +56,51 @@ export const EmoloyeePage: FC = () => {
                                         type: SpecTypes.String,
                                         viewSpec: {
                                             type: 'base',
-                                            placeholder: 'Введите ФИО пассажира',
+                                            placeholder: 'Введите логин',
+                                        },
+                                    },
+                                },
+                                viewSpec: {
+                                    type: 'object_value',
+                                    layout: 'row',
+                                    layoutTitle: 'Задайте логин для сотрудника',
+                                },
+                                validator: 'number',
+                            }}
+                            config={dynamicConfig}
+                        />
+                        <DynamicField
+                            name={'password'}
+                            spec={{
+                                type: SpecTypes.Object,
+                                properties: {
+                                    value: {
+                                        type: SpecTypes.String,
+                                        viewSpec: {
+                                            type: 'base',
+                                            placeholder: 'Введите пароль',
+                                        },
+                                    },
+                                },
+                                viewSpec: {
+                                    type: 'object_value',
+                                    layout: 'row',
+                                    layoutTitle: 'Задайте пароль для сотрудника',
+                                },
+                                validator: 'number',
+                            }}
+                            config={dynamicConfig}
+                        />
+                        <DynamicField
+                            name={'full_name'}
+                            spec={{
+                                type: SpecTypes.Object,
+                                properties: {
+                                    value: {
+                                        type: SpecTypes.String,
+                                        viewSpec: {
+                                            type: 'base',
+                                            placeholder: 'Введите ФИО сотрудника',
                                         },
                                     },
                                 },
@@ -32,6 +108,28 @@ export const EmoloyeePage: FC = () => {
                                     type: 'object_value',
                                     layout: 'row',
                                     layoutTitle: 'Введите ФИО пассажира',
+                                },
+                                validator: 'number',
+                            }}
+                            config={dynamicConfig}
+                        />
+                        <DynamicField
+                            name={'phone'}
+                            spec={{
+                                type: SpecTypes.Object,
+                                properties: {
+                                    value: {
+                                        type: SpecTypes.String,
+                                        viewSpec: {
+                                            type: 'base',
+                                            placeholder: 'Введите номер телефона сотрудника',
+                                        },
+                                    },
+                                },
+                                viewSpec: {
+                                    type: 'object_value',
+                                    layout: 'row',
+                                    layoutTitle: 'Введите номер телефона сотрудника',
                                 },
                                 validator: 'number',
                             }}
@@ -52,35 +150,40 @@ export const EmoloyeePage: FC = () => {
                             config={dynamicConfig}
                         />
                         <DynamicField
-                            name={'work_time'}
+                            name={'role'}
                             spec={{
                                 type: SpecTypes.String,
-                                enum: ['1', '2', '1(Н)', '2(Н)', '5'],
+                                enum: ['Admin', 'Specialist', 'Attendant', 'Operator'],
                                 viewSpec: {
                                     type: 'select',
                                     layout: 'row',
-                                    layoutTitle: 'Cмена сотрудника',
-                                    placeholder: 'Выберите смену сотрудника',
+                                    layoutTitle: 'Выберите роль',
+                                    placeholder: 'Выберите роль',
                                 },
                             }}
                             config={dynamicConfig}
                         />
                         <DynamicField
-                            name={'work_hours'}
+                            name={'sub_role'}
                             spec={{
                                 type: SpecTypes.String,
-                                enum: ['07:00-19:00', '08:00-20:00', '20:00-08:00', '08:00-17:00'],
+                                enum: [
+                                    'Head_of_the_section',
+                                    'Senior_inspector',
+                                    'Attendant',
+                                    'Inspector',
+                                ],
                                 viewSpec: {
                                     type: 'select',
                                     layout: 'row',
-                                    layoutTitle: 'Время работы',
-                                    placeholder: 'Выберите время работы сотрудника',
+                                    layoutTitle: 'Выберите должность',
+                                    placeholder: 'Выберите должность',
                                 },
                             }}
                             config={dynamicConfig}
                         />
                         <DynamicField
-                            name={'is_easy'}
+                            name={'easy_work'}
                             spec={{
                                 type: SpecTypes.Boolean,
                                 viewSpec: {
@@ -91,7 +194,7 @@ export const EmoloyeePage: FC = () => {
                             }}
                             config={dynamicConfig}
                         />
-                        <Button onClick={() => {}}>Создать заявку</Button>
+                        <Button onClick={() => handleFormSubmit(props)}>Создать заявку</Button>
                     </div>
                 )}
             ></Form>

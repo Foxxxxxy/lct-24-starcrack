@@ -2,9 +2,7 @@ import {Text} from '@gravity-ui/uikit';
 import {ReactNode} from 'react';
 import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
-import {RequestItem, Employer, Passenger} from 'src/types';
-import {Icon} from '@gravity-ui/uikit';
-import {CircleXmarkFill, CircleCheckFill} from '@gravity-ui/icons';
+import {Employer, Passenger, RequestItem, Shift} from 'src/types';
 
 export type RequestItemResolved = {
     _id: number;
@@ -28,7 +26,7 @@ export type RequestItemResolvedEmployee = {
     sub_role: ReactNode | string;
     phone: ReactNode | string;
     easy_work: ReactNode | boolean;
-}
+};
 
 export type RequestItemResolvedPassenger = {
     id: ReactNode | number;
@@ -38,7 +36,7 @@ export type RequestItemResolvedPassenger = {
     sex: ReactNode | string;
     pacemaker: ReactNode | boolean;
     comment: ReactNode | string | null;
-}
+};
 
 export const useResolvedRequests = (requests: RequestItem[] | undefined): RequestItemResolved[] => {
     if (!requests) {
@@ -61,26 +59,44 @@ export const useResolvedRequests = (requests: RequestItem[] | undefined): Reques
     }));
 };
 
-export const useResolvedRequestsEmployee = (requests: Employer[]): RequestItemResolvedEmployee[] => {
+export const useResolvedRequestsEmployee = (
+    requests: Employer[],
+): RequestItemResolvedEmployee[] => {
     return requests.map((item) => ({
+        _id: item.id,
         id: <Text color="secondary">{item.id}</Text>,
         full_name: <Text color="complementary">{item.full_name}</Text>,
         sex: <Text color="complementary">{item.sex}</Text>,
         role: <Text color="complementary">{item.role}</Text>,
         sub_role: <Text color="complementary">{item.sub_role}</Text>,
         phone: <Text color="complementary">{item.phone}</Text>,
-        easy_work: <Icon data={item.easy_work ? CircleCheckFill : CircleXmarkFill}></Icon>
+        easy_work: item.easy_work ? 'Да' : 'Нет',
     }));
 };
 
-export const useResolvedRequestsPassenger = (requests: Passenger[]): RequestItemResolvedPassenger[] => {
+export const useResolvedRequestsPassenger = (
+    requests: Passenger[],
+): RequestItemResolvedPassenger[] => {
     return requests.map((item) => ({
+        _id: item.id,
         id: <Text color="secondary">{item.id}</Text>,
         name: <Text color="complementary">{item.name}</Text>,
         passenger_category: <Text color="complementary">{item.passenger_category}</Text>,
         phone: <Text color="complementary">{item.phone}</Text>,
         sex: <Text color="complementary">{item.sex}</Text>,
-        pacemaker: <Icon data={item.pacemaker ? CircleCheckFill : CircleXmarkFill}></Icon>,
+        pacemaker: item.pacemaker ? 'Да' : 'Нет',
         comment: item.comment ? <Text color="complementary">{item.comment}</Text> : null,
     }));
-}
+};
+
+export const useResolvedShifts = (requests: Shift[]) => {
+    return requests.map((item) => ({
+        _id: item.id,
+        id: <Text color="secondary">{item.id}</Text>,
+        employee_id: <Text color="complementary">{item.employee_id}</Text>,
+        time_start: useDateTime(item.time_start ?? '').formatted,
+        time_end: useDateTime(item.time_end ?? '').formatted,
+        place_start: <Text>{item.place_start}</Text>,
+        weekday: <Text>{item.weekday}</Text>,
+    }));
+};

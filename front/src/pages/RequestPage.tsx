@@ -13,7 +13,7 @@ import {Field as BaseField, Form, FormRenderProps} from 'react-final-form';
 import {Field} from 'src/components/Field/Field';
 import css from './RequestPage.module.scss';
 
-import {DateTime, dateTimeParse} from '@gravity-ui/date-utils';
+import {dateTime, DateTime, dateTimeParse} from '@gravity-ui/date-utils';
 import {useNavigate, useSearchParams} from 'react-router-dom';
 import {
     useFetchCreateRequest,
@@ -46,7 +46,7 @@ export const RequestPage: FC = () => {
     const {fetch: updateRequest} = useFetchUpdateRequest();
     const {fetch: fetchDeleteRequest} = useFetchDeleteRequest();
 
-    const [passengerSuggest, setPassengerSuggest] = useState<SuggestItem>({
+    const [passengerSuggest] = useState<SuggestItem>({
         info: '',
         label: '',
         customInfo: {},
@@ -55,15 +55,7 @@ export const RequestPage: FC = () => {
     const [passengerName, setPassengerName] = useState('');
     const [stationStart, setStationStart] = useState('');
     const [stationEnd, setStationEnd] = useState('');
-    const [date] = useState<{
-        day: number | undefined;
-        year: number | undefined;
-        month: number | undefined;
-    }>({
-        day: dateTimeParse(new Date())?.day(),
-        year: dateTimeParse(new Date())?.year(),
-        month: dateTimeParse(new Date())?.month(),
-    });
+    const [date, setDate] = useState<DateTime>(dateTime());
 
     const fetchMetroRoute = useFetchMetroRoute({from: stationStart, to: stationEnd});
 
@@ -98,9 +90,9 @@ export const RequestPage: FC = () => {
                 passengers_amount: +values['passengers_amount']?.value,
                 start_time:
                     dateTimeParse({
-                        year: date.year || 0,
-                        month: date.month || 0,
-                        day: date.day || 0,
+                        year: date?.year(),
+                        month: date?.month(),
+                        day: date?.date(),
                         hours: values['start_time']?.hours,
                         minutes: values['start_time']?.minutes,
                     })?.format(FORMAT) || '',
@@ -120,6 +112,7 @@ export const RequestPage: FC = () => {
                     ...request,
                     id: +editId,
                 });
+                navigate(`/requests/${editId}`);
             } else {
                 const res = await createRequest(request);
                 navigate(`/requests/${res.data.id}`);
@@ -128,11 +121,12 @@ export const RequestPage: FC = () => {
         [navigate, stationEnd, stationStart, date],
     );
 
-    const handleDateUpdate = useCallback((data: DateTime) => {
-        date.day = data.date();
-        date.year = data.year();
-        date.month = data.month();
-    }, []);
+    const handleDateUpdate = useCallback(
+        (data: DateTime) => {
+            setDate(data);
+        },
+        [setDate],
+    );
 
     const passengersSuggestion = useFetchPassengerSuggestion(passengerName);
     const metroDepartureSuggestion = useFetchMetroStations(stationStart);
@@ -144,9 +138,7 @@ export const RequestPage: FC = () => {
             passengerSuggest.customInfo = {id: passengerById.id};
             setStationStart(requestInfo.start_station);
             setStationEnd(requestInfo.end_station);
-            date.day = dateTimeParse(requestInfo.start_time)?.day();
-            date.month = dateTimeParse(requestInfo.start_time)?.month();
-            date.year = dateTimeParse(requestInfo.start_time)?.year();
+            setDate(dateTimeParse(requestInfo.start_time));
             console.log(date);
         }
     }, [requestInfo, passengerById, dateTimeParse, mapMethod]);
@@ -215,7 +207,6 @@ export const RequestPage: FC = () => {
                         <Select
                             className={css.RequestPage__status}
                             onUpdate={handleSelectUpdate}
-                            // value={['IN_PROGRESS']}
                             renderControl={({onClick, onKeyDown, ref}) => {
                                 return (
                                     <div ref={ref} onClick={onClick} extraProps={{onKeyDown}}>
@@ -350,7 +341,8 @@ export const RequestPage: FC = () => {
                                     {() => (
                                         <DatePicker
                                             format="DD.MM.YYYY"
-                                            value={dateTimeParse(date)}
+                                            value={date}
+                                            defaultValue={dateTimeParse(date)}
                                             onUpdate={handleDateUpdate}
                                         />
                                     )}

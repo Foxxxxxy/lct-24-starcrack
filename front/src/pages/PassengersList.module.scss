@@ -1,0 +1,17 @@
+.PassengersList {
+    padding: 0 0 var(--g-spacing-6) var(--g-spacing-6);
+}
+
+.PassengersList__header {
+    padding: var(--g-spacing-6) var(--g-spacing-6) var(--g-spacing-3) 0;
+}
+
+.PassengersList__table {
+    :global .g-table__table {
+        width: 100%;
+    }
+}
+
+.PassengersList__filter {
+    max-width: 400px;
+}

@@ -1,0 +1,22 @@
+.WorkTimeList {
+    padding: 0 0 var(--g-spacing-6) var(--g-spacing-6);
+}
+
+.WorkTimeList__header {
+    padding: var(--g-spacing-6) var(--g-spacing-6) var(--g-spacing-6) 0;
+}
+
+.WorkTimeList__field {
+    max-width: 500px;
+}
+
+.WorkTimeList__title {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.WorkTimeList__table {
+    :global .g-table__table {
+        width: 100%;
+    }
+}

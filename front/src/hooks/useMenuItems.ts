@@ -1,4 +1,4 @@
-import {ListUl, Person, PersonGear, Plus} from '@gravity-ui/icons';
+import {ListUl, PencilToLine, Person, PersonGear, Plus} from '@gravity-ui/icons';
 import {MenuItem} from '@gravity-ui/navigation';
 import {router} from 'src/main';
 import {useLocation} from './useLocation';
@@ -9,16 +9,41 @@ const defaultMenuItems: MenuItem[] = [
         id: 'main',
         title: 'Все заявки',
         icon: ListUl,
+        onItemClick() {
+            router.navigate('/');
+        },
     },
     {
-        id: 'passengers',
+        id: 'gant',
+        title: 'Экран распределения',
+        icon: PencilToLine,
+        onItemClick() {
+            router.navigate('/gant');
+        },
+    },
+    {
+        id: 'passengers2',
         title: 'Все пассажиры',
         icon: Person,
+        onItemClick(pr) {
+            router.navigate('/passengers');
+        },
     },
     {
-        id: 'employees',
+        id: 'employees3',
         title: 'Все сотрудники',
         icon: PersonGear,
+        onItemClick() {
+            router.navigate('/employee');
+        },
+    },
+    {
+        id: 'employees4s',
+        title: 'Все рабочие смены',
+        icon: PersonGear,
+        onItemClick() {
+            router.navigate('/work-time');
+        },
     },
     // {
     //     id: 'requestInfo',
@@ -57,13 +82,13 @@ const filterAside = (items: MenuItem[]): MenuItem[] => {
         const route = routes.find((route) => route.name === name);
         return {
             ...item,
-            onItemClick() {
-                router.navigate(route?.path ?? '/');
-            },
+            // onItemClick() {
+            //     router.navigate(route?.path ?? '/');
+            // },
         };
     });
     return [
-        ...patchedItems,
+        ...items,
         {
             id: 'action2',
             title: 'Создать заявку',

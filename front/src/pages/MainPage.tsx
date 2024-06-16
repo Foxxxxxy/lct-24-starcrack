@@ -1,5 +1,6 @@
 import {
     Table as GravityTable,
+    Select,
     TableActionConfig,
     TableColumnConfig,
     TableDataItem,
@@ -8,12 +9,14 @@ import {
     withTableCopy,
     withTableSettings,
 } from '@gravity-ui/uikit';
-import {FC, useCallback, useState} from 'react';
+import {FC, useCallback, useEffect, useState} from 'react';
 // import {requests} from 'src/mocks/requests';
 import {RequestItemResolved, useResolvedRequests} from 'src/resolvers/useResolvedRequests';
 
 import {useNavigate} from 'react-router-dom';
-import {useFetchDeleteRequest, useFetchRequests} from 'src/api/routes';
+import {useFetchDeleteRequest, useFetchFilteredRequests, useFetchRequests} from 'src/api/routes';
+import {statuses, useStatus} from 'src/hooks/useStatus';
+import {RequestStatus} from 'src/types';
 import css from './MainPage.module.scss';
 
 const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
@@ -58,6 +61,10 @@ export const MainPage: FC = () => {
     const resolvedRequests = useResolvedRequests(requests);
 
     const {fetch: fetchDeleteRequest} = useFetchDeleteRequest();
+    const {refetch: fetchFilteredRequests} = useFetchFilteredRequests({
+        limit: 100,
+        offset: 0,
+    });
 
     const handleRowClick = useCallback(
         (row: RequestItemResolved) => {
@@ -105,16 +112,48 @@ export const MainPage: FC = () => {
 
     const [settings, setSettings] = useState([{id: '_status', isSelected: true}]);
 
+    const [currentStatus, setCurrentStatus] = useState<RequestStatus>();
+
+    useEffect(() => {
+        if (!currentStatus) {
+            refetchRequests();
+            return;
+        }
+        fetchFilteredRequests({
+            status: currentStatus,
+        });
+    }, [currentStatus]);
+
     return (
         <div className={css.MainPage}>
             <header className={css.MainPage__header}>
                 <Text variant="display-1">Все заявки</Text>
             </header>
+            <div className={css.MainPage__filter}>
+                <div className={css.MainPage__filterField}>
+                    <div className={css.MainPage__filterField}>Фильтр по статусу:</div>
+                    <Select
+                        hasClear={true}
+                        onUpdate={(s: [RequestStatus]) => setCurrentStatus(s[0])}
+                        renderSelectedOption={(option) => {
+                            return <div>{useStatus(option.value)}</div>;
+                        }}
+                    >
+                        {Object.keys(statuses).map((status: RequestStatus) => {
+                            return (
+                                <Select.Option key={statuses[status].name} value={status}>
+                                    {useStatus(status)}
+                                </Select.Option>
+                            );
+                        })}
+                    </Select>
+                </div>
+            </div>
             <Table
                 className={css.MainPage__table}
                 columns={requestTableData}
                 data={resolvedRequests}
-                onRowClick={handleRowEdit}
+                onRowClick={handleRowClick}
                 updateSettings={(updated) => {
                     setSettings(updated);
                     return Promise.resolve();
