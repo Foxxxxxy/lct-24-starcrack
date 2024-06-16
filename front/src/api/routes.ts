@@ -424,6 +424,28 @@ export const useFetchShiftsByDay = ({
     return shifts;
 };
 
+export const useFetchSheduledRequest = (date: string): Request[] | undefined => {
+    const [requests, setRequests] = useState<Request[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!date) {
+            return;
+        }
+        client
+            .get<Request[]>(`/requisitions/scheduled?date=${date}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequests(res.data))
+            .catch(() => {});
+    }, [date, token]);
+
+    return requests;
+};
+
 export const useFetchRequestsEmployee = ({
     limit,
     offset,
