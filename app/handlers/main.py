@@ -15,13 +15,13 @@ from .routes_router import routes_router
 
 def get_application() -> FastAPI:
     application = FastAPI()
-    application.include_router(passenger_router, prefix='api/passenger', tags=['passenger'])
-    application.include_router(employee_router, prefix='api/employee', tags=['employee'])
-    application.include_router(requisitions_router, prefix='api/requisitions', tags=['requisitions'])
-    application.include_router(shifts_router, prefix='api/shifts', tags=['shifts'])
-    application.include_router(auth_router, prefix='api/user', tags=['auth'])
-    application.include_router(routes_router, prefix='api/routes', tags=['routes'])
-    application.include_router(metro_stations_router, prefix='api/metro_stations', tags=['metro_stations'])
+    application.include_router(passenger_router, prefix='/api/passenger', tags=['passenger'])
+    application.include_router(employee_router, prefix='/api/employee', tags=['employee'])
+    application.include_router(requisitions_router, prefix='/api/requisitions', tags=['requisitions'])
+    application.include_router(shifts_router, prefix='/api/shifts', tags=['shifts'])
+    application.include_router(auth_router, prefix='/api/user', tags=['auth'])
+    application.include_router(routes_router, prefix='/api/routes', tags=['routes'])
+    application.include_router(metro_stations_router, prefix='/api/metro_stations', tags=['metro_stations'])
     return application
 
 
