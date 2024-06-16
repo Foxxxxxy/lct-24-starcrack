@@ -84,3 +84,13 @@ export type Request = {
     start_station_comment: string;
     end_station_comment: string;
 };
+
+export type RequestEmployer = {
+    id: number;
+    full_name: string;
+    sex: string;
+    role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
+    sub_role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
+    phone: string;
+    easy_work: boolean;
+};

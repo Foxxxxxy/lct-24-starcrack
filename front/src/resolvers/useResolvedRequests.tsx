@@ -2,7 +2,9 @@ import {Text} from '@gravity-ui/uikit';
 import {ReactNode} from 'react';
 import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
-import {RequestItem} from 'src/types';
+import {RequestItem, RequestEmployer} from 'src/types';
+import {Icon} from '@gravity-ui/uikit';
+import {CircleXmarkFill, CircleCheckFill} from '@gravity-ui/icons';
 
 export type RequestItemResolved = {
     id: ReactNode | number;
@@ -15,6 +17,16 @@ export type RequestItemResolved = {
     females_males_needed: ReactNode | string;
     route: ReactNode | string;
 };
+
+export type RequestItemResolvedEmployee = {
+    id: ReactNode | number;
+    full_name: ReactNode | string;
+    sex: ReactNode | string;
+    role: ReactNode | string;
+    sub_role: ReactNode | string;
+    phone: ReactNode | string;
+    easy_work: ReactNode | boolean;
+}
 
 export const useResolvedRequests = (requests: RequestItem[]): RequestItemResolved[] => {
     return requests.map((item) => ({
@@ -31,3 +43,16 @@ export const useResolvedRequests = (requests: RequestItem[]): RequestItemResolve
         route: `${item.start_station} -> ${item.end_station}`,
     }));
 };
+
+export const useResolvedRequestsEmployee = (requests: RequestEmployer[]): RequestItemResolvedEmployee[] => {
+    return requests.map((item) => ({
+        id: <Text color="secondary">{item.id}</Text>,
+        full_name: <Text color="complementary">{item.full_name}</Text>,
+        sex: <Text color="complementary">{item.sex}</Text>,
+        role: <Text color="complementary">{item.role}</Text>,
+        sub_role: <Text color="complementary">{item.sub_role}</Text>,
+        phone: <Text color="complementary">{item.phone}</Text>,
+        easy_work: <Icon data={item.easy_work ? CircleCheckFill : CircleXmarkFill}></Icon>
+    }));
+};
+

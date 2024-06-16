@@ -9,6 +9,7 @@ import {RequestPage} from 'src/pages/RequestPage';
 import {WorkTimePage} from 'src/pages/WorkTimePage';
 import {AuthPage} from 'src/pages/AuthPage';
 import {MainPageMobile} from 'src/pages/MainPageMobile';
+import {EmployeeList} from 'src/pages/EmployeeList';
 
 export type CustomRoute = {
     name: string;
@@ -66,6 +67,12 @@ export const routes: CustomRoute[] = [
         LayoutComponent: LayoutMain,
         PageComponent: MainPageMobile,
     },
+    {
+        name: 'employeeList',
+        path: '/employeelist',
+        LayoutComponent: LayoutMain,
+        PageComponent: EmployeeList,
+    }
 ];
 
 export const useRoutes = (): typeof routes => {

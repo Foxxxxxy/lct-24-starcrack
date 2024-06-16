@@ -1,7 +1,7 @@
 import {useStore} from '@tanstack/react-store';
 import {useCallback, useEffect, useState} from 'react';
 import {store} from 'src/store/state';
-import {MetroStation, Passenger, Request, RequestItem} from 'src/types';
+import {MetroStation, Passenger, Request, RequestItem, RequestEmployer} from 'src/types';
 
 import {client} from './api';
 
@@ -113,3 +113,27 @@ export const useFetchRequests = ({
 
     return requests;
 };
+
+export const useFetchRequestsEmployee = ({
+    limit,
+    offset,
+}: {
+    limit: number;
+    offset: number;
+}): RequestEmployer[] | undefined => {
+    const [requests, setRequests] = useState<RequestEmployer[] | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        client
+            .get<RequestEmployer[]>(`/employee/?limit=${limit}&offset=${offset}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequests(res.data));
+    }, [name, token]);
+
+    return requests;
+}
