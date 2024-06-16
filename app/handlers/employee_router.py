@@ -22,6 +22,17 @@ async def get_employees_list(
     return employees
 
 
+@employee_router.post("/ids")
+async def get_employee_by_id(
+    emp_ids: List[int], user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
+        base_session: Session = Depends(get_db)
+)-> List[EmployeeDTO]:
+    answer = []
+    for emp_id in emp_ids:
+        answer.append(employee_service.get_employees_by_id_service(emp_id, base_session))
+    return answer
+
+
 @employee_router.get("/id")
 async def get_employee_by_id(
     emp_id: int, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
