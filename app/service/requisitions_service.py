@@ -60,9 +60,11 @@ def get_requisition_by_id_service(
 
 
 def create_requisition(
-    requisition: RequisitionDTO, base_session: Session
+    requisition: RequisitionDTO, base_session: Session, algorithm
 ):
     update_requisition_station_to_add(requisition, base_session)
+    eta = algorithm.calculate_path(requisition.start_station, requisition.end_station)["eta"]
+    requisition.finish_time = requisition.start_time + timedelta(minutes=eta)
     requisition.creation_time = datetime.now()
     requisition.status = determine_status(requisition.start_time)
     db_requisition = db_model_from_dto(requisition, requisitions.Requisitions)

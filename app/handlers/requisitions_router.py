@@ -3,6 +3,8 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+
+from algorithms.DijkstraAlgorithm import DijkstraAlgorithm, get_dijkstra_algorithm
 from db.base import get_db
 from model.dto.auth_models import UserOutputSchema
 from model.enum.enums import Status, RoleType
@@ -70,9 +72,9 @@ async def update_requisitions(
 @requisitions_router.post("/")
 async def create_requisition(
         requisition: RequisitionDTO, user: Annotated[UserOutputSchema, Depends(auth_service.auth_admin_spec_op)],
-        base_session: Session = Depends(get_db)
+        base_session: Session = Depends(get_db), algorithm: DijkstraAlgorithm = Depends(get_dijkstra_algorithm)
 ):
-    return requisitions_service.create_requisition(requisition, base_session)
+    return requisitions_service.create_requisition(requisition, base_session, algorithm)
 
 
 @requisitions_router.delete("/")
