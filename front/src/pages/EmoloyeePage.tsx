@@ -3,15 +3,15 @@ import {Button, Text, useToaster} from '@gravity-ui/uikit';
 import {FC, useCallback, useMemo} from 'react';
 import {Form, FormRenderProps} from 'react-final-form';
 import {useNavigate, useSearchParams} from 'react-router-dom';
-import {Employer} from 'src/types';
 import {
     useFetchCreateEmployee,
     useFetchEmployeeById,
     useFetchRemoveEmployee,
     useFetchUpdateEmployee,
 } from 'src/api/routes';
-import {mapSex, mapSexBack} from 'src/constants';
 import {Loader} from 'src/components/Loader/Loader';
+import {mapSex, mapSexBack} from 'src/constants';
+import {Employer} from 'src/types';
 import css from './EmoloyeePage.module.scss';
 
 export const EmoloyeePage: FC = () => {
@@ -86,7 +86,6 @@ export const EmoloyeePage: FC = () => {
                             theme: 'danger',
                         });
                     });
-        
             } else {
                 try {
                     await createEmployee(request);
@@ -101,7 +100,7 @@ export const EmoloyeePage: FC = () => {
                         name: 'employee-create-error',
                         title: 'Что-то пошло не так :(',
                         theme: 'danger',
-                    })
+                    });
                 }
             }
 
@@ -134,9 +133,7 @@ export const EmoloyeePage: FC = () => {
     }, [editId]);
 
     if (editId && !employee) {
-        return (
-            <Loader />
-        )
+        return <Loader />;
     }
 
     return (
@@ -274,12 +271,7 @@ export const EmoloyeePage: FC = () => {
                             name={'sub_role'}
                             spec={{
                                 type: SpecTypes.String,
-                                enum: [
-                                    'Head_of_the_section',
-                                    'Senior_inspector',
-                                    'Attendant',
-                                    'Inspector',
-                                ],
+                                enum: ['Head_of_the_section', 'Senior_inspector', 'Attendant'],
                                 viewSpec: {
                                     type: 'select',
                                     layout: 'row',

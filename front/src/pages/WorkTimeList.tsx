@@ -63,11 +63,12 @@ export const WorkTimeList: FC = () => {
     });
 
     const allShifts = useMemo(() => {
-        if (!shifts?.length) {
+        console.log(emplpoyeeSuggest.customInfo.id);
+        if (!employeeName) {
             return shiftsAll;
         }
         return shifts;
-    }, [shiftsAll, shifts]);
+    }, [shiftsAll, shifts, employeeName]);
 
     const resolvedRequests = useResolvedShifts(allShifts ?? []);
 
