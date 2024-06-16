@@ -28,7 +28,6 @@ def check_suitability_sex(executor, males, females):
 
 def is_time_within_limit(distance, time_free, time_start):
     distance_timedelta = timedelta(minutes=distance)
-
     time_free_datetime = datetime.combine(time_start.date(), time_free)
 
     final_time = time_free_datetime + distance_timedelta
@@ -113,7 +112,6 @@ def executor_appointment_dynamic(task, executors, algorithm, males, females):
             males -= 1
         else:
             females -= 1
-        print(task.id, possible[-1][1].id, executor.id, males, females)
         return executor, males, females
     return None, None, None
 
@@ -152,6 +150,8 @@ def get_heap(tasks):
     shift_heap = Heap()
     for task in tasks:
         counter.count_weight(task)
+        task.finish_time = task.finish_time.replace(tzinfo=None)
+        task.start_time = task.start_time.replace(tzinfo=None)
         shift_heap.add(task)
     return shift_heap
 
@@ -173,6 +173,7 @@ weekdays = {0: "Monday", 1: "Tuesday", 2: "Wednesday", 3: "Thursday", 4: "Friday
 
 def build_schedule_func(start, end, base_session: Session, algorithm):
     tasks = get_tasks(start, end, base_session)  # тут еще добавить какие статусы заявки подходят
+    start = start.replace(tzinfo=None)
     executors, latest_shift_time = get_executors(start, base_session)
     tasks_heap = get_heap(tasks)
     answer = []
@@ -211,6 +212,7 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
 
 def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
     tasks = get_tasks_dynamic(start, end, base_session)
+    start = start.replace(tzinfo=None)
     executors, latest_shift_time = get_executor_dynamic(start, base_session)
     tasks_heap = get_heap(tasks)
     answer = []

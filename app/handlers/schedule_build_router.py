@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Annotated, Optional
 
+import pytz
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.base import get_db
@@ -18,7 +19,8 @@ async def get_sorted_schedules(
         base_session: Session = Depends(get_db), algorithm: DijkstraAlgorithm = Depends(get_dijkstra_algorithm)
 ):
     if not date_end or date_start:
-        now = datetime.now()
+        moscow_tz = pytz.timezone('Europe/Moscow')
+        now = datetime.now(moscow_tz)
         date_start = now + timedelta(hours=24)
 
         date_end = now + timedelta(hours=48)
@@ -31,7 +33,8 @@ async def get_sorted_schedules_dynamic(
         base_session: Session = Depends(get_db), algorithm: DijkstraAlgorithm = Depends(get_dijkstra_algorithm)
 ):
     if not date_end or date_start:
-        now = datetime.now()
+        moscow_tz = pytz.timezone('Europe/Moscow')
+        now = datetime.now(moscow_tz)
         date_start = now
         date_end = now + timedelta(hours=24)
 
