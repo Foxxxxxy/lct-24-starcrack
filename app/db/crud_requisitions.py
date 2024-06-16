@@ -7,6 +7,8 @@ from datetime import datetime
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
+
+from db.crud_employee import get_employees_by_id
 from db.models import requisitions
 from model.dto.filters import RequisitionFilterDTO
 from db.models import executer_to_requisition
@@ -27,6 +29,8 @@ def get_scheduled(
         requisitions.Requisitions.status == Status.SCHEDULED and
         date <= requisitions.Requisitions.start_time <= date + datetime.timedelta(days=1)
     ).all()
+    for requisition in requisitions_list:
+        requisition.employees = get_employees_by_requisitions(requisition.id, base_session)
     return requisitions_list
 
 
@@ -152,4 +156,15 @@ def get_requisitions_by_employee_id(
     for req in requisitions:
         new_req = get_requisition_by_id(req.requisition_id, base_session)
         answer.append(new_req)
+    return answer
+
+def get_employees_by_requisitions(
+    req_id: int, base_session: Session
+):
+    employees = base_session.query(executer_to_requisition.ExecutorToRequisition).filter(
+        executer_to_requisition.ExecutorToRequisition.requisition_id == req_id).all()
+    answer = []
+    for employee in employees:
+        new_emp = get_employees_by_id(employee.employee_id, base_session)
+        answer.append(new_emp)
     return answer

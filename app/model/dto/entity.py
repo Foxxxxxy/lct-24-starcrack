@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime, time
-from typing import Literal, Union, Optional
+from typing import Literal, Union, Optional, List
 from model.enum.enums import *
 import pydantic
 
@@ -29,6 +29,19 @@ class PassengerDTO(pydantic.BaseModel):
         use_enum_values = True
 
 
+class EmployeeDTO(pydantic.BaseModel):
+    id: Optional[int]
+    full_name: str
+    sex: SexType
+    role: RoleType
+    sub_role: Union[SubRoleType, None] = None
+    phone: str
+    easy_work: bool
+
+    class Config:
+        use_enum_values = True
+
+
 class RequisitionDTO(pydantic.BaseModel):
     id: Optional[int] = None
     passenger_id: int
@@ -47,20 +60,9 @@ class RequisitionDTO(pydantic.BaseModel):
     method: MethodType
     baggage: Optional[str] = None
     comment: Optional[str] = None
+    employees: Optional[List[EmployeeDTO]] = None
 
     class Config:
         use_enum_values = True
 
-
-class EmployeeDTO(pydantic.BaseModel):
-    id: Optional[int]
-    full_name: str
-    sex: SexType
-    role: RoleType
-    sub_role: Union[SubRoleType, None] = None
-    phone: str
-    easy_work: bool
-
-    class Config:
-        use_enum_values = True
 
