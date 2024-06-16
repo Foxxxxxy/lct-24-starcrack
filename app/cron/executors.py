@@ -1,4 +1,5 @@
 import datetime
+import importlib
 from abc import ABC, abstractmethod
 
 from apscheduler.triggers.cron import CronTrigger
@@ -33,12 +34,13 @@ class CreateTimetableExecutor(Executor):
         logger.info(f"Start creating timetable for date {timetable_date}...")
 
         base_session = next(get_db())
-
+        app = importlib.import_module('handlers.main.app')
+        deikstra_algorithm = app.state.dijkstra_algorithm
         requisitions_list = get_by_status(Status.SELECTED_FOR_SCHEDULING, base_session)
         logger.info(f"Found {len(requisitions_list)} candidates for scheduling...")
 
         algorithm = CreateTimetableAlgorithm()
-        algorithm.create_timetable(base_session)
+        algorithm.create_timetable(base_session, deikstra_algorithm)
 
         logger.info(f"Finished creating timetable for date {timetable_date}!")
 
