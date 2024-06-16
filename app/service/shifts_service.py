@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from db.crud_stations import get_station_by_name
+from db.crud_stations import get_station_by_name, get_station_by_id
 from . import db_model_from_dto, update_bd_objects
 from sqlalchemy.orm import Session
 from db.crud_shifts import *
@@ -49,8 +49,13 @@ def delete_shift(
 
 
 def get_shift_by_id(shift_id, base_session):
-    return get_shifts_by_id(shift_id, base_session)
+    shift = get_shifts_by_id(shift_id, base_session)
+    shift.place_start = get_station_by_id(shift.place_start, base_session)
+    return shift
 
 
 def get_shift_filtered(filters, limit, offset, base_session):
-    return get_filtered(filters, limit, offset, base_session)
+    shifts_list = get_filtered(filters, limit, offset, base_session)
+    for shift in shifts_list:
+        shift.place_start = get_station_by_id(shift.place_start, base_session)
+    return shifts_list
