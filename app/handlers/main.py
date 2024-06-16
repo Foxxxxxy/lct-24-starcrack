@@ -15,7 +15,7 @@ from handlers.schedule_build_router import schedule_router
 
 
 def get_application() -> FastAPI:
-    application = FastAPI()
+    application = FastAPI(docs_url="/api/docs")
     application.include_router(passenger_router, prefix='/api/passenger', tags=['passenger'])
     application.include_router(employee_router, prefix='/api/employee', tags=['employee'])
     application.include_router(requisitions_router, prefix='/api/requisitions', tags=['requisitions'])
