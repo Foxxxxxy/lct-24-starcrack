@@ -21,5 +21,8 @@ export const statuses: Record<RequestStatus, StatusContent> = {
 };
 
 export const useStatus = (status: RequestStatus) => {
+    if (!status) {
+        return null;
+    }
     return <Label theme={statuses[status].theme}>{statuses[status].name}</Label>;
 };
