@@ -66,8 +66,8 @@ async def update_passenger(
 
 
 @passenger_router.delete("/")
-async def delete_employee(
-    passanger_id: int, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
+async def delete_passenger(
+    passenger_id: int, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
         base_session: Session = Depends(get_db)
 ):
-    passenger_service.delete_passenger(passanger_id, base_session)
+    passenger_service.delete_passenger(passenger_id, base_session)

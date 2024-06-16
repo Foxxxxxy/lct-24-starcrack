@@ -103,7 +103,7 @@ async def _check_for_permission(user: SignUpSchema, role: list, name: str):
 async def auth_user(user: UserOutputSchema = Depends(get_user_secured)):
     return await _check_for_permission(user,
                                        [RoleType.Specialist, RoleType.Operator, RoleType.Admin, RoleType.Attendant],
-                                       'lox')
+                                       'authed')
 
 
 async def auth_moderator(user: Employee = Depends(get_user_secured)) -> Employee:

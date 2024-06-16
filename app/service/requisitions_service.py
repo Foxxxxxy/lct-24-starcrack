@@ -102,3 +102,10 @@ def delete_requisition(
 
 def get_requisitions_by_employee(emp_id: int, limit: int, offset: int, base_session):
     return get_requisitions_by_employee_id(emp_id, limit, offset, base_session)
+
+
+def update_employee_list(req_id: int, emp_list: List[int], base_session: Session):
+    delete_requisitions_employee(req_id, base_session)
+    for emp_id in emp_list:
+        employee_to_requisition(req_id, emp_id, base_session)
+    return

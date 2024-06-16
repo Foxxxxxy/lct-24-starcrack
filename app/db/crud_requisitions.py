@@ -158,6 +158,7 @@ def get_requisitions_by_employee_id(
         answer.append(new_req)
     return answer
 
+
 def get_employees_by_requisitions(
     req_id: int, base_session: Session
 ):
@@ -168,3 +169,14 @@ def get_employees_by_requisitions(
         new_emp = get_employees_by_id(employee.employee_id, base_session)
         answer.append(new_emp)
     return answer
+
+
+def delete_requisitions_employee(
+    req_id: int, base_session: Session
+):
+    string_to_del = base_session.query(executer_to_requisition.ExecutorToRequisition).filter(
+        executer_to_requisition.ExecutorToRequisition.requisition_id == req_id
+    ).all()
+    for string in string_to_del:
+        base_session.delete(string)
+    return

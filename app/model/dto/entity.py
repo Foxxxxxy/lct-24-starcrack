@@ -6,6 +6,7 @@ import pydantic
 
 
 class ShiftDTO(pydantic.BaseModel):
+    id: Optional[int] = None
     employee_id: Optional[int]
     time_start: time
     time_end: time
