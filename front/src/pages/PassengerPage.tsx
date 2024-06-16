@@ -66,9 +66,10 @@ export const PassengerPage: FC = () => {
                     id: +editId,
                 });
                 navigate('/passengers');
-                return;
+                // return;
             } else {
                 await createPassenger(request);
+                navigate('/passengers');
             }
 
             if (back) {

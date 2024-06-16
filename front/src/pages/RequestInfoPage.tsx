@@ -1,8 +1,9 @@
 import {Button, Text} from '@gravity-ui/uikit';
-import {FC} from 'react';
+import {FC, useCallback} from 'react';
 
 import {DynamicView, dynamicViewConfig, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Form} from 'react-final-form';
+import {useNavigate, useParams} from 'react-router-dom';
 import {useFetchPassengerById, useFetchRequestById} from 'src/api/routes';
 import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
@@ -14,9 +15,15 @@ export const mapMethod: Record<string, Request['method']> = {
 };
 
 export const RequestInfoPage: FC = () => {
-    const requestInfo = useFetchRequestById('2');
+    const params = useParams();
+    const navigate = useNavigate();
+    const requestInfo = useFetchRequestById(params.id ?? '');
 
     const passengerById = useFetchPassengerById(requestInfo?.passenger_id ?? '');
+
+    const handleUpdate = useCallback(() => {
+        navigate(`/requests/create?editId=${params.id}`);
+    }, [navigate, params]);
 
     return (
         <div className={css.RequestInfoPage}>
@@ -305,7 +312,7 @@ export const RequestInfoPage: FC = () => {
                             }}
                             config={dynamicViewConfig}
                         />
-                        <Button>Изменить заявку</Button>
+                        <Button onClick={handleUpdate}>Изменить заявку</Button>
                     </div>
                 )}
             ></Form>

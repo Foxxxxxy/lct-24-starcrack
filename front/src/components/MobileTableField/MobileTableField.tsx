@@ -1,6 +1,6 @@
 import {Select, Text} from '@gravity-ui/uikit';
 import {FC, useCallback, useState} from 'react';
-import {useFetchUpdateRequest} from 'src/api/routes';
+import {useFetchUpdateStatus} from 'src/api/routes';
 import {statuses, useStatus} from 'src/hooks/useStatus';
 import {RequestItemResolved} from 'src/resolvers/useResolvedRequests';
 import {RequestStatus} from 'src/types';
@@ -15,15 +15,15 @@ export const MobileTableField: FC<MobileTableFieldProps> = (props) => {
 
     const [currentStatus, setCurrentStatus] = useState(data.status);
 
-    const {fetch: updateRequest} = useFetchUpdateRequest();
+    const {fetch: updateStatus} = useFetchUpdateStatus();
 
     const handleSelectUpdate = useCallback((status) => {
         setCurrentStatus(useStatus(status[0]));
 
         //@ts-ignore
-        updateRequest({
+        updateStatus({
             id: data._id,
-            status: status[0],
+            new_status: status[0],
         });
     }, []);
 
