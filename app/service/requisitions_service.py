@@ -2,6 +2,8 @@ from datetime import timedelta
 
 import pytz
 from sqlalchemy.orm import Session
+
+from algorithms.DijkstraAlgorithm import DijkstraAlgorithm
 from db.crud_requisitions import *
 from typing import List
 from . import db_model_from_dto, update_bd_objects
@@ -84,12 +86,17 @@ def get_requisitions_filtered(
 
 
 def update_requisition(
-    new_requisition: RequisitionUpdateDTO, base_session: Session
+    new_requisition: RequisitionUpdateDTO, base_session: Session, algorithm: DijkstraAlgorithm
 ):
     update_requisition_station_to_add(new_requisition, base_session)
+
     db_requisition = get_requisition_by_id(new_requisition.id, base_session)
+    if new_requisition.start_time is not None:
+        eta = algorithm.calculate_path(db_requisition.start_station, db_requisition.end_station)["eta"]
+        new_requisition.finish_time = new_requisition.start_time + timedelta(minutes=eta)
     db_requisition = update_bd_objects(db_requisition, new_requisition.dict(exclude_unset=True))
     base_session.commit()
+
     update_requisition_station_to_response(db_requisition, base_session)
     return db_requisition
 
@@ -98,6 +105,10 @@ def delete_requisition(
     requisition_id: int, base_session: Session
 ):
     requisition = get_requisition_by_id(requisition_id, base_session)
+
+    requisition_bindings = delete_executor_to_requisition_by_requisition_ids([requisition.id], base_session)
+    base_session.commit()
+
     base_session.delete(requisition)
     base_session.commit()
 

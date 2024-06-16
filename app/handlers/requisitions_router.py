@@ -64,9 +64,9 @@ async def update_requisition_status(
 @requisitions_router.post("/update")
 async def update_requisitions(
         new_requisition: RequisitionUpdateDTO, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
-        base_session: Session = Depends(get_db)
+        base_session: Session = Depends(get_db), algorithm: DijkstraAlgorithm = Depends(get_dijkstra_algorithm)
 ) -> RequisitionDTO:
-    return requisitions_service.update_requisition(new_requisition, base_session)
+    return requisitions_service.update_requisition(new_requisition, base_session, algorithm)
 
 
 @requisitions_router.post("/")
