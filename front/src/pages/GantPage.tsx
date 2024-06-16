@@ -2,7 +2,7 @@ import {DatePicker} from '@gravity-ui/date-components';
 import {dateTime, DateTime, dateTimeParse} from '@gravity-ui/date-utils';
 import {Button, Label, Modal, Text, useToaster} from '@gravity-ui/uikit';
 import cx from 'classnames';
-import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import React, {FC, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
     useFetchDynamicSchedule,
@@ -32,10 +32,35 @@ type TimeMapping = {
     startHour: number;
     finishHour: number;
 };
+const GanttChartHours = () => {
+    return (
+        <div className={css.GanttChart__hours}>
+            {[...Array(24)].flatMap((_, hour) => (
+                <React.Fragment key={hour}>
+                    <div key={`h-${hour}`} className={css.GanttChart__hoursMain}>
+                        {hour}
+                    </div>
+                    {[10, 20, 30, 40, 50].map((minute) => (
+                        <div key={`h-${hour}-m-${minute}`} className={css.GanttChart__hoursItem}>
+                            {minute}
+                        </div>
+                    ))}
+                </React.Fragment>
+            ))}
+        </div>
+    );
+};
 
 const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
+    const chartContainer = useRef(null);
     const navigate = useNavigate();
-    const HOUR_WIDTH = 62;
+    const HOUR_WIDTH = 62 * 5;
+
+    useEffect(() => {
+        const date = new Date();
+        const scrollPx = date.getHours() * 62 * 5;
+        chartContainer?.current.scrollBy({left: scrollPx, behavior: 'smooth'});
+    }, [chartContainer]);
 
     const calculateBlockSize = useCallback(({startHour, finishHour}: TimeMapping) => {
         const startX = startHour * HOUR_WIDTH;
@@ -68,17 +93,9 @@ const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
         [navigate],
     );
 
-    console.log(requests);
-
     return (
-        <div className={css.GanttChart}>
-            <div className={css.GanttChart__hours}>
-                {[...Array(24)].map((_, i) => (
-                    <div key={i} className={css.GanttChart__hoursItem}>
-                        {i}
-                    </div>
-                ))}
-            </div>
+        <div className={css.GanttChart} ref={chartContainer}>
+            <GanttChartHours />
             {requests &&
                 requests.map((req, idx) => {
                     return (
@@ -336,6 +353,8 @@ export const GantPage: FC = () => {
         setNewEmployeers([...newEmployeers, 1]);
     }, [newEmployeers, setNewEmployeers]);
 
+    const navigate = useNavigate();
+
     return (
         <div className={css.GantPage}>
             <Modal
@@ -344,9 +363,13 @@ export const GantPage: FC = () => {
                 onOutsideClick={() => setOpenModal(false)}
             >
                 <div className={css.GantPage__modal}>
-                    <Text variant="header-1" className={css.GantPage__header}>
-                        Ответственные
-                    </Text>
+                    <div className={css.GantPage__modalHeader}>
+                        <Text variant="header-2">Заявка №1</Text>
+                        <Button onClick={() => navigate(`/requests/${requestData?.id}`)}>
+                            Перейти к заявке
+                        </Button>
+                        <Text variant="body-1">Ответственные:</Text>
+                    </div>
                     {requestData?.employees?.map((item) => {
                         return (
                             <GantPageField

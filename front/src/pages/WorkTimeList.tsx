@@ -94,15 +94,6 @@ export const WorkTimeList: FC = () => {
                     handleRowClick(row);
                 },
             },
-            {
-                text: 'Удалить',
-                handler: async (row) => {
-                    // await deleteEmployee(row._id);
-                    // setName('');
-                    // refetch();
-                },
-                theme: 'danger',
-            },
         ];
     }, [handleRowClick]);
 
