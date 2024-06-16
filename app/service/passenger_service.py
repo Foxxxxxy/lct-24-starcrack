@@ -1,7 +1,7 @@
 from typing import List
 
 from db.crud_passenger import *
-from db.crud_requisitions import get_by_passenger_id
+from db.crud_requisitions import get_by_passenger_id, delete_executor_to_requisition_by_requisition_ids
 from model.dto.update_entity import PassengerUpdateDTO
 from . import *
 
@@ -50,6 +50,10 @@ def delete_passenger(
     passenger_id: int, base_session: Session
 ):
     passenger_requisitions = get_by_passenger_id(passenger_id, base_session)
+
+    delete_executor_to_requisition_by_requisition_ids([req.id for req in passenger_requisitions], base_session)
+    base_session.commit()
+
     for requisition in passenger_requisitions:
         base_session.delete(requisition)
     base_session.commit()

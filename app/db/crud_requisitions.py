@@ -1,5 +1,6 @@
 
 import datetime
+from typing import List
 
 import fastapi.exceptions
 import json
@@ -196,6 +197,16 @@ def get_employees_by_requisitions(
         new_emp = get_employees_by_id(employee.employee_id, base_session)
         answer.append(new_emp)
     return answer
+
+
+def delete_executor_to_requisition_by_requisition_ids(
+    req_ids: List[int], base_session: Session
+):
+    executor_to_requisition_to_delete = base_session.query(executer_to_requisition.ExecutorToRequisition).filter(
+        executer_to_requisition.ExecutorToRequisition.requisition_id.in_(req_ids)).all()
+    logger.info(executor_to_requisition_to_delete)
+    for e in executor_to_requisition_to_delete:
+        base_session.delete(e)
 
 
 def delete_requisitions_employee(
