@@ -5,6 +5,8 @@ import {useStatus} from 'src/hooks/useStatus';
 import {RequestItem} from 'src/types';
 
 export type RequestItemResolved = {
+    _id: number;
+    _status: string;
     id: ReactNode | number;
     passenger_id: ReactNode | number;
     start_time: ReactNode | string;
@@ -16,16 +18,21 @@ export type RequestItemResolved = {
     route: ReactNode | string;
 };
 
-export const useResolvedRequests = (requests: RequestItem[]): RequestItemResolved[] => {
+export const useResolvedRequests = (requests: RequestItem[] | undefined): RequestItemResolved[] => {
+    if (!requests) {
+        return [];
+    }
     return requests.map((item) => ({
+        _id: item.id,
+        _status: item.status,
         id: <Text color="secondary">{item.id}</Text>,
         passenger_id: <Text color="secondary">{item.passenger_id}</Text>,
         females_males_needed: (
             <Text color="complementary">{`${item.males_needed} м / ${item.females_needed} ж`}</Text>
         ),
-        start_time: useDateTime(item.start_time).formatted,
-        finish_time: useDateTime(item.finish_time).formatted,
-        meet_time: useDateTime(item.meet_time).formatted,
+        start_time: useDateTime(item.start_time ?? '').formatted,
+        finish_time: useDateTime(item.finish_time ?? '').formatted,
+        meet_time: useDateTime(item.meet_time ?? '').formatted,
         status: useStatus(item.status),
         creation_time: useDateTime(item.creation_time).formatted,
         route: `${item.start_station} -> ${item.end_station}`,

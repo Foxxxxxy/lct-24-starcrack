@@ -1,16 +1,12 @@
-.RequestPage {
+.PassengerInfoPage {
     padding: 0 0 var(--g-spacing-6) var(--g-spacing-6);
 }
 
-.RequestPage__header {
+.PassengerInfoPage__header {
     padding: var(--g-spacing-6) var(--g-spacing-6) var(--g-spacing-6) 0;
 }
 
-.RequestPage__formLeft {
-    margin-bottom: 15px;
-}
-
-.RequestPage__actions {
+.PassengerInfoPage__actions {
     display: flex;
     gap: 16px;
 }

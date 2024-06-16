@@ -17,7 +17,7 @@ class ShiftDTO(pydantic.BaseModel):
 
 
 class PassengerDTO(pydantic.BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     sex: SexType
     passenger_category: PassengerCategory
     name: str

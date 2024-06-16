@@ -36,11 +36,13 @@ def get_scheduled_by_date(
     return get_scheduled(date, base_session)
 
 
-
 def get_requisition_by_id_service(
     req_id: int, base_session: Session
 ) -> requisitions.Requisitions:
-    return get_requisition_by_id(req_id, base_session)
+    requisition = get_requisition_by_id(req_id, base_session)
+    requisition.start_station = get_station_by_id(requisition.start_station, base_session)
+    requisition.end_station = get_station_by_id(requisition.end_station, base_session)
+    return requisition
 
 
 def create_requisition(
