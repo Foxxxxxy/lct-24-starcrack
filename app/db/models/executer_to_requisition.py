@@ -10,5 +10,5 @@ class ExecutorToRequisition(Base):
     employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False)
     requisition_id = Column(Integer, ForeignKey('requisitions.id'), nullable=False)
 
-    employee = relationship("employee")
-    requisition = relationship("requisition")
+    # employee = relationship("employee")
+    # requisition = relationship("requisition")

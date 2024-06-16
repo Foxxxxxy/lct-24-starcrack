@@ -1,10 +1,15 @@
+
 import datetime
 
 import fastapi.exceptions
+import json
+from datetime import datetime
+
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from db.models import requisitions
 from model.dto.filters import RequisitionFilterDTO
-
+from db.models import executer_to_requisition
 from model.enum.enums import Status
 
 
@@ -67,6 +72,18 @@ def get_by_passenger_id(
     return requisitions_list
 
 
+def update_requisition_employee(
+    req_id: int, executor_id: int, base_session: Session
+):
+    requisition = base_session.query(requisitions.Requisitions).filter(
+        requisitions.Requisitions.id == req_id
+    ).first()
+    requisition.executor_id = executor_id
+    base_session.add(requisition)
+    base_session.commit()
+    return requisition
+
+
 def __apply_filters(query, filter: RequisitionFilterDTO):
     for field, value in filter.dict(exclude_unset=True).items():
         if value is None:
@@ -88,3 +105,51 @@ def update_status_by_id(
 
     requisition.status = status
     base_session.commit()
+
+
+def get_requisition_by_timedelta_status(
+    date_start: datetime, date_end: datetime, status: str, base_session: Session
+):
+    requisitions_list = base_session.query(requisitions.Requisitions).filter(and_(
+        requisitions.Requisitions.start_time >= date_start,
+        requisitions.Requisitions.finish_time <= date_end,
+        requisitions.Requisitions.status == status
+        )
+    ).all()
+    return requisitions_list
+
+
+def update_requisition_status(
+    req_id: int, status: str, base_session: Session
+):
+    requisition = base_session.query(requisitions.Requisitions).filter(
+        requisitions.Requisitions.id == req_id
+    ).first()
+    requisition.status = status
+    base_session.add(requisition)
+    base_session.commit()
+    return requisition
+
+
+def employee_to_requisition(
+    requisition_id: int, employee_id: int, base_session: Session
+):
+    string = executer_to_requisition.ExecutorToRequisition()
+    string.requisition_id = requisition_id
+    string.employee_id = employee_id
+    base_session.add(string)
+    base_session.commit()
+    base_session.refresh(string)
+    return
+
+
+def get_requisitions_by_employee_id(
+    emp_id: int, limit: int, offset: int, base_session: Session
+):
+    requisitions = base_session.query(executer_to_requisition.ExecutorToRequisition).filter(
+        executer_to_requisition.ExecutorToRequisition.employee_id == emp_id).limit(limit).offset(offset).all()
+    answer = []
+    for req in requisitions:
+        new_req = get_requisition_by_id(req.requisition_id, base_session)
+        answer.append(new_req)
+    return answer
