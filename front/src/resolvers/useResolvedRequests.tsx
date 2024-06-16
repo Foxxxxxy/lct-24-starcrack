@@ -5,6 +5,8 @@ import {useStatus} from 'src/hooks/useStatus';
 import {RequestItem} from 'src/types';
 
 export type RequestItemResolved = {
+    _id: number;
+    _status: string;
     id: ReactNode | number;
     passenger_id: ReactNode | number;
     start_time: ReactNode | string;
@@ -16,8 +18,13 @@ export type RequestItemResolved = {
     route: ReactNode | string;
 };
 
-export const useResolvedRequests = (requests: RequestItem[]): RequestItemResolved[] => {
+export const useResolvedRequests = (requests: RequestItem[] | undefined): RequestItemResolved[] => {
+    if (!requests) {
+        return [];
+    }
     return requests.map((item) => ({
+        _id: item.id,
+        _status: item.status,
         id: <Text color="secondary">{item.id}</Text>,
         passenger_id: <Text color="secondary">{item.passenger_id}</Text>,
         females_males_needed: (

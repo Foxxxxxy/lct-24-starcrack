@@ -5,3 +5,8 @@
 .PassengerPage__header {
     padding: var(--g-spacing-6) var(--g-spacing-6) var(--g-spacing-6) 0;
 }
+
+.PassengerPage__actions {
+    display: flex;
+    gap: 16px;
+}

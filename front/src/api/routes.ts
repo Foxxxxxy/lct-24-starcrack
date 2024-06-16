@@ -27,7 +27,9 @@ export const useFetchPassengerSuggestion = (name: string): Passenger[] | undefin
 
     const token = useStore(store, (state) => state['access_token']);
     useEffect(() => {
-        console.log(name);
+        if (!name) {
+            return;
+        }
         client
             .get<Passenger[]>(`/passenger/suggestions/?name=${name}`, {
                 headers: {
@@ -96,20 +98,160 @@ export const useFetchRequests = ({
 }: {
     limit: number;
     offset: number;
-}): RequestItem[] | undefined => {
+}): {
+    requests: RequestItem[] | undefined;
+    refetch: () => void;
+} => {
     const [requests, setRequests] = useState<RequestItem[] | undefined>();
 
     const token = useStore(store, (state) => state['access_token']);
 
-    useEffect(() => {
-        client
+    const fetch = useCallback(() => {
+        return client
             .get<RequestItem[]>(`/requisitions/?limit=${limit}&offset=${offset}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             })
             .then((res) => setRequests(res.data));
-    }, [name, token]);
+    }, [limit, offset, token]);
 
-    return requests;
+    useEffect(() => {
+        fetch();
+    }, [fetch]);
+
+    return {
+        requests,
+        refetch: fetch,
+    };
+};
+
+export const useFetchRequestById = (id: string | null): RequestItem | undefined => {
+    const [request, setRequest] = useState<RequestItem | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!id) {
+            return;
+        }
+        client
+            .get<RequestItem>(`/requisitions/id?req_id=${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setRequest(res.data));
+    }, [id, token]);
+
+    return request;
+};
+
+export const useFetchPassengerById = (id: number | string): Passenger | undefined => {
+    const [passenger, setPassenger] = useState<Passenger | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!id) {
+            return;
+        }
+        client
+            .get<Passenger>(`/passenger/id?pas_id=${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setPassenger(res.data));
+    }, [id, token]);
+
+    return passenger;
+};
+
+export const useFetchDeleteRequest = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (id: string | number) => {
+            return client.delete(`/requisitions/?requisition_id=${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchUpdateRequest = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (request: Request) => {
+            return client.post(
+                `/requisitions/update`,
+                {
+                    ...request,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchRemovePassenger = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (id: string | number) => {
+            return client.delete(`/passenger/?passanger_id=${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchUpdatePassenger = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (request: Passenger) => {
+            return client.post(
+                `/passenger/update`,
+                {
+                    ...request,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
 };

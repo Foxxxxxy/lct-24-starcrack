@@ -1,27 +1,41 @@
 import {DatePicker} from '@gravity-ui/date-components';
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Button, Text} from '@gravity-ui/uikit';
-import {FC, useCallback, useMemo, useState} from 'react';
+import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Field as BaseField, Form, FormRenderProps} from 'react-final-form';
 
 import {Field} from 'src/components/Field/Field';
 import css from './RequestPage.module.scss';
 
 import {DateTime, dateTimeParse} from '@gravity-ui/date-utils';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useSearchParams} from 'react-router-dom';
 import {
     useFetchCreateRequest,
+    useFetchDeleteRequest,
     useFetchMetroStations,
+    useFetchPassengerById,
     useFetchPassengerSuggestion,
+    useFetchRequestById,
+    useFetchUpdateRequest,
 } from 'src/api/routes';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
-import {passengerCategories} from 'src/constants';
+import {FORMAT, passengerCategories} from 'src/constants';
 import {Request} from 'src/types';
+import {mapMethod} from './RequestInfoPage';
 
 export const RequestPage: FC = () => {
     const navigate = useNavigate();
+    let [searchParams] = useSearchParams();
+
+    const editId = searchParams.get('editId');
+
+    const requestInfo = useFetchRequestById(editId);
+
+    const passengerById = useFetchPassengerById(requestInfo?.passenger_id ?? '');
 
     const {fetch: createRequest} = useFetchCreateRequest();
+    const {fetch: updateRequest} = useFetchUpdateRequest();
+    const {fetch: fetchDeleteRequest} = useFetchDeleteRequest();
 
     const [passengerSuggest, setPassengerSuggest] = useState<SuggestItem>({
         info: '',
@@ -33,17 +47,17 @@ export const RequestPage: FC = () => {
     const [stationStart, setStationStart] = useState('');
     const [stationEnd, setStationEnd] = useState('');
     const [date] = useState<{
-        day: number | null;
-        year: number | null;
-        month: number | null;
+        day: number | undefined;
+        year: number | undefined;
+        month: number | undefined;
     }>({
-        day: null,
-        year: null,
-        month: null,
+        day: dateTimeParse(new Date())?.day(),
+        year: dateTimeParse(new Date())?.year(),
+        month: dateTimeParse(new Date())?.month(),
     });
 
     const handlePassengerAction = useCallback(() => {
-        navigate('/passenger?back=true');
+        navigate('/passengers/create?back=true');
     }, [navigate]);
 
     const handlePassengerSelect = useCallback(
@@ -54,7 +68,6 @@ export const RequestPage: FC = () => {
         },
         [setPassengerSuggest, passengerSuggest],
     );
-    const FORMAT = 'YYYY-MM-DDTHH:mm:ssZ';
 
     const handleFormSubmit = useCallback(
         (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
@@ -73,8 +86,8 @@ export const RequestPage: FC = () => {
                         year: date.year || 0,
                         month: date.month || 0,
                         day: date.day || 0,
-                        hours: values['meet_time']?.hours,
-                        minutes: values['meet_time']?.minutes,
+                        hours: values['start_time']?.hours,
+                        minutes: values['start_time']?.minutes,
                     })?.format(FORMAT) || '',
                 males_needed: +values['males_needed']?.value,
                 females_needed: +values['females_needed']?.value,
@@ -97,8 +110,14 @@ export const RequestPage: FC = () => {
                 end_station_comment: '',
             };
 
-            console.log(request, 'SDSD');
-            createRequest(request);
+            if (editId) {
+                updateRequest({
+                    ...request,
+                    id: +editId,
+                });
+            } else {
+                createRequest(request);
+            }
             // navigate('/requests/123');
         },
         [navigate],
@@ -114,20 +133,57 @@ export const RequestPage: FC = () => {
     const metroDepartureSuggestion = useFetchMetroStations(stationStart);
     const metroArrivalSuggestion = useFetchMetroStations(stationEnd);
 
-    const isFormValid = useMemo(() => {
-        // if ()
-    }, []);
+    useEffect(() => {
+        if (editId && passengerById && requestInfo) {
+            setPassengerName(passengerById.name);
+            passengerSuggest.customInfo = {id: passengerById.id};
+            setStationStart(requestInfo.start_station);
+            setStationEnd(requestInfo.end_station);
+            date.day = dateTimeParse(requestInfo.start_time)?.day();
+            date.month = dateTimeParse(requestInfo.start_time)?.month();
+            date.year = dateTimeParse(requestInfo.start_time)?.year();
+            console.log(date);
+        }
+    }, [requestInfo, passengerById, dateTimeParse, mapMethod]);
 
-    const isValidForm = useCallback(() => {}, []);
+    const initialForm = useMemo(() => {
+        return {
+            passengers_amount: {
+                value: requestInfo?.passengers_amount,
+            },
+            start_time: {
+                hours: dateTimeParse(requestInfo?.start_time)?.hour(),
+                minutes: dateTimeParse(requestInfo?.start_time)?.minute(),
+            },
+            request_method: mapMethod[requestInfo?.method ?? ''],
+            request_category: passengerById?.passenger_category,
+            males_needed: {
+                value: requestInfo?.males_needed,
+            },
+            females_needed: {
+                value: requestInfo?.females_needed,
+            },
+            baggage: requestInfo?.baggage,
+            comment: requestInfo?.comment,
+        };
+    }, [requestInfo, passengerById, dateTimeParse, mapMethod]);
 
+    const handleFormDelete = useCallback(async () => {
+        await fetchDeleteRequest(String(editId));
+        navigate('/');
+    }, [navigate]);
+
+    if (editId && (!requestInfo || !passengerById)) {
+        return 'loading';
+    }
     return (
         <div className={css.RequestPage}>
             <header className={css.RequestPage__header}>
                 <Text variant="display-1">Создание заявки</Text>
             </header>
             <Form
+                initialValues={editId ? initialForm : {}}
                 onSubmit={() => {}}
-                validate={() => {}}
                 render={(props) => (
                     <div className={css.RequestPage__form}>
                         {/* {props.form.getState()} */}
@@ -192,13 +248,14 @@ export const RequestPage: FC = () => {
                                     {() => (
                                         <DatePicker
                                             format="DD.MM.YYYY"
+                                            value={dateTimeParse(date)}
                                             onUpdate={handleDateUpdate}
                                         />
                                     )}
                                 </BaseField>
                             </Field>
                             <DynamicField
-                                name={'meet_time'}
+                                name={'start_time'}
                                 spec={{
                                     type: SpecTypes.Object,
                                     properties: {
@@ -251,46 +308,6 @@ export const RequestPage: FC = () => {
                             <Field name="date" label="Пересадки">
                                 <Text>Пересадки</Text>
                             </Field>
-                            {/* <DynamicField
-                                name={'railway-stations'}
-                                spec={{
-                                    type: SpecTypes.String,
-                                    enum: [
-                                        'foo',
-                                        'bar',
-                                        'rab',
-                                        'oof',
-                                        'fooBar',
-                                        'fooOof',
-                                        'barFoo',
-                                        'barOof',
-                                        'fooFoo',
-                                        'barBar',
-                                    ],
-                                    viewSpec: {
-                                        type: 'select',
-                                        layout: 'row',
-                                        layoutTitle: 'Выберите вокзал',
-                                        placeholder: 'placeholder text',
-                                        selectParams: {
-                                            filterPlaceholder: 'filter placeholder',
-                                            meta: {
-                                                foo: 'Additional text 1',
-                                                bar: 'Additional text 2',
-                                                rab: 'Additional text 3',
-                                                oof: 'Additional text 4',
-                                                fooBar: 'Additional text 5',
-                                                fooOof: 'Additional text 6',
-                                                barFoo: 'Additional text 7',
-                                                barOof: 'Additional text 8',
-                                                fooFoo: 'Additional text 9',
-                                                barBar: 'Additional text 10',
-                                            },
-                                        },
-                                    },
-                                }}
-                                config={dynamicConfig}
-                            /> */}
                             <DynamicField
                                 name={'passengers_amount'}
                                 spec={{
@@ -396,9 +413,30 @@ export const RequestPage: FC = () => {
                                 }}
                                 config={dynamicConfig}
                             />
-                            <Button size="xl" onClick={() => handleFormSubmit(props)}>
-                                Создать заявку
-                            </Button>
+                            <div className={css.RequestPage__actions}>
+                                {editId ? (
+                                    <>
+                                        <Button
+                                            size="xl"
+                                            view="action"
+                                            onClick={() => handleFormSubmit(props)}
+                                        >
+                                            Изменить заявку
+                                        </Button>
+                                        <Button
+                                            size="xl"
+                                            view="outlined-danger"
+                                            onClick={handleFormDelete}
+                                        >
+                                            Удалить заявку
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button size="xl" onClick={() => handleFormSubmit(props)}>
+                                        Создать заявку
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )}
