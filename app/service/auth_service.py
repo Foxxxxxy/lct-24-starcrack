@@ -92,7 +92,6 @@ async def get_user_secured(token: str = Depends(oauth2_scheme), db: Session = De
 # None]: if token is None: return None try: return await _get_user_secured(token, db) except HTTPException: return None
 
 async def _check_for_permission(user: SignUpSchema, role: list, name: str):
-    print(user.role, print(role))
     if user.role not in role:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -102,7 +101,9 @@ async def _check_for_permission(user: SignUpSchema, role: list, name: str):
 
 
 async def auth_user(user: UserOutputSchema = Depends(get_user_secured)):
-    return await _check_for_permission(user, [RoleType.Specialist, RoleType.Operator, RoleType.Admin, RoleType.Attendant], 'lox')
+    return await _check_for_permission(user,
+                                       [RoleType.Specialist, RoleType.Operator, RoleType.Admin, RoleType.Attendant],
+                                       'lox')
 
 
 async def auth_moderator(user: Employee = Depends(get_user_secured)) -> Employee:

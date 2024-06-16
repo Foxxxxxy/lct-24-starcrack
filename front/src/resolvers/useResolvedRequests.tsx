@@ -7,6 +7,8 @@ import {Icon} from '@gravity-ui/uikit';
 import {CircleXmarkFill, CircleCheckFill} from '@gravity-ui/icons';
 
 export type RequestItemResolved = {
+    _id: number;
+    _status: string;
     id: ReactNode | number;
     passenger_id: ReactNode | number;
     start_time: ReactNode | string;
@@ -28,8 +30,13 @@ export type RequestItemResolvedEmployee = {
     easy_work: ReactNode | boolean;
 }
 
-export const useResolvedRequests = (requests: RequestItem[]): RequestItemResolved[] => {
+export const useResolvedRequests = (requests: RequestItem[] | undefined): RequestItemResolved[] => {
+    if (!requests) {
+        return [];
+    }
     return requests.map((item) => ({
+        _id: item.id,
+        _status: item.status,
         id: <Text color="secondary">{item.id}</Text>,
         passenger_id: <Text color="secondary">{item.passenger_id}</Text>,
         females_males_needed: (

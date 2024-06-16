@@ -1,34 +1,45 @@
-import {ListUl, PencilToLine, Person, PersonGear, Plus, ScalesUnbalanced} from '@gravity-ui/icons';
+import {ListUl, Person, PersonGear, Plus} from '@gravity-ui/icons';
 import {MenuItem} from '@gravity-ui/navigation';
 import {router} from 'src/main';
 import {useLocation} from './useLocation';
+import {routes} from './useRoutes';
 
 const defaultMenuItems: MenuItem[] = [
     {
-        id: 'overview',
+        id: 'main',
         title: 'Все заявки',
         icon: ListUl,
     },
     {
-        id: 'overview',
-        title: 'Распределение заявок',
-        icon: ScalesUnbalanced,
-    },
-    {
-        id: 'overview',
-        title: 'Заявка',
-        icon: PencilToLine,
-    },
-    {
-        id: 'overview',
-        title: 'Пассажир',
+        id: 'passengers',
+        title: 'Все пассажиры',
         icon: Person,
     },
     {
-        id: 'overview',
-        title: 'Сотрудники',
+        id: 'employees',
+        title: 'Все сотрудники',
         icon: PersonGear,
     },
+    // {
+    //     id: 'requestInfo',
+    //     title: 'Информация о заявке',
+    //     icon: PencilToLine,
+    // },
+    // {
+    //     id: 'requestCreate',
+    //     title: 'Создание заявки',
+    //     icon: PencilToLine,
+    // },
+    // {
+    //     id: 'overview',
+    //     title: 'Пассажир',
+    //     icon: Person,
+    // },
+    // {
+    //     id: 'overview',
+    //     title: 'Сотрудники',
+    //     icon: PersonGear,
+    // },
     {
         id: 'divider2',
         title: '-',
@@ -38,20 +49,58 @@ const defaultMenuItems: MenuItem[] = [
 
 const filterAside = (items: MenuItem[]): MenuItem[] => {
     const {name} = useLocation();
-    if (name === 'main') {
-        return [
-            ...items,
-            {
-                id: 'action2',
-                title: 'Создать заявку',
-                type: 'action',
-                icon: Plus,
-                onItemClick() {
-                    router.navigate('/requests/create');
-                },
-            },
-        ];
+    const idx = items.findIndex((item) => item.id === name);
+    if (idx !== -1) {
+        items[idx].current = true;
     }
+    const patchedItems = items.map((item) => {
+        const route = routes.find((route) => route.name === name);
+        return {
+            ...item,
+            onItemClick() {
+                router.navigate(route?.path ?? '/');
+            },
+        };
+    });
+    return [
+        ...patchedItems,
+        {
+            id: 'action2',
+            title: 'Создать заявку',
+            type: 'action',
+            icon: Plus,
+            onItemClick() {
+                router.navigate('/requests/create');
+            },
+        },
+        {
+            id: 'action2',
+            title: 'Создать пассажира',
+            type: 'action',
+            icon: Plus,
+            onItemClick() {
+                router.navigate('/passengers/create');
+            },
+        },
+        {
+            id: 'action2',
+            title: 'Создать сотрудника',
+            type: 'action',
+            icon: Plus,
+            onItemClick() {
+                router.navigate('/employee/create');
+            },
+        },
+        {
+            id: 'action2',
+            title: 'Создать расписание',
+            type: 'action',
+            icon: Plus,
+            onItemClick() {
+                router.navigate('/work-time/create');
+            },
+        },
+    ];
 
     return items;
 };

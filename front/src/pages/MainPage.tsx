@@ -1,21 +1,29 @@
-import {Table as GravityTable, TableColumnConfig, Text, withTableCopy} from '@gravity-ui/uikit';
-import {FC} from 'react';
+import {
+    Table as GravityTable,
+    TableActionConfig,
+    TableColumnConfig,
+    TableDataItem,
+    Text,
+    withTableActions,
+    withTableCopy,
+    withTableSettings,
+} from '@gravity-ui/uikit';
+import {FC, useCallback, useState} from 'react';
 // import {requests} from 'src/mocks/requests';
 import {RequestItemResolved, useResolvedRequests} from 'src/resolvers/useResolvedRequests';
 
-import {useFetchRequests} from 'src/api/routes';
+import {useNavigate} from 'react-router-dom';
+import {useFetchDeleteRequest, useFetchRequests} from 'src/api/routes';
 import css from './MainPage.module.scss';
 
 const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
     {
         id: 'id',
         name: 'ID заявки',
-        meta: {copy: ({id}: {id: string}) => id},
     },
     {
         id: 'passenger_id',
         name: 'ID Пассажира',
-        meta: {copy: ({passenger_id}: {passenger_id: string}) => passenger_id},
     },
     {
         id: 'females_males_needed',
@@ -40,18 +48,62 @@ const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
 ];
 
 export const MainPage: FC = () => {
-    const requests = useFetchRequests({
+    const {requests, refetch: refetchRequests} = useFetchRequests({
         limit: 100,
         offset: 0,
     });
 
-    if (!requests) {
-        return <>Loading</>;
-    }
+    const navigate = useNavigate();
 
     const resolvedRequests = useResolvedRequests(requests);
 
-    const Table = withTableCopy(GravityTable);
+    const {fetch: fetchDeleteRequest} = useFetchDeleteRequest();
+
+    const handleRowClick = useCallback(
+        (row: RequestItemResolved) => {
+            navigate(`/requests/${row._id}`);
+        },
+        [navigate],
+    );
+
+    const handleRowEdit = useCallback(
+        (row: RequestItemResolved) => {
+            navigate(`/requests/create?editId=${row._id}`);
+        },
+        [navigate],
+    );
+
+    const handleRowDelete = useCallback(
+        async (row: RequestItemResolved) => {
+            await fetchDeleteRequest(row._id);
+            refetchRequests();
+        },
+        [navigate],
+    );
+
+    const getRowActions = () => {
+        return [
+            {
+                text: 'Изменить',
+                handler: handleRowEdit,
+            },
+            {
+                text: 'Посмотреть',
+                handler: handleRowClick,
+            },
+            {
+                text: 'Удалить',
+                handler: handleRowDelete,
+                theme: 'danger',
+            },
+        ] as TableActionConfig<TableDataItem>[];
+    };
+
+    const Table = withTableSettings({sortable: true})(
+        withTableActions(withTableCopy(GravityTable)),
+    );
+
+    const [settings, setSettings] = useState([{id: '_status', isSelected: true}]);
 
     return (
         <div className={css.MainPage}>
@@ -62,7 +114,13 @@ export const MainPage: FC = () => {
                 className={css.MainPage__table}
                 columns={requestTableData}
                 data={resolvedRequests}
-                onRowClick={() => {}}
+                onRowClick={handleRowEdit}
+                updateSettings={(updated) => {
+                    setSettings(updated);
+                    return Promise.resolve();
+                }}
+                getRowActions={getRowActions}
+                settings={settings}
             />
         </div>
     );

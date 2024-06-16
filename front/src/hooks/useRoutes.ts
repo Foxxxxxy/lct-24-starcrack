@@ -1,14 +1,15 @@
 import {FC} from 'react';
-import {LayoutMain} from 'src/Layouts/LayoutMain';
 import {LayoutEmpty} from 'src/Layouts/LayoutEmpty';
+import {LayoutMain} from 'src/Layouts/LayoutMain';
+import {AuthPage} from 'src/pages/AuthPage';
 import {EmoloyeePage} from 'src/pages/EmoloyeePage';
 import {MainPage} from 'src/pages/MainPage';
+import {MainPageMobile} from 'src/pages/MainPageMobile';
+import {PassengerInfoPage} from 'src/pages/PassengerInfoPage';
 import {PassengerPage} from 'src/pages/PassengerPage';
 import {RequestInfoPage} from 'src/pages/RequestInfoPage';
 import {RequestPage} from 'src/pages/RequestPage';
 import {WorkTimePage} from 'src/pages/WorkTimePage';
-import {AuthPage} from 'src/pages/AuthPage';
-import {MainPageMobile} from 'src/pages/MainPageMobile';
 import {EmployeeList} from 'src/pages/EmployeeList';
 
 export type CustomRoute = {
@@ -23,7 +24,7 @@ export const routes: CustomRoute[] = [
         name: 'main',
         path: '/',
         LayoutComponent: LayoutMain,
-        PageComponent: MainPage,
+        PageComponent: window.screen.width <= 760 ? MainPageMobile : MainPage,
     },
     {
         name: 'requestCreate',
@@ -32,16 +33,22 @@ export const routes: CustomRoute[] = [
         PageComponent: RequestPage,
     },
     {
-        name: 'request',
+        name: 'requestInfo',
         path: '/requests/:id',
         LayoutComponent: LayoutMain,
         PageComponent: RequestInfoPage,
     },
     {
-        name: 'passenger',
-        path: '/passenger',
+        name: 'passengerCreate',
+        path: '/passengers/create',
         LayoutComponent: LayoutMain,
         PageComponent: PassengerPage,
+    },
+    {
+        name: 'passengerInfo',
+        path: '/passengers/:id',
+        LayoutComponent: LayoutMain,
+        PageComponent: PassengerInfoPage,
     },
     {
         name: 'employeeCreate',

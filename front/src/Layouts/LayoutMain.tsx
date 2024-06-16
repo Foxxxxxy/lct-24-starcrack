@@ -1,10 +1,8 @@
 import React, {useState} from 'react';
 
-import {PageLayout, PageLayoutAside, FooterItem} from '@gravity-ui/navigation';
-import {useMenuItems} from 'src/hooks/useMenuItems';
-import {Avatar} from '@gravity-ui/uikit';
-import {SidebarPopup} from 'src/components/SidebarPopup/SidebarPopup';
+import {PageLayout, PageLayoutAside} from '@gravity-ui/navigation';
 import {FooterItems} from 'src/components/FooterItems/FooterItems';
+import {useMenuItems} from 'src/hooks/useMenuItems';
 
 import metroLogo from './vite.svg';
 
@@ -13,11 +11,9 @@ export type LayoutProps = {
 };
 
 export const LayoutMain: React.FC<LayoutProps> = ({children}) => {
-    const [isCompact, setIsCompact] = useState(false);
+    const [isCompact, setIsCompact] = useState(window.screen.width <= 760 ? true : false);
 
     const menuItems = useMenuItems();
-    const [popupVisible, setPopupVisible] = useState(false);
-
     return (
         <PageLayout compact={isCompact}>
             <PageLayoutAside
