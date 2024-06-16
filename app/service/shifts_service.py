@@ -46,3 +46,11 @@ def delete_shift(
     shift = get_shifts_by_id(shift_id, base_session)
     base_session.delete(shift)
     base_session.commit()
+
+
+def get_shift_by_id(shift_id, base_session):
+    return get_shifts_by_id(shift_id, base_session)
+
+
+def get_shift_filtered(filters, limit, offset, base_session):
+    return get_filtered(filters, limit, offset, base_session)

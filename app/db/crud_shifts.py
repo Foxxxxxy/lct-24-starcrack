@@ -3,6 +3,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from db.models import shifts
 from model.dto.entity import *
+from model.dto.filters import ShiftFilterDTO
 
 
 def get_shifts_by_user(
@@ -47,3 +48,17 @@ def get_shifts_by_id(
 ):
     shift = base_session.query(shifts.Shift).filter(shifts.Shift.id == shift_id).first()
     return shift
+
+
+def __apply_filters(query, filter: ShiftFilterDTO):
+    for field, value in filter.dict(exclude_unset=True).items():
+        if value is None:
+            continue
+        query = query.filter(getattr(shifts.Shift, field) == value)
+    return query
+
+
+def get_filtered(filters, limit: int, offset: int, base_session: Session):
+    query = base_session.query(shifts.Shift)
+    filtered = __apply_filters(query, filters)
+    return filtered.offset(offset).limit(limit).all()

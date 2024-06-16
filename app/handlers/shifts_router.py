@@ -8,6 +8,7 @@ from db.base import get_db
 import service.shifts_service as shifts_service
 from model.dto.auth_models import UserOutputSchema
 from model.dto.entity import *
+from model.dto.filters import ShiftFilterDTO
 from model.dto.update_entity import ShiftUpdateDto
 from service import auth_service
 
@@ -64,3 +65,19 @@ async def delete_shift(
         base_session: Session = Depends(get_db)
 ):
     shifts_service.delete_shift(shift_id, base_session)
+
+
+@shifts_router.get("/id")
+async def get_shift_by_id(
+        shift_id: int, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
+        base_session: Session = Depends(get_db)
+):
+    return shifts_service.get_shift_by_id(shift_id, base_session)
+
+
+@shifts_router.post("/filtered")
+async def get_filtered_shifts(
+        filters: ShiftFilterDTO, limit: int, offset: int, user: Annotated[UserOutputSchema, Depends(auth_service.auth_user)],
+        base_session: Session = Depends(get_db)
+):
+    return shifts_service.get_shift_filtered(filters, limit, offset, base_session)

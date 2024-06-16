@@ -1,14 +1,15 @@
-from datetime import datetime
+from datetime import datetime, time
 from typing import Union, Optional
 
 import pydantic
 
 from db.models.passengers import PassengerCategory
 from db.models.requisitions import Status
-from model.enum.enums import SexType
+from model.enum.enums import SexType, Weekday
 
 
 class PassengerFilterDTO(pydantic.BaseModel):
+    id: Optional[int] = None
     passenger_category: Optional[PassengerCategory] = None
     name: Optional[str] = None
     sex: Optional[SexType] = None
@@ -26,3 +27,15 @@ class RequisitionFilterDTO(pydantic.BaseModel):
     females_needed: Optional[int] = None
     start_station: Optional[int] = None
     end_station: Optional[int] = None
+
+
+class ShiftFilterDTO(pydantic.BaseModel):
+    id: Optional[int] = None
+    employee_id: Optional[int] = None
+    time_start: Optional[time] = None
+    time_end: Optional[time] = None
+    place_start: Optional[Union[int, str]] = None
+    weekday: Optional[str] = None
+
+    class Config:
+        use_enum_values = True
