@@ -139,6 +139,8 @@ def get_executor_dynamic(date_start, base_session):
     for executor in executors:
         tasks = get_requisitions_by_employee_id(executor.id, 1000, 0, base_session)
         for task in tasks:
+            task.start_time = task.start_time.replace(tzinfo=None)
+            task.finish_time = task.finish_time.replace(tzinfo=None)
             executor.tasks.append([task.start_time, task.finish_time])
         executors_dict[executor.id] = executor
         if latest_shift_end is None or executor.shift_end > latest_shift_end:
