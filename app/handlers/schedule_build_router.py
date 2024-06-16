@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -14,15 +14,26 @@ schedule_router = APIRouter()
 
 @schedule_router.get("/sort")
 async def get_sorted_schedules(
-    date_start: datetime, date_end: datetime,
+    date_start: Optional[datetime] = None, date_end: Optional[datetime] = None,
         base_session: Session = Depends(get_db), algorithm: DijkstraAlgorithm = Depends(get_dijkstra_algorithm)
 ):
+    if not date_end or date_start:
+        now = datetime.now()
+        date_start = now + timedelta(hours=24)
+
+        date_end = now + timedelta(hours=48)
     return build_schedule_func(date_start, date_end, base_session, algorithm)
 
 
 @schedule_router.get("/dynamic")
-async def get_sorted_schedules(
-    date_start: datetime, date_end: datetime,
+async def get_sorted_schedules_dynamic(
+    date_start: Optional[datetime] = None, date_end: Optional[datetime] = None,
         base_session: Session = Depends(get_db), algorithm: DijkstraAlgorithm = Depends(get_dijkstra_algorithm)
 ):
+    if not date_end or date_start:
+        now = datetime.now()
+        date_start = now + timedelta(hours=24)
+
+        date_end = now + timedelta(hours=48)
+
     return build_dynamic_schedule_func(date_start, date_end, base_session, algorithm)
