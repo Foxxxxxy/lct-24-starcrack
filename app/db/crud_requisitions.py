@@ -38,7 +38,7 @@ def add_new_requisition(
     base_session.add(requisition)
     base_session.commit()
     base_session.refresh(requisition)
-    return requisition.id
+    return {"id": requisition.id}
 
 
 def get_filtered(
