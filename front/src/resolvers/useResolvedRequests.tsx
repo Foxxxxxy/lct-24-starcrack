@@ -1,5 +1,6 @@
 import {Text} from '@gravity-ui/uikit';
 import {ReactNode} from 'react';
+import {mapSexBack} from 'src/constants';
 import {useDateTime} from 'src/hooks/useDateTime';
 import {useStatus} from 'src/hooks/useStatus';
 import {Employer, Passenger, RequestItem, Shift} from 'src/types';
@@ -66,7 +67,7 @@ export const useResolvedRequestsEmployee = (
         _id: item.id,
         id: <Text color="secondary">{item.id}</Text>,
         full_name: <Text color="complementary">{item.full_name}</Text>,
-        sex: <Text color="complementary">{item.sex}</Text>,
+        sex: <Text color="complementary">{mapSexBack[item.sex]}</Text>,
         role: <Text color="complementary">{item.role}</Text>,
         sub_role: <Text color="complementary">{item.sub_role}</Text>,
         phone: <Text color="complementary">{item.phone}</Text>,
@@ -94,8 +95,8 @@ export const useResolvedShifts = (requests: Shift[]) => {
         _id: item.id,
         id: <Text color="secondary">{item.id}</Text>,
         employee_id: <Text color="complementary">{item.employee_id}</Text>,
-        time_start: useDateTime(item.time_start ?? '').formatted,
-        time_end: useDateTime(item.time_end ?? '').formatted,
+        time_start: <Text>{item.time_start}</Text>,
+        time_end: <Text>{item.time_end}</Text>,
         place_start: <Text>{item.place_start}</Text>,
         weekday: <Text>{item.weekday}</Text>,
     }));

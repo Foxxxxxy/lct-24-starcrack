@@ -67,6 +67,33 @@ export const WorkTimeList: FC = () => {
         [emplpoyeeSuggest],
     );
 
+    const handleRowClick = useCallback(
+        (row) => {
+            navigate(`/work-time/create?editId=${row._id}`);
+        },
+        [navigate],
+    );
+
+    const getRowActions = useCallback(() => {
+        return [
+            {
+                text: 'Изменить',
+                handler: (row) => {
+                    // navigate(`/employee/create?editId=${row._id}`);
+                },
+            },
+            {
+                text: 'Удалить',
+                handler: async (row) => {
+                    // await deleteEmployee(row._id);
+                    // setName('');
+                    // refetch();
+                },
+                theme: 'danger',
+            },
+        ];
+    }, [handleRowClick]);
+
     const Table = withTableActions(withTableCopy(GravityTable));
 
     return (
@@ -99,8 +126,8 @@ export const WorkTimeList: FC = () => {
                     className={css.WorkTimeList__table}
                     columns={requestTableData}
                     data={resolvedRequests}
-                    onRowClick={() => {}}
-                    // getRowActions={getRowActions}
+                    onRowClick={handleRowClick}
+                    getRowActions={getRowActions}
                 />
             </div>
         </div>

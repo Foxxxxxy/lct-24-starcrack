@@ -2,29 +2,76 @@ import {DatePicker, RangeCalendar} from '@gravity-ui/date-components';
 import {DateTime, dateTime} from '@gravity-ui/date-utils';
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Button, Text} from '@gravity-ui/uikit';
-import {FC, useCallback, useState} from 'react';
+import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Field as BaseField, Form, FormRenderProps} from 'react-final-form';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useSearchParams} from 'react-router-dom';
 import {
     useFetchCreateShift,
+    useFetchEmployeeById,
     useFetchEmployeeSuggestion,
     useFetchMetroStations,
+    useFetchRemoveShift,
+    useFetchShiftById,
+    useFetchUpdateShift,
 } from 'src/api/routes';
 import {Field} from 'src/components/Field/Field';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
 import {weeks} from 'src/constants';
 import css from './WorkTimePage.module.scss';
 
+function parseTimeToHoursAndMinutes(timeStr: string): {hours: number; minutes: number} {
+    const timePattern = /^(\d{2}):(\d{2}):(\d{2})$/;
+    const match = timeStr.match(timePattern);
+
+    if (!match) {
+        throw new Error('Invalid time format');
+    }
+
+    // Extract hours and minutes from the matched groups
+    const hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+
+    return {hours, minutes};
+}
+
 export const WorkTimePage: FC = () => {
     const navigate = useNavigate();
+    let [searchParams] = useSearchParams();
 
     const {fetch: createShift} = useFetchCreateShift();
+    const {fetch: updateShift} = useFetchUpdateShift();
+    const {fetch: removeShift} = useFetchRemoveShift();
+
+    const editId = searchParams.get('editId');
+
+    const shift = useFetchShiftById(editId ?? '');
+    const employeeById = useFetchEmployeeById(shift?.employee_id ?? '');
 
     const [employeeName, setEmployeeName] = useState('');
     const [metroName, setMetroName] = useState('');
 
     const employeesSuggestions = useFetchEmployeeSuggestion(employeeName);
     const metroSuggestion = useFetchMetroStations(metroName);
+
+    const initialForm = useMemo(() => {
+        if (!shift || !editId) {
+            return {};
+        }
+
+        const start = parseTimeToHoursAndMinutes(shift.time_start);
+        const end = parseTimeToHoursAndMinutes(shift.time_end);
+        return {
+            start_time: {
+                hours: start.hours,
+                minutes: start.minutes,
+            },
+            finish_time: {
+                hours: end.hours,
+                minutes: end.minutes,
+            },
+            place_start: metroName,
+        };
+    }, [employeeById, editId]);
 
     const [emplpoyeeSuggest] = useState<SuggestItem>({
         info: '',
@@ -39,6 +86,14 @@ export const WorkTimePage: FC = () => {
     });
 
     const [date, setDate] = useState(dateTime());
+
+    useEffect(() => {
+        if (editId && employeeById && shift) {
+            setEmployeeName(employeeById?.full_name);
+            emplpoyeeSuggest.customInfo = {id: employeeById.id};
+            setMetroName(shift.place_start);
+        }
+    }, [editId, employeeById, shift, setMetroName, setEmployeeName]);
 
     const handleDateUpdate = useCallback(
         (dateTime: DateTime) => {
@@ -82,28 +137,45 @@ export const WorkTimePage: FC = () => {
         return timePart;
     }, []);
 
+    const handleFormDelete = useCallback(async () => {
+        await removeShift(String(editId));
+        navigate('/work-time');
+    }, [navigate]);
+
     const handleSubmit = useCallback(
-        (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
+        async (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
             const {values} = form;
 
             const request = {
-                id: emplpoyeeSuggest.customInfo?.id,
+                employee_id: emplpoyeeSuggest.customInfo?.id,
                 weekday: weeks[date.weekday()],
-                finish_time: formatToTimestamp(
+                time_start: formatToTimestamp(
                     values['finish_time']?.hours,
                     values['finish_time']?.minutes,
                 ),
-                start_time: formatToTimestamp(
+                time_end: formatToTimestamp(
                     values['start_time']?.hours,
                     values['start_time']?.minutes,
                 ),
-                place_start: metroSuggest.customInfo?.id,
+                place_start: editId ? shift?.place_start : metroSuggest.label,
             };
 
-            createShift(request);
+            if (editId) {
+                await updateShift({
+                    ...request,
+                    id: +editId,
+                });
+            } else {
+                await createShift(request);
+            }
+            navigate(`/work-time`);
         },
-        [emplpoyeeSuggest, weeks, date, metroSuggest],
+        [shift, emplpoyeeSuggest, weeks, date, metroSuggest],
     );
+
+    if (editId && (!shift || !employeeById || !metroName)) {
+        return 'loading';
+    }
 
     return (
         <div className={css.WorkTimePage}>
@@ -112,6 +184,7 @@ export const WorkTimePage: FC = () => {
             </header>
             <Form
                 onSubmit={() => {}}
+                initialValues={initialForm}
                 render={(props) => (
                     <div className={css.WorkTimePage__form}>
                         <Field label="Выбор сотрудника">
@@ -268,7 +341,30 @@ export const WorkTimePage: FC = () => {
                             config={dynamicConfig}
                         />
 
-                        <Button onClick={() => handleSubmit(props)}>Создать рабочий день</Button>
+                        <div className={css.WorkTimePage__actions}>
+                            {editId ? (
+                                <>
+                                    <Button
+                                        size="xl"
+                                        view="action"
+                                        onClick={() => handleSubmit(props)}
+                                    >
+                                        Изменить рабочий день
+                                    </Button>
+                                    <Button
+                                        size="xl"
+                                        view="outlined-danger"
+                                        onClick={handleFormDelete}
+                                    >
+                                        Удалить рабочий день
+                                    </Button>
+                                </>
+                            ) : (
+                                <Button size="xl" onClick={() => handleSubmit(props)}>
+                                    Создать рабочий день
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 )}
             ></Form>

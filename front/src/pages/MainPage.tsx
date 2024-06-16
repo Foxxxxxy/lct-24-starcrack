@@ -9,7 +9,7 @@ import {
     withTableCopy,
     withTableSettings,
 } from '@gravity-ui/uikit';
-import {FC, useCallback, useEffect, useState} from 'react';
+import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 // import {requests} from 'src/mocks/requests';
 import {RequestItemResolved, useResolvedRequests} from 'src/resolvers/useResolvedRequests';
 
@@ -58,13 +58,24 @@ export const MainPage: FC = () => {
 
     const navigate = useNavigate();
 
-    const resolvedRequests = useResolvedRequests(requests);
+    const [settings, setSettings] = useState([{id: '_status', isSelected: true}]);
+
+    const [currentStatus, setCurrentStatus] = useState<RequestStatus>();
 
     const {fetch: fetchDeleteRequest} = useFetchDeleteRequest();
-    const {refetch: fetchFilteredRequests} = useFetchFilteredRequests({
+    const {requests: filteredRequests, refetch: fetchFilteredRequests} = useFetchFilteredRequests({
         limit: 100,
         offset: 0,
     });
+
+    const currentRequests = useMemo(() => {
+        if (currentStatus) {
+            return filteredRequests;
+        }
+        return requests;
+    }, [currentStatus, filteredRequests, requests]);
+
+    const resolvedRequests = useResolvedRequests(currentRequests);
 
     const handleRowClick = useCallback(
         (row: RequestItemResolved) => {
@@ -109,10 +120,6 @@ export const MainPage: FC = () => {
     const Table = withTableSettings({sortable: true})(
         withTableActions(withTableCopy(GravityTable)),
     );
-
-    const [settings, setSettings] = useState([{id: '_status', isSelected: true}]);
-
-    const [currentStatus, setCurrentStatus] = useState<RequestStatus>();
 
     useEffect(() => {
         if (!currentStatus) {

@@ -19,11 +19,17 @@
 }
 
 .GanttSidebar__task {
+    position: relative;
     height: 50px;
     display: flex;
     align-items: center;
     border-bottom: 1px solid var(--g-color-private-white-50);
     word-break: break-all;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    &:hover {
+        opacity: 0.5;
+    }
 }
 
 .GanttChart {
@@ -73,7 +79,7 @@
             justify-content: center;
         }
         .g-label__content {
-            font-size: 9px;
+            font-size: 8px;
         }
     }
 }
@@ -83,4 +89,53 @@
     border-bottom: 1px solid var(--g-color-private-white-50);
     width: 1440px;
     cursor: pointer;
+}
+
+.GanttSidebar__taskSelect {
+    width: 100%;
+    background-color: #000;
+    height: 100px;
+    position: absolute;
+    top: 35px;
+}
+
+.GantPage__modal {
+    padding: 30px;
+    min-width: 400px;
+}
+
+.GantPage__field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    border-top: 1px solid var(--g-color-line-generic-hover);
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.GantPage__actions {
+    display: flex;
+    gap: 16px;
+}
+
+.GantPage__header {
+    display: block;
+    margin-bottom: 16px;
+    padding-top: 0;
+}
+
+.GantPage__submit {
+    margin-top: 16px;
+}
+
+.GantPage__field_deleted {
+    opacity: 0.5;
+    pointer-events: none;
+    touch-action: none;
+}
+
+.GantPage__modalActions {
+    display: flex;
+    gap: 16px;
 }

@@ -139,7 +139,6 @@ export const RequestPage: FC = () => {
             setStationStart(requestInfo.start_station);
             setStationEnd(requestInfo.end_station);
             setDate(dateTimeParse(requestInfo.start_time));
-            console.log(date);
         }
     }, [requestInfo, passengerById, dateTimeParse, mapMethod]);
 

@@ -3,6 +3,7 @@ import {LayoutEmpty} from 'src/Layouts/LayoutEmpty';
 import {LayoutMain} from 'src/Layouts/LayoutMain';
 import {AuthPage} from 'src/pages/AuthPage';
 import {EmoloyeePage} from 'src/pages/EmoloyeePage';
+import {EmployeeInfoPage} from 'src/pages/EmployeeInfoPage';
 import {EmployeeList} from 'src/pages/EmployeeList';
 import {GantPage} from 'src/pages/GantPage';
 import {MainPage} from 'src/pages/MainPage';
@@ -52,6 +53,12 @@ export const routes: CustomRoute[] = [
         path: '/passengers/:id',
         LayoutComponent: LayoutMain,
         PageComponent: PassengerInfoPage,
+    },
+    {
+        name: 'passengerInfo',
+        path: '/employee/:id',
+        LayoutComponent: LayoutMain,
+        PageComponent: EmployeeInfoPage,
     },
     {
         name: 'employeeCreate',

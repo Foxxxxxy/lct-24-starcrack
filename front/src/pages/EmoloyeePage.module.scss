@@ -5,3 +5,8 @@
 .EmoloyeePage__header {
     padding: var(--g-spacing-6) var(--g-spacing-6) var(--g-spacing-6) 0;
 }
+
+.EmoloyeePage__actions {
+    display: flex;
+    gap: 16px;
+}

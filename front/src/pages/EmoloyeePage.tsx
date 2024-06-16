@@ -1,16 +1,52 @@
 import {dynamicConfig, DynamicField, SpecTypes} from '@gravity-ui/dynamic-forms';
 import {Button, Text} from '@gravity-ui/uikit';
-import {FC, useCallback} from 'react';
+import {FC, useCallback, useMemo} from 'react';
 import {Form, FormRenderProps} from 'react-final-form';
-import {useNavigate} from 'react-router-dom';
-import {useFetchCreateEmployee} from 'src/api/routes';
-import {mapSex} from 'src/constants';
+import {useNavigate, useSearchParams} from 'react-router-dom';
+import {
+    useFetchCreateEmployee,
+    useFetchEmployeeById,
+    useFetchRemoveEmployee,
+    useFetchUpdateEmployee,
+} from 'src/api/routes';
+import {mapSex, mapSexBack} from 'src/constants';
 import css from './EmoloyeePage.module.scss';
 
 export const EmoloyeePage: FC = () => {
     const navigate = useNavigate();
+    let [searchParams] = useSearchParams();
 
     const {fetch: createEmployee} = useFetchCreateEmployee();
+    const {fetch: updateEmployee} = useFetchUpdateEmployee();
+    const {fetch: removeEmployee} = useFetchRemoveEmployee();
+
+    const editId = searchParams.get('editId');
+
+    const employee = useFetchEmployeeById(editId ?? '');
+
+    const initialForm = useMemo(() => {
+        if (!employee || !editId) {
+            return {};
+        }
+        return {
+            username: {
+                value: employee.username,
+            },
+            password: {
+                value: employee.password,
+            },
+            role: employee.role,
+            sub_role: employee.sub_role,
+            sex: mapSexBack[employee.sex],
+            full_name: {
+                value: employee.full_name,
+            },
+            phone: {
+                value: employee.phone,
+            },
+            easy_work: employee.easy_work,
+        };
+    }, [employee, editId]);
 
     const handleFormSubmit = useCallback(
         async (form: FormRenderProps<Record<string, any>, Partial<Record<string, any>>>) => {
@@ -19,24 +55,42 @@ export const EmoloyeePage: FC = () => {
             const request = {
                 username: values['username']?.value,
                 password: values['password']?.value,
-                role: values['role'],
-                sub_role: values['sub_role'],
+                role: values['role'] ?? '',
+                sub_role: values['sub_role'] ?? '',
                 sex: mapSex[values['sex']],
-                full_name: values['full_name']?.value,
-                phone: values['phone']?.value,
-                easy_work: values['easy_work'],
+                full_name: values['full_name']?.value ?? '',
+                phone: values['phone']?.value ?? '',
+                easy_work: values['easy_work'] ?? false,
             };
 
-            await createEmployee(request);
+            if (editId) {
+                await updateEmployee({
+                    ...request,
+                    id: +editId,
+                });
+                navigate('/employee');
+            } else {
+                await createEmployee(request);
+                navigate('/employee');
+            }
 
-            if (request.sub_role === 'Attendant') {
+            if (request.sub_role === 'Attendant' && !editId) {
                 navigate('/work-time/create');
             } else {
                 navigate('/employee');
             }
         },
-        [],
+        [editId, createEmployee, navigate],
     );
+
+    const handleRemoveEmployee = useCallback(async () => {
+        await removeEmployee(editId ?? '');
+        navigate('/employee');
+    }, [editId]);
+
+    if (editId && !employee) {
+        return 'loading';
+    }
 
     return (
         <div className={css.EmoloyeePage}>
@@ -45,52 +99,58 @@ export const EmoloyeePage: FC = () => {
             </header>
             <Form
                 onSubmit={() => {}}
+                initialValues={initialForm}
                 render={(props) => (
                     <div className={css.PassengerPage__form}>
-                        <DynamicField
-                            name={'username'}
-                            spec={{
-                                type: SpecTypes.Object,
-                                properties: {
-                                    value: {
-                                        type: SpecTypes.String,
-                                        viewSpec: {
-                                            type: 'base',
-                                            placeholder: 'Введите логин',
+                        {!editId ? (
+                            <>
+                                <DynamicField
+                                    name={'username'}
+                                    spec={{
+                                        type: SpecTypes.Object,
+                                        properties: {
+                                            value: {
+                                                type: SpecTypes.String,
+                                                viewSpec: {
+                                                    type: 'base',
+                                                    placeholder: 'Введите логин',
+                                                },
+                                            },
                                         },
-                                    },
-                                },
-                                viewSpec: {
-                                    type: 'object_value',
-                                    layout: 'row',
-                                    layoutTitle: 'Задайте логин для сотрудника',
-                                },
-                                validator: 'number',
-                            }}
-                            config={dynamicConfig}
-                        />
-                        <DynamicField
-                            name={'password'}
-                            spec={{
-                                type: SpecTypes.Object,
-                                properties: {
-                                    value: {
-                                        type: SpecTypes.String,
                                         viewSpec: {
-                                            type: 'base',
-                                            placeholder: 'Введите пароль',
+                                            type: 'object_value',
+                                            layout: 'row',
+                                            layoutTitle: 'Задайте логин для сотрудника',
                                         },
-                                    },
-                                },
-                                viewSpec: {
-                                    type: 'object_value',
-                                    layout: 'row',
-                                    layoutTitle: 'Задайте пароль для сотрудника',
-                                },
-                                validator: 'number',
-                            }}
-                            config={dynamicConfig}
-                        />
+                                        validator: 'number',
+                                    }}
+                                    config={dynamicConfig}
+                                />
+                                <DynamicField
+                                    name={'password'}
+                                    spec={{
+                                        type: SpecTypes.Object,
+                                        properties: {
+                                            value: {
+                                                type: SpecTypes.String,
+                                                viewSpec: {
+                                                    type: 'base',
+                                                    placeholder: 'Введите пароль',
+                                                },
+                                            },
+                                        },
+                                        viewSpec: {
+                                            type: 'object_value',
+                                            layout: 'row',
+                                            layoutTitle: 'Задайте пароль для сотрудника',
+                                        },
+                                        validator: 'number',
+                                    }}
+                                    config={dynamicConfig}
+                                />
+                            </>
+                        ) : null}
+
                         <DynamicField
                             name={'full_name'}
                             spec={{
@@ -194,7 +254,20 @@ export const EmoloyeePage: FC = () => {
                             }}
                             config={dynamicConfig}
                         />
-                        <Button onClick={() => handleFormSubmit(props)}>Создать заявку</Button>
+                        {editId ? (
+                            <div className={css.EmoloyeePage__actions}>
+                                <Button view="action" onClick={() => handleFormSubmit(props)}>
+                                    Изменить сотрудника
+                                </Button>
+                                <Button view="outlined-danger" onClick={handleRemoveEmployee}>
+                                    Удалить сотрудника
+                                </Button>
+                            </div>
+                        ) : (
+                            <Button onClick={() => handleFormSubmit(props)}>
+                                Создать сотрудника
+                            </Button>
+                        )}
                     </div>
                 )}
             ></Form>

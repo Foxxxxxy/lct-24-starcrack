@@ -1,12 +1,19 @@
 import {DatePicker} from '@gravity-ui/date-components';
 import {dateTime, DateTime, dateTimeParse} from '@gravity-ui/date-utils';
-import {Button, Label, Text, useToaster} from '@gravity-ui/uikit';
+import {Button, Label, Modal, Text, useToaster} from '@gravity-ui/uikit';
+import cx from 'classnames';
 import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {useFetchDynamicSchedule, useFetchSheduledRequest} from 'src/api/routes';
+import {
+    useFetchDynamicSchedule,
+    useFetchEmployeeSuggestion,
+    useFetchRequestEmployeesUpdate,
+    useFetchSheduledRequest,
+} from 'src/api/routes';
+import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
 import {mapHours} from 'src/hooks/mapHours';
 import {statuses} from 'src/hooks/useStatus';
-import {Request} from 'src/types';
+import {Employer, Request} from 'src/types';
 import css from './GantPage.module.scss';
 
 export interface Task {
@@ -39,7 +46,6 @@ const GanttChart: React.FC<GanttChartProps> = ({requests}) => {
     const handleBlockSize = useCallback(
         (req: RequestShedule) => {
             const hours = mapHours(req.start_time, req.finish_time);
-            console.log(hours);
             return {
                 width: calculateBlockSize({
                     startHour: hours.startHour,
@@ -113,17 +119,114 @@ export type RequestShedule = {
 
 interface SidebarProps {
     requests: RequestShedule[] | undefined;
+    openModal: (isTrue: boolean, data: RequestShedule) => void;
 }
 
-const GanttSidebar: React.FC<SidebarProps> = ({requests}) => {
+const GanttSidebar: React.FC<SidebarProps> = ({requests, openModal}) => {
+    const handleUserClick = useCallback((request: RequestShedule) => {
+        openModal(true, request);
+    }, []);
+
     return (
         <div className={css.GanttSidebar}>
             {requests &&
                 requests.map((request) => (
-                    <div key={request.id} className={css.GanttSidebar__task}>
-                        {request.employees.map((item) => item.full_name).join(', ')}
+                    <div
+                        key={request.id}
+                        className={css.GanttSidebar__task}
+                        onClick={() => handleUserClick(request)}
+                    >
+                        <div>{request.employees.map((item) => item.full_name).join(', ')}</div>
                     </div>
                 ))}
+        </div>
+    );
+};
+
+const GantPageField: FC<{
+    data?: Employer;
+    isNew?: boolean;
+    handleChangeEmployer: () => void;
+    handleRemoveEmployer: () => void;
+}> = (props) => {
+    const {data, isNew, handleChangeEmployer, handleRemoveEmployer} = props;
+    const [employeeName, setEmployeeName] = useState('');
+    const [isChange, setIsChange] = useState(isNew ? isNew : false);
+
+    const [isDeleted, setIsDeleted] = useState(false);
+
+    const employeesSuggestions = useFetchEmployeeSuggestion(employeeName);
+
+    const [emplpoyeeSuggest] = useState<SuggestItem>({
+        info: '',
+        label: '',
+        customInfo: {},
+    });
+
+    const handleEmployeeSelect = useCallback(
+        (item: SuggestItem) => {
+            emplpoyeeSuggest.info = item.info;
+            emplpoyeeSuggest.label = item.label;
+            emplpoyeeSuggest.customInfo = item.customInfo;
+        },
+        [emplpoyeeSuggest],
+    );
+
+    const handleChange = useCallback(() => {
+        if (isNew) {
+            handleChangeEmployer({onlyNew: emplpoyeeSuggest.customInfo.id});
+            setIsChange(false);
+            return;
+        }
+        if (isChange) {
+            handleChangeEmployer({new: emplpoyeeSuggest.customInfo.id, old: data.id});
+            setIsChange(false);
+        } else {
+            setIsChange(true);
+        }
+    }, [setIsChange, isChange]);
+
+    const handleRemove = useCallback(() => {
+        setIsDeleted(true);
+        handleRemoveEmployer({
+            id: emplpoyeeSuggest?.customInfo?.id ? emplpoyeeSuggest?.customInfo?.id : data?.id,
+        });
+        if (isChange && emplpoyeeSuggest.customInfo.id) {
+            return handleRemoveEmployer({id: data.id});
+        }
+        if (!isChange && emplpoyeeSuggest.customInfo.id) {
+            return handleRemoveEmployer({id: emplpoyeeSuggest.customInfo.id});
+        }
+        return data?.id;
+    }, [isChange, emplpoyeeSuggest, handleRemoveEmployer]);
+
+    return (
+        <div className={cx(css.GantPage__field, isDeleted ? css.GantPage__field_deleted : '')}>
+            {isChange ? (
+                <Suggest
+                    placeholder="Начните вводить ФИО"
+                    onChange={setEmployeeName}
+                    onSelect={handleEmployeeSelect}
+                    value={employeeName}
+                    items={employeesSuggestions?.map((item) => ({
+                        label: item.full_name,
+                        info: item.phone,
+                        customInfo: {
+                            id: item.id,
+                        },
+                    }))}
+                />
+            ) : (
+                <Text variant="body-2">
+                    {employeeName ? employeeName : isNew ? employeeName : data.full_name}
+                </Text>
+            )}
+            <div className={css.GantPage__actions}>
+                <Button onClick={handleChange}>{isChange ? 'Применить' : 'Изменить'}</Button>
+                <Button onClick={handleRemove} view="outlined-danger">
+                    Удалить
+                </Button>
+            </div>
         </div>
     );
 };
@@ -138,10 +241,20 @@ export const GantPage: FC = () => {
 
     const {requests: sheduledRequests, refetch} = useFetchSheduledRequest(dateParsed ?? '');
     const {fetch: scheduleDynamicly} = useFetchDynamicSchedule();
+    const {fetch: recreateSchedule} = useFetchRequestEmployeesUpdate();
+
+    const [newEmployeers, setNewEmployeers] = useState([]);
+    const [isOpenedModal, setOpenModal] = useState(false);
+    const [requestData, setRequestData] = useState(null);
+    const [employeeList, setEmployeeList] = useState([]);
 
     useEffect(() => {
         refetch();
     }, [dateValue]);
+
+    useEffect(() => {
+        setNewEmployeers([]);
+    }, [isOpenedModal]);
 
     const requestsFiltered = useMemo(() => {
         return sheduledRequests?.filter((req) => req.employees?.length);
@@ -169,8 +282,108 @@ export const GantPage: FC = () => {
         });
     }, [scheduleDynamicly, refetch]);
 
+    const handleOpenModal = useCallback(
+        (value, data = null) => {
+            setOpenModal(value);
+            if (!data) {
+                return;
+            }
+            setRequestData(data);
+            if (data.employees) {
+                setEmployeeList(data.employees.map((item) => item.id));
+            }
+        },
+        [setOpenModal, setRequestData],
+    );
+
+    const handleChangeEmployer = useCallback(
+        (data) => {
+            if (data.onlyNew) {
+                const employesToFilter = [...employeeList];
+                employesToFilter.push(data.onlyNew);
+                setEmployeeList(employesToFilter);
+                return;
+            }
+            if (data.old && data.new) {
+                const employesToFilter = [...employeeList].filter((id) => id !== data.old);
+                employesToFilter.push(data.new);
+                setEmployeeList(employesToFilter);
+            }
+        },
+        [setEmployeeList, employeeList],
+    );
+
+    const handleRemoveEmployer = useCallback(
+        (data) => {
+            if (data.id) {
+                const employesToFilter = [...employeeList].filter((id) => id !== data.id);
+                setEmployeeList(employesToFilter);
+            }
+        },
+        [setEmployeeList, employeeList],
+    );
+
+    const handleSaveResult = useCallback(() => {
+        recreateSchedule({id: requestData.id, data: employeeList});
+        handleOpenModal(false);
+        refetch();
+    }, [employeeList, newEmployeers, recreateSchedule, requestData, newEmployeers]);
+
+    const handleAddNew = useCallback(() => {
+        setNewEmployeers([...newEmployeers, 1]);
+    }, [newEmployeers, setNewEmployeers]);
+
     return (
         <div className={css.GantPage}>
+            <Modal
+                open={isOpenedModal}
+                onClose={handleOpenModal}
+                onOutsideClick={() => setOpenModal(false)}
+            >
+                <div className={css.GantPage__modal}>
+                    <Text variant="header-1" className={css.GantPage__header}>
+                        Ответственные
+                    </Text>
+                    {requestData?.employees?.map((item) => {
+                        return (
+                            <GantPageField
+                                key={item.id}
+                                data={item}
+                                handleChangeEmployer={handleChangeEmployer}
+                                handleRemoveEmployer={handleRemoveEmployer}
+                            />
+                        );
+                    })}
+                    {newEmployeers.map((id, idx) => {
+                        return (
+                            <GantPageField
+                                key={idx}
+                                isNew={true}
+                                handleChangeEmployer={handleChangeEmployer}
+                                handleRemoveEmployer={handleRemoveEmployer}
+                            />
+                        );
+                    })}
+                    <Button onClick={handleAddNew}>Добавить</Button>
+                    <div className={css.GantPage__modalActions}>
+                        <Button
+                            onClick={handleSaveResult}
+                            size="xl"
+                            view="action"
+                            className={css.GantPage__submit}
+                        >
+                            Сохранить
+                        </Button>
+                        <Button
+                            onClick={() => handleOpenModal(false)}
+                            size="xl"
+                            className={css.GantPage__submit}
+                        >
+                            Отмена
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
             <header className={css.GantPage__header}>
                 <Text variant="display-1">Диаграмма ганта</Text>
             </header>
@@ -184,7 +397,7 @@ export const GantPage: FC = () => {
             </div>
             <Button onClick={handleDynamicSchedule}>Динмачическое распределение</Button>
             <div className={css.appContainer}>
-                <GanttSidebar requests={requestsFiltered} />
+                <GanttSidebar requests={requestsFiltered} openModal={handleOpenModal} />
                 <GanttChart requests={requestsFiltered} />
             </div>
         </div>

@@ -157,6 +157,27 @@ export const useFetchRequestById = (id: string | null): RequestItem | undefined 
     return request;
 };
 
+export const useFetchShiftById = (id: string | null): Shift | undefined => {
+    const [shift, setShift] = useState<Shift | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!id) {
+            return;
+        }
+        client
+            .get<Shift>(`/shifts/id?shift_id=${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setShift(res.data));
+    }, [id, token]);
+
+    return shift;
+};
+
 export const useFetchPassengerById = (id: number | string): Passenger | undefined => {
     const [passenger, setPassenger] = useState<Passenger | undefined>();
 
@@ -176,6 +197,27 @@ export const useFetchPassengerById = (id: number | string): Passenger | undefine
     }, [id, token]);
 
     return passenger;
+};
+
+export const useFetchEmployeeById = (id: number | string): Employer | undefined => {
+    const [employee, setEmployee] = useState<Employer | undefined>();
+
+    const token = useStore(store, (state) => state['access_token']);
+
+    useEffect(() => {
+        if (!id) {
+            return;
+        }
+        client
+            .get<Employer>(`/employee/id?emp_id=${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => setEmployee(res.data));
+    }, [id, token]);
+
+    return employee;
 };
 
 export const useFetchDeleteRequest = () => {
@@ -222,12 +264,56 @@ export const useFetchUpdateRequest = () => {
     };
 };
 
+export const useFetchUpdateShift = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (request: Shift) => {
+            return client.post(
+                `/shifts/update`,
+                {
+                    ...request,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
 export const useFetchRemovePassenger = () => {
     const token = useStore(store, (state) => state['access_token']);
 
     const fetch = useCallback(
         (id: string | number) => {
             return client.delete(`/passenger/?passanger_id=${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchRemoveShift = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (id: string | number) => {
+            return client.delete(`/shifts/?shift_id=${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -267,6 +353,31 @@ export const useFetchUpdatePassenger = () => {
         (request: Passenger) => {
             return client.post(
                 `/passenger/update`,
+                {
+                    ...request,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+        },
+        [token],
+    );
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchUpdateEmployee = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        (request: Employer) => {
+            return client.post(
+                `/employee/update`,
                 {
                     ...request,
                 },
@@ -344,7 +455,7 @@ export const useFetchCreateShift = () => {
 
     const fetch = useCallback(
         (request: Shift) => {
-            return client.post(`/shifts`, request, {
+            return client.post(`/shifts/`, request, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -606,7 +717,7 @@ export const useFetchFilteredRequests = ({
         (request: Partial<Request>) => {
             return client
                 .post<RequestItem[]>(
-                    `/requisitions/filtered/?limit=${limit}&offset=${offset}`,
+                    `/requisitions/filtered?limit=${limit}&offset=${offset}`,
                     request,
                     {
                         headers: {
@@ -661,6 +772,25 @@ export const useFetchUserMe = (): {fetch: (token: string) => void} => {
             })
             .catch(() => {});
     }, []);
+
+    return {
+        fetch,
+    };
+};
+
+export const useFetchRequestEmployeesUpdate = () => {
+    const token = useStore(store, (state) => state['access_token']);
+
+    const fetch = useCallback(
+        ({id, data}: {id: string | number; data: number[]}) => {
+            return client.post(`/requisitions/employees?req_id=${id}`, data, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        },
+        [token],
+    );
 
     return {
         fetch,
