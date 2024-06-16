@@ -25,6 +25,7 @@ export interface Task {
 
 interface GanttChartProps {
     requests: RequestShedule[] | undefined;
+    openModal: (isTrue: boolean, request: Request) => void;
 }
 
 type TimeMapping = {
@@ -32,7 +33,7 @@ type TimeMapping = {
     finishHour: number;
 };
 
-const GanttChart: React.FC<GanttChartProps> = ({requests}) => {
+const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
     const navigate = useNavigate();
     const HOUR_WIDTH = 62;
 
@@ -62,10 +63,12 @@ const GanttChart: React.FC<GanttChartProps> = ({requests}) => {
 
     const handleBlockPress = useCallback(
         (request: RequestShedule) => {
-            navigate(`/requests/${request.id}`);
+            openModal(true, request);
         },
         [navigate],
     );
+
+    console.log(requests);
 
     return (
         <div className={css.GanttChart}>
@@ -77,25 +80,32 @@ const GanttChart: React.FC<GanttChartProps> = ({requests}) => {
                 ))}
             </div>
             {requests &&
-                requests.map((req) => {
+                requests.map((req, idx) => {
                     return (
-                        <div key={req.id} className={css.GanttChart__line}>
-                            <div
-                                onClick={() => handleBlockPress(req)}
-                                style={{
-                                    width: handleBlockSize(req).width,
-                                    transform: `translateX(${handleBlockSize(req).offsetX}px)`,
-                                }}
-                                className={css.GanttChart__taskBar}
-                            >
-                                <Label
-                                    className={css.GanttChart__status}
-                                    theme={statuses[req.status].theme}
-                                    size="xs"
-                                >
-                                    Заявка #{req.id} <br />
-                                    {statuses[req.status].name}
-                                </Label>
+                        <div key={idx} className={css.GanttChart__line}>
+                            <div className={css.GanttChart__taskBar}>
+                                {req?.requisitions?.map((childRequest) => {
+                                    return (
+                                        <div
+                                            key={childRequest.id}
+                                            className={css.GanttChart__taskLabel}
+                                            onClick={() => handleBlockPress(childRequest)}
+                                            style={{
+                                                width: handleBlockSize(childRequest).width,
+                                                transform: `translateX(${handleBlockSize(childRequest).offsetX}px)`,
+                                            }}
+                                        >
+                                            <Label
+                                                className={css.GanttChart__status}
+                                                theme={statuses[childRequest.status].theme}
+                                                size="xs"
+                                            >
+                                                Заявка #{childRequest.id} <br />
+                                                {statuses[childRequest.status].name}
+                                            </Label>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     );
@@ -119,24 +129,15 @@ export type RequestShedule = {
 
 interface SidebarProps {
     requests: RequestShedule[] | undefined;
-    openModal: (isTrue: boolean, data: RequestShedule) => void;
 }
 
 const GanttSidebar: React.FC<SidebarProps> = ({requests, openModal}) => {
-    const handleUserClick = useCallback((request: RequestShedule) => {
-        openModal(true, request);
-    }, []);
-
     return (
         <div className={css.GanttSidebar}>
             {requests &&
                 requests.map((request) => (
-                    <div
-                        key={request.id}
-                        className={css.GanttSidebar__task}
-                        onClick={() => handleUserClick(request)}
-                    >
-                        <div>{request.employees.map((item) => item.full_name).join(', ')}</div>
+                    <div key={request.employee.id} className={css.GanttSidebar__task}>
+                        <div>{request?.employee?.full_name}</div>
                     </div>
                 ))}
         </div>
@@ -222,7 +223,9 @@ const GantPageField: FC<{
                 </Text>
             )}
             <div className={css.GantPage__actions}>
-                <Button onClick={handleChange}>{isChange ? 'Применить' : 'Изменить'}</Button>
+                <Button onClick={handleChange} view={isChange ? 'action' : 'normal'}>
+                    {isChange ? 'Применить' : 'Изменить'}
+                </Button>
                 <Button onClick={handleRemove} view="outlined-danger">
                     Удалить
                 </Button>
@@ -397,8 +400,8 @@ export const GantPage: FC = () => {
             </div>
             <Button onClick={handleDynamicSchedule}>Динмачическое распределение</Button>
             <div className={css.appContainer}>
-                <GanttSidebar requests={requestsFiltered} openModal={handleOpenModal} />
-                <GanttChart requests={requestsFiltered} />
+                <GanttSidebar requests={sheduledRequests} />
+                <GanttChart requests={sheduledRequests} openModal={handleOpenModal} />
             </div>
         </div>
     );

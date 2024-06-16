@@ -1,5 +1,5 @@
 .GantPage {
-    padding: 0 0 var(--g-spacing-6) var(--g-spacing-6);
+    padding: var(--g-spacing-6) 0 var(--g-spacing-6) var(--g-spacing-6);
 }
 
 .GantPage__header {
@@ -25,7 +25,6 @@
     align-items: center;
     border-bottom: 1px solid var(--g-color-private-white-50);
     word-break: break-all;
-    cursor: pointer;
     transition: opacity 0.3s ease;
     &:hover {
         opacity: 0.5;
@@ -138,4 +137,12 @@
 .GantPage__modalActions {
     display: flex;
     gap: 16px;
+}
+
+.GanttChart__taskLabel {
+    position: absolute;
+    cursor: pointer;
+    &:hover {
+        opacity: 0.8;
+    }
 }

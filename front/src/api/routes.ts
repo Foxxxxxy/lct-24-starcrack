@@ -294,7 +294,7 @@ export const useFetchRemovePassenger = () => {
 
     const fetch = useCallback(
         (id: string | number) => {
-            return client.delete(`/passenger/?passanger_id=${id}`, {
+            return client.delete(`/passenger/?passenger_id=${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
