@@ -8,12 +8,10 @@ const employeeTableData: TableColumnConfig<RequestItemResolvedEmployee>[] = [
     {
         id: 'id',
         name: 'ID сотрудника',
-        meta: {copy: ({id}: {id: string}) => id},
     },
     {
         id: 'full_name',
         name: 'ФИО сотрудника',
-        meta: {copy: ({full_name}: {full_name: string}) => full_name},
     },
     {
         id: 'sex',
