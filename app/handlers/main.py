@@ -48,13 +48,13 @@ scheduler = Scheduler(BackgroundScheduler())
 
 @app.on_event("startup")
 def startup_actions():
-    # scheduler.register_executors()
-    # scheduler.start()
+    scheduler.register_executors()
+    scheduler.start()
 
     app.state.dijkstra_algorithm = DijkstraAlgorithm()
 
 
-# @app.on_event("shutdown")
-# def shutdown_actions():
-#     scheduler.shutdown()
+@app.on_event("shutdown")
+def shutdown_actions():
+    scheduler.shutdown()
 
