@@ -11,22 +11,14 @@ export const TableLoader: FC<TableLoaderProps> = (props) => {
     const {rows} = props;
 
     return (
-        <table className={css.TableLoader}>
-            <thead>
-                <tr className={css.TableLoader__field}>
-                    <Skeleton className={css.TableLoader__field}></Skeleton>
-                </tr>
-            </thead>
-            <tbody>
-                {Array.from({length: rows}).map(() => (
-                    <tr className={css.TableLoader__row}>
-                        <th className={css.TableLoader__cell}>
-                            <Skeleton className={css.TableLoader__skeleton}></Skeleton>
-                        </th>
-                    </tr>
-                ))}
-
-            </tbody>
-        </table>
+        <div className={css.TableLoader}>
+            {Array.from({length: rows}).map((_, index: number) => (
+                <div key={index} className={css.TableLoader__row}>
+                    <div className={css.TableLoader__cell}>
+                        <Skeleton className={css.TableLoader__skeleton}></Skeleton>
+                    </div>
+                </div>
+            ))}
+        </div>
     )
 }

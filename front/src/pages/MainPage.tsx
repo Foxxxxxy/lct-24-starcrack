@@ -83,7 +83,7 @@ export const MainPage: FC = () => {
         return requests;
     }, [currentStatus, filteredRequests, requests]);
 
-    let resolvedRequests = useResolvedRequests(currentRequests);
+    const resolvedRequests = useResolvedRequests(currentRequests);
 
     const handleRowClick = useCallback(
         (row: RequestItemResolved) => {

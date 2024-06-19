@@ -37,16 +37,27 @@ const GanttChartHours = () => {
         <div className={css.GanttChart__hours}>
             {[...Array(24)].flatMap((_, hour) => (
                 <React.Fragment key={hour}>
-                    <div key={`h-${hour}`} className={css.GanttChart__hoursMain}>
+                    <div className={css.GanttChart__hoursMain}>
                         {hour}
                     </div>
-                    {[10, 20, 30, 40, 50].map((minute) => (
+                    <div className={css.GanttChart__hoursItemFirst}>
+                        10
+                    </div>
+                    {[20, 30, 40].map((minute) => (
                         <div key={`h-${hour}-m-${minute}`} className={css.GanttChart__hoursItem}>
                             {minute}
                         </div>
                     ))}
+                    <div className={css.GanttChart__hoursItemLast}>
+                        50
+                    </div>
                 </React.Fragment>
             ))}
+            <React.Fragment key={24}>
+                <div className={css.GanttChart__hoursMain}>
+                    0
+                </div>
+            </React.Fragment>
         </div>
     );
 };
@@ -62,28 +73,15 @@ const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
         chartContainer?.current.scrollBy({left: scrollPx, behavior: 'smooth'});
     }, [chartContainer]);
 
-    const calculateBlockSize = useCallback(({startHour, finishHour}: TimeMapping) => {
-        const startX = startHour * HOUR_WIDTH;
-        const blockWidth = (finishHour - startHour) * HOUR_WIDTH;
-
-        return {startX, blockWidth};
-    }, []);
-
     const handleBlockSize = useCallback(
         (req: RequestShedule) => {
-            const hours = mapHours(req.start_time, req.finish_time);
-            return {
-                width: calculateBlockSize({
-                    startHour: hours.startHour,
-                    finishHour: hours.finishHour,
-                }).blockWidth,
-                offsetX: calculateBlockSize({
-                    startHour: hours.startHour,
-                    finishHour: hours.finishHour,
-                }).startX,
-            };
+            const data = mapHours(req.start_time, req.finish_time);
+            const offset = data.offset
+            const width = data.width
+
+            return {width, offsetX: offset};
         },
-        [calculateBlockSize, mapHours],
+        [mapHours],
     );
 
     const handleBlockPress = useCallback(
