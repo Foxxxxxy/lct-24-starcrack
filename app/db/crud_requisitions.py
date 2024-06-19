@@ -49,7 +49,6 @@ def get_scheduled(
             employees_dict[employee].append(requisition)
 
     res = [{"employee": e, "requisitions": r} for e, r in employees_dict.items()]
-    logger.info(res)
     return res
 
 
