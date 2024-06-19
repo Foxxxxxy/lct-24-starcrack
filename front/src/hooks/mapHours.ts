@@ -7,11 +7,13 @@ const TIMEGAP = 6 // 1 minute = 6 pixels
 
 
 export function mapHours(start_time: string, finish_time: string): TimeMapping {
-    const startDate = new Date(start_time);
-    const finishDate = new Date(finish_time);
+    let startDate = new Date(start_time);
+    let finishDate = new Date(finish_time);
 
     if (startDate.getTime() > finishDate.getTime()) {
-        throw new Error('finish_time cannot be before start_time');
+        const temp = startDate;
+        startDate = finishDate;
+        finishDate = temp;
     }
 
     const startTime = startDate.getHours() * 60 + startDate.getMinutes(); // minutes

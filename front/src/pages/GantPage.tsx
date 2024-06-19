@@ -37,10 +37,10 @@ const GanttChartHours = () => {
         <div className={css.GanttChart__hours}>
             {[...Array(24)].flatMap((_, hour) => (
                 <React.Fragment key={hour}>
-                    <div key={`h-${hour}`} className={css.GanttChart__hoursMain}>
+                    <div className={css.GanttChart__hoursMain}>
                         {hour}
                     </div>
-                    <div key={`h-${hour}-m-10`} className={css.GanttChart__hoursItemFirst}>
+                    <div className={css.GanttChart__hoursItemFirst}>
                         10
                     </div>
                     {[20, 30, 40].map((minute) => (
@@ -48,13 +48,13 @@ const GanttChartHours = () => {
                             {minute}
                         </div>
                     ))}
-                    <div key={`h-${hour}-m-50`} className={css.GanttChart__hoursItemLast}>
+                    <div className={css.GanttChart__hoursItemLast}>
                         50
                     </div>
                 </React.Fragment>
             ))}
             <React.Fragment key={24}>
-                <div key={`h-24`} className={css.GanttChart__hoursMain}>
+                <div className={css.GanttChart__hoursMain}>
                     0
                 </div>
             </React.Fragment>
@@ -352,8 +352,6 @@ export const GantPage: FC = () => {
     }, [newEmployeers, setNewEmployeers]);
 
     const navigate = useNavigate();
-
-    console.log(sheduledRequests)
 
     return (
         <div className={css.GantPage}>
