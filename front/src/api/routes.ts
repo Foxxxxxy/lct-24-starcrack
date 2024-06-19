@@ -800,11 +800,10 @@ export const useFetchUserMe = (): {fetch: (token: string) => void} => {
             })
             .catch(() => {});
     }, []);
-
     return {
         fetch,
     };
-};
+};;
 
 export const useFetchRequestEmployeesUpdate = () => {
     const token = useStore(store, (state) => state['access_token']);

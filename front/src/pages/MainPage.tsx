@@ -8,6 +8,7 @@ import {
     withTableActions,
     withTableCopy,
     withTableSettings,
+    useToaster,
 } from '@gravity-ui/uikit';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 // import {requests} from 'src/mocks/requests';
@@ -19,6 +20,7 @@ import {useFetchDeleteRequest, useFetchFilteredRequests, useFetchRequests} from 
 import {statuses, useStatus} from 'src/hooks/useStatus';
 import {store} from 'src/store/state';
 import {RequestStatus} from 'src/types';
+import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import css from './MainPage.module.scss';
 
 const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
@@ -59,9 +61,10 @@ export const MainPage: FC = () => {
     });
 
     const navigate = useNavigate();
+    const {add} = useToaster();
 
     const user = useStore(store, (state) => state['user']);
-    const userRole = 'Admin';
+    const userRole = 'Admin'; //TODO: fix user role
 
     const [settings, setSettings] = useState([{id: '_status', isSelected: true}]);
 
@@ -80,7 +83,7 @@ export const MainPage: FC = () => {
         return requests;
     }, [currentStatus, filteredRequests, requests]);
 
-    const resolvedRequests = useResolvedRequests(currentRequests);
+    let resolvedRequests = useResolvedRequests(currentRequests);
 
     const handleRowClick = useCallback(
         (row: RequestItemResolved) => {
@@ -98,7 +101,22 @@ export const MainPage: FC = () => {
 
     const handleRowDelete = useCallback(
         async (row: RequestItemResolved) => {
-            await fetchDeleteRequest(row._id);
+            await fetchDeleteRequest(row._id)
+                .then(() => {
+                    add({
+                        name: 'requests-delete-success',
+                        title: 'Заявка успешно удалена',
+                        theme: 'success',
+                    });
+                })
+                .catch(() => {
+                    add({
+                        name: 'requests-delete-error',
+                        title: 'Что-то пошло не так :(',
+                        theme: 'danger',
+                    });
+                
+                })
             refetchRequests();
         },
         [navigate],
@@ -169,7 +187,8 @@ export const MainPage: FC = () => {
                     </Select>
                 </div>
             </div>
-            <Table
+            {resolvedRequests.length !== 0 ? (
+                <Table
                 className={css.MainPage__table}
                 columns={requestTableData}
                 data={resolvedRequests}
@@ -181,6 +200,7 @@ export const MainPage: FC = () => {
                 getRowActions={getRowActions}
                 settings={settings}
             />
+            ) : <TableLoader  rows= {15}/>}
         </div>
     );
 };

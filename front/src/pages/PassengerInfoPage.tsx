@@ -1,5 +1,5 @@
 import {DynamicView, dynamicViewConfig, SpecTypes} from '@gravity-ui/dynamic-forms';
-import {Button, Text} from '@gravity-ui/uikit';
+import {Button, Text, useToaster} from '@gravity-ui/uikit';
 import {useStore} from '@tanstack/react-store';
 import {FC, useCallback} from 'react';
 import {Form} from 'react-final-form';
@@ -17,6 +17,7 @@ export const PassengerInfoPage: FC = () => {
     const {fetch: removePassenger} = useFetchRemovePassenger();
 
     const navigate = useNavigate();
+    const {add} = useToaster();
 
     const user = useStore(store, (state) => state['user']);
     const userRole = 'Admin';
@@ -26,7 +27,21 @@ export const PassengerInfoPage: FC = () => {
     }, [passenger]);
 
     const handleRemovePassenger = useCallback(async () => {
-        await removePassenger(passenger?.id ?? '');
+        await removePassenger(passenger?.id ?? '')
+            .then(() => {
+                add({
+                    name: 'passenger-delete-success',
+                    title: 'Пассажир успешно удален',
+                    theme: 'success',
+                });
+            })
+            .catch(() => {
+                add({
+                    name: 'passenger-delete-error',
+                    title: 'Что-то пошло не так :(',
+                    theme: 'danger',
+                });
+            });
         navigate('/passengers');
     }, [passenger]);
 

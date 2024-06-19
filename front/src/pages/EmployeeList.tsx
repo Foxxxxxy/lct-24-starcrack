@@ -6,6 +6,7 @@ import {
     TextInput,
     withTableActions,
     withTableCopy,
+    useToaster,
 } from '@gravity-ui/uikit';
 import {useStore} from '@tanstack/react-store';
 import {FC, useCallback, useMemo, useState} from 'react';
@@ -20,6 +21,7 @@ import {
     useResolvedRequestsEmployee,
 } from 'src/resolvers/useResolvedRequests';
 import {store} from 'src/store/state';
+import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import css from './EmployeeList.module.scss';
 
 const employeeTableData: TableColumnConfig<RequestItemResolvedEmployee>[] = [
@@ -55,6 +57,7 @@ const employeeTableData: TableColumnConfig<RequestItemResolvedEmployee>[] = [
 
 export const EmployeeList: FC = () => {
     const navigate = useNavigate();
+    const {add} = useToaster();
 
     const {requests, refetch} = useFetchRequestsEmployee({
         limit: 100,
@@ -105,7 +108,21 @@ export const EmployeeList: FC = () => {
                 {
                     text: 'Удалить',
                     handler: async (row) => {
-                        await deleteEmployee(row._id);
+                        await deleteEmployee(row._id)
+                            .then(() => {
+                                add({
+                                    name: 'employee-delete-success',
+                                    title: 'Сотрудник успешно удален',
+                                    theme: 'success',
+                                });
+                            })
+                            .catch(() => {
+                                add({
+                                    name: 'employee-delete-error',
+                                    title: 'Что-то пошло не так :(',
+                                    theme: 'danger',
+                                });
+                            });
                         setName('');
                         refetch();
                     },
@@ -141,13 +158,15 @@ export const EmployeeList: FC = () => {
                     onChange={handleInputChange}
                 />
             </div>
-            <Table
-                className={css.EmployeeList__table}
-                columns={employeeTableData}
-                data={resolvedRequests}
-                onRowClick={handleRowClick}
-                getRowActions={getRowActions}
-            />
+            {resolvedRequests.length !== 0 ? (
+                <Table
+                    className={css.EmployeeList__table}
+                    columns={employeeTableData}
+                    data={resolvedRequests}
+                    onRowClick={handleRowClick}
+                    getRowActions={getRowActions}
+                />
+            ) : <TableLoader rows={15} />}
         </div>
     );
 };

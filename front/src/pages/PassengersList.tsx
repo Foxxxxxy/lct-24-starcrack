@@ -7,6 +7,7 @@ import {
     withTableActions,
     withTableCopy,
     withTableSorting,
+    useToaster,
 } from '@gravity-ui/uikit';
 import {useStore} from '@tanstack/react-store';
 import {FC, useCallback, useMemo, useState} from 'react';
@@ -21,6 +22,7 @@ import {
     useResolvedRequestsPassenger,
 } from 'src/resolvers/useResolvedRequests';
 import {store} from 'src/store/state';
+import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import css from './PassengersList.module.scss';
 
 const employeeTableData: TableColumnConfig<RequestItemResolvedPassenger>[] = [
@@ -52,6 +54,7 @@ const employeeTableData: TableColumnConfig<RequestItemResolvedPassenger>[] = [
 
 export const PassengersList: FC = () => {
     const navigate = useNavigate();
+    const {add} = useToaster();
 
     const {requests, refetch} = useFetchRequestsPassenger({
         limit: 100,
@@ -110,7 +113,21 @@ export const PassengersList: FC = () => {
                 {
                     text: 'Удалить',
                     handler: async (row) => {
-                        await deletePassenger(row._id);
+                        await deletePassenger(row._id)
+                            .then(() => {
+                                add({
+                                    name: 'passenger-delete-success',
+                                    title: 'Пассажир успешно удален',
+                                    theme: 'success',
+                                });
+                            })
+                            .catch(() => {
+                                add({
+                                    name: 'passenger-delete-error',
+                                    title: 'Что-то пошло не так :(',
+                                    theme: 'danger',
+                                });
+                            });
                         setName('');
                         refetch();
                     },
@@ -139,13 +156,15 @@ export const PassengersList: FC = () => {
                     onChange={handleInputChange}
                 />
             </div>
-            <Table
-                className={css.PassengersList__table}
-                columns={employeeTableData}
-                data={resolvedRequests}
-                onRowClick={handleRowClick}
-                getRowActions={getRowActions}
-            />
+            {resolvedRequests.length !== 0 ? (
+                <Table
+                    className={css.PassengersList__table}
+                    columns={employeeTableData}
+                    data={resolvedRequests}
+                    onRowClick={handleRowClick}
+                    getRowActions={getRowActions}
+                />
+            ) : <TableLoader rows={15} />}
         </div>
     );
 };

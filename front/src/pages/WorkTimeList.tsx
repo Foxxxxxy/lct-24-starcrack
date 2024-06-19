@@ -7,6 +7,7 @@ import {useFetchEmployeeSuggestion, useFetchShifts, useFetchShiftsByEmployee} fr
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
 import {useResolvedShifts} from 'src/resolvers/useResolvedRequests';
 import {store} from 'src/store/state';
+import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import css from './WorkTimeList.module.scss';
 
 const requestTableData = [
@@ -136,13 +137,15 @@ export const WorkTimeList: FC = () => {
                         />
                     </div>
                 </div>
-                <Table
-                    className={css.WorkTimeList__table}
-                    columns={requestTableData}
-                    data={resolvedRequests}
-                    onRowClick={handleRowClick}
-                    getRowActions={getRowActions}
-                />
+                {resolvedRequests.length !== 0 ? (
+                    <Table
+                        className={css.WorkTimeList__table}
+                        columns={requestTableData}
+                        data={resolvedRequests}
+                        onRowClick={handleRowClick}
+                        getRowActions={getRowActions}
+                    />
+                ) : <TableLoader rows={15} />}
             </div>
         </div>
     );
