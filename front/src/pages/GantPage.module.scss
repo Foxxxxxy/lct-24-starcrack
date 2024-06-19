@@ -1,5 +1,7 @@
 .GantPage {
     padding: var(--g-spacing-6) 0 var(--g-spacing-6) var(--g-spacing-6);
+    max-height: 100vh;
+    overflow-y: scroll;
 }
 
 .GantPage__header {
@@ -8,7 +10,6 @@
 
 .appContainer {
     display: flex;
-    height: 100vh;
 }
 
 .GanttSidebar {
@@ -36,14 +37,18 @@
     padding: 20px;
     overflow-x: auto;
     position: relative;
+    overflow-y: hidden;
 }
 
 .GanttChart__hours {
+    position: sticky;
+    top: 0;
+    background: var(--g-color-base-background);
     display: flex;
     justify-content: space-between;
-    position: relative;
     padding-bottom: 20px;
     align-items: center;
+    width: 8674px;
 }
 
 .GanttChart__hoursItem {
@@ -51,6 +56,12 @@
     text-align: center;
     border-left: 1px solid #dee2e6;
     flex-shrink: 0;
+}
+.GanttChart__hoursItemFirst {
+    width: 60px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-left: 4px;
 }
 
 .GanttChart__hoursItemLast {
@@ -96,7 +107,7 @@
 .GanttChart__line {
     min-height: 50px;
     border-bottom: 1px solid var(--g-color-private-white-50);
-    width: 8375px;
+    width: 8674px;
     cursor: pointer;
 }
 

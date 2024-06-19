@@ -1,29 +1,28 @@
 type TimeMapping = {
-    startHour: number;
-    finishHour: number;
+    width: number;
+    offset: number;
 };
+
+const TIMEGAP = 6 // 1 minute = 6 pixels
+
 
 export function mapHours(start_time: string, finish_time: string): TimeMapping {
     const startDate = new Date(start_time);
     const finishDate = new Date(finish_time);
 
-    const startHour = startDate.getHours() + startDate.getMinutes() / 60;
-    const finishHour = finishDate.getHours() + finishDate.getMinutes() / 60;
-
     if (startDate.getTime() > finishDate.getTime()) {
         throw new Error('finish_time cannot be before start_time');
     }
 
-    let totalStartHour = startHour;
+    const startTime = startDate.getHours() * 60 + startDate.getMinutes(); // minutes
+    const finishTime = finishDate.getHours() * 60 + finishDate.getMinutes(); // minutes
 
-    // If finish time is on the next day, add 24 hours
-    let totalFinishHour = finishHour;
-    if (finishDate.getDate() !== startDate.getDate()) {
-        totalFinishHour += 24;
-    }
+    const timeDiff = finishTime - startTime;
+    const width = timeDiff * TIMEGAP; // pixels
+    const offset = startTime * TIMEGAP + (timeDiff / 2 * TIMEGAP) + 4; // pixels
 
     return {
-        startHour: totalStartHour,
-        finishHour: totalFinishHour,
+        width,
+        offset,
     };
 }
