@@ -107,9 +107,13 @@ def __apply_filters(query, filter: RequisitionFilterDTO):
     for field, value in filter.dict(exclude_unset=True).items():
         if value is None:
             continue
-        if type(value) is str:
-            print("here")
-            query = query.filter(getattr(requisitions.Requisitions, field).ilike(f"%{value}%"))
+        if field == "start_time":
+            date = value.date()
+            query = query.filter(
+                date <= requisitions.Requisitions.start_time, requisitions.Requisitions.start_time < date + timedelta(days=1)
+            )
+        elif field == "end_time":
+            continue
         else:
             query = query.filter(getattr(requisitions.Requisitions, field) == value)
     return query

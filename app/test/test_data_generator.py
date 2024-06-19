@@ -147,12 +147,47 @@ def generate_test_users():
     with open(f"{os.path.dirname(os.path.realpath(__file__))}/test_data/test_users.sql", "w+") as f:
         f.write(sql)
 
+
+def load_test_reqs():
+    with open(f"{os.path.dirname(os.path.realpath(__file__))}/test_data/test_reqs.json", "r") as data_file:
+        reqs = json.load(data_file)
+
+        sql = "INSERT INTO requisitions(passenger_id, passengers_amount, start_time, meet_time, finish_time, status, creation_time, males_needed, females_needed, start_station, start_station_comment, end_station, end_station_comment, method, baggage, comment) VALUES" + "\n"
+        for i, req in enumerate(reqs):
+            if req["status"] != "Заявка закончена":
+                continue
+
+            passenger_id = random.randint(1, 100)
+            passengers_amount = 1
+            start_time = datetime.datetime.strptime(req["datetime"], "%d.%m.%Y %H:%M:%S")
+            end_time = datetime.datetime.strptime(req["time4"], "%H:%M:%S").time()
+            finish_time = start_time.replace(hour=end_time.hour, minute=end_time.minute, second=end_time.second)
+            status = "SELECTED_FOR_SCHEDULING"
+            males_needed = int(req["INSP_SEX_M"])
+            females_needed = int(req["INSP_SEX_F"])
+            start_station = int(req["id_st1"])
+            end_station = int(req["id_st2"])
+            method = "WbServices"
+
+            cortege = f"({passenger_id}, {passengers_amount}, '{start_time}'::timestamp, null, '{finish_time}'::timestamp, '{status}'::status_type, now(), {males_needed}, {females_needed}, {start_station}, null, {end_station}, null, '{method}'::method_type, null, null)"
+            if i < len(reqs) - 1:
+                cortege += ",\n"
+            else:
+                cortege += ";"
+
+            sql += cortege
+
+        with open(f"{os.path.dirname(os.path.realpath(__file__))}/test_data/test_reqs.sql", "w+") as f:
+            f.write(sql)
+
+
 def main():
     generate_metro_stations()
     generate_test_passengers()
     generate_test_employees()
     generate_test_requisitions()
     generate_test_users()
+    load_test_reqs()
 
 
 if __name__ == "__main__":
