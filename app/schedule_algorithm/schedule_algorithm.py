@@ -206,7 +206,7 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
             executors[ex_id].current_station = current_task.end_point
             executors[ex_id].free_from = current_task.finish_time.time()
             emp_to_req_list.append({"emp": ex_id, "req": current_task.id})
-            # employee_to_requisition(current_task.id, ex_id, base_session)
+            employee_to_requisition(current_task.id, ex_id, base_session)
             # update_requisition_status(current_task.id, "SCHEDULED", base_session)
             current_task.status = "SCHEDULED"
             # update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
@@ -239,7 +239,7 @@ def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
     start = start.replace(tzinfo=None)
     executors, latest_shift_time = get_executor_dynamic(start, base_session)
     tasks_heap = get_heap(tasks)
-    answer = []
+    answer = {}
     if tasks_heap.is_empty() or not executors:
         return "No task or no executors"
     current_task = tasks_heap.pop()
@@ -262,13 +262,18 @@ def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
             executors[ex_id].current_station = current_task.end_point
             executors[ex_id].free_from = current_task.finish_time.time()
             employee_to_requisition(current_task.id, ex_id, base_session)
-            update_requisition_status(current_task.id, "SCHEDULED", base_session)
+            # update_requisition_status(current_task.id, "SCHEDULED", base_session)
             current_task.status = "SCHEDULED"
-            update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
-            answer.append(current_task)
+            # update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
+            answer[current_task.id] = current_task
         current_task = tasks_heap.pop()
 
+    dynamic_tasks = {}
     while not tasks_heap.is_empty():
         current_task = tasks_heap.pop()
-        update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
+        dynamic_tasks[current_task.id] = current_task
+        # update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
+
+    update_db_tasks(answer, base_session)
+    update_db_tasks(dynamic_tasks, base_session)
     return answer
