@@ -18,7 +18,7 @@ async def get_sorted_schedules(
     date_start: Optional[datetime] = None, date_end: Optional[datetime] = None,
         base_session: Session = Depends(get_db), algorithm: DijkstraAlgorithm = Depends(get_dijkstra_algorithm)
 ):
-    if not date_end or date_start:
+    if not date_end or not date_start:
         moscow_tz = pytz.timezone('Europe/Moscow')
         now = datetime.now(moscow_tz)
         date_start = now + timedelta(hours=24)
@@ -32,7 +32,7 @@ async def get_sorted_schedules_dynamic(
     date_start: Optional[datetime] = None, date_end: Optional[datetime] = None,
         base_session: Session = Depends(get_db), algorithm: DijkstraAlgorithm = Depends(get_dijkstra_algorithm)
 ):
-    if not date_end or date_start:
+    if not date_end or not date_start:
         moscow_tz = pytz.timezone('Europe/Moscow')
         now = datetime.now(moscow_tz)
         date_start = now
