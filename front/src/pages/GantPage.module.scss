@@ -47,10 +47,19 @@
 }
 
 .GanttChart__hoursItem {
-    width: 60px;
+    width: 59px;
     text-align: center;
     border-left: 1px solid #dee2e6;
     flex-shrink: 0;
+}
+
+.GanttChart__hoursItemLast {
+    width: 58px;
+    text-align: center;
+    border-left: 1px solid #dee2e6;
+    flex-shrink: 0;
+    border-right: 1px solid #dee2e6;
+    margin-right: 26px;
 }
 
 .GanttChart__taskBar {
@@ -87,7 +96,7 @@
 .GanttChart__line {
     min-height: 50px;
     border-bottom: 1px solid var(--g-color-private-white-50);
-    width: 7440px;
+    width: 8375px;
     cursor: pointer;
 }
 
@@ -158,4 +167,6 @@
     z-index: 10;
     color: #000;
     border-radius: 4px;
+    min-width: 24px;
+    text-align: center;
 }

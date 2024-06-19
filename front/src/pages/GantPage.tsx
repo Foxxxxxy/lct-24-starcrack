@@ -40,11 +40,14 @@ const GanttChartHours = () => {
                     <div key={`h-${hour}`} className={css.GanttChart__hoursMain}>
                         {hour}
                     </div>
-                    {[10, 20, 30, 40, 50].map((minute) => (
+                    {[10, 20, 30, 40].map((minute) => (
                         <div key={`h-${hour}-m-${minute}`} className={css.GanttChart__hoursItem}>
                             {minute}
                         </div>
                     ))}
+                    <div key={`h-${hour}-m-50`} className={css.GanttChart__hoursItemLast}>
+                        50
+                    </div>
                 </React.Fragment>
             ))}
         </div>
