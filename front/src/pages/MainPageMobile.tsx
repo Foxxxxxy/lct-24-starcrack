@@ -1,4 +1,5 @@
 import {Text} from '@gravity-ui/uikit';
+import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import {FC} from 'react';
 
 import {MobileTableField} from 'src/components/MobileTableField/MobileTableField';
@@ -20,11 +21,13 @@ export const MainPageMobile: FC = () => {
             <header className={css.MainPageMobile__header}>
                 <Text variant="display-1">Все заявки</Text>
             </header>
-            <div className={css.MainPageMobile__list}>
-                {resolvedRequests.map((request: RequestItemResolved, index: number) => (
-                    <MobileTableField key={index} data={request} />
-                ))}
-            </div>
+            {resolvedRequests.length !== 0 ? (
+                <div className={css.MainPageMobile__list}>
+                    {resolvedRequests.map((request: RequestItemResolved, index: number) => (
+                        <MobileTableField key={index} data={request} />
+                    ))}
+                </div>
+            ) : <TableLoader rows={15} />}
         </div>
     );
 };

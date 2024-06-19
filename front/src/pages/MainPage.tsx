@@ -162,6 +162,8 @@ export const MainPage: FC = () => {
         });
     }, [currentStatus]);
 
+    console.log(resolvedRequests)
+
     return (
         <div className={css.MainPage}>
             <header className={css.MainPage__header}>
