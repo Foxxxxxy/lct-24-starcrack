@@ -222,3 +222,9 @@ def delete_requisitions_employee(
     for string in string_to_del:
         base_session.delete(string)
     return
+
+
+def get_by_ids(
+    ids_list, base_session: Session
+):
+    return base_session.query(requisitions.Requisitions).filter(requisitions.Requisitions.id.in_(ids_list)).all()

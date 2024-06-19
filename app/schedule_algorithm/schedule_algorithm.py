@@ -1,12 +1,13 @@
 import heapq
 from datetime import time, timedelta, datetime
+from typing import List
 
 from sqlalchemy.orm import Session
 
 from db.crud_stations import get_station_by_id
 from db.crud_requisitions import update_requisition_employee, update_requisition_status, \
     employee_to_requisition, get_requisition_by_timedelta_status, get_requisitions_by_employee_id, \
-    update_requisition_time
+    update_requisition_time, get_by_ids
 from db.crud_shifts import get_shifts_by_day
 from db.crud_employee import get_employees_by_id
 from model.enum.enums import SexType
@@ -179,11 +180,14 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
     start = start.replace(tzinfo=None)
     executors, latest_shift_time = get_executors(start, base_session)
     tasks_heap = get_heap(tasks)
-    answer = []
+    answer = {}
     if tasks_heap.is_empty() or not executors:
         return "No task or no executors"
     current_task = tasks_heap.pop()
     latest_shift_time = datetime.combine(current_task.finish_time.date(), latest_shift_time)
+
+    emp_to_req_list = []
+
     while not tasks_heap.is_empty() and current_task.finish_time <= latest_shift_time:
         males = current_task.males_needed
         females = current_task.females_needed
@@ -201,17 +205,27 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
         for ex_id in current_task.employees:
             executors[ex_id].current_station = current_task.end_point
             executors[ex_id].free_from = current_task.finish_time.time()
-            employee_to_requisition(current_task.id, ex_id, base_session)
-            update_requisition_status(current_task.id, "SCHEDULED", base_session)
-            update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
+            emp_to_req_list.append({"emp": ex_id, "req": current_task.id})
+            # employee_to_requisition(current_task.id, ex_id, base_session)
+            # update_requisition_status(current_task.id, "SCHEDULED", base_session)
             current_task.status = "SCHEDULED"
+            # update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
             answer.append(current_task)
         current_task = tasks_heap.pop()
 
+    dynamic_tasks = []
     while not tasks_heap.is_empty():
         current_task = tasks_heap.pop()
-        update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
+        # update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
+        dynamic_tasks.append(current_task)
+
+
+
     return answer
+
+
+def update_db_tasks(tasks_list: List[Task], base_session: Session):
+    db_tasks_list = get_by_ids([task.id for task in tasks_list], base_session)
 
 
 def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
