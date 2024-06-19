@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from db.crud_employee import get_employees_by_id
 from db.models import requisitions
+from model.dto.entity import RequisitionDTO
 from model.dto.filters import RequisitionFilterDTO
 from db.models import executer_to_requisition
 from model.enum.enums import Status
@@ -21,6 +22,9 @@ def get_everything(
         limit: int, offset: int, base_session: Session
 ):
     requisitions_list = base_session.query(requisitions.Requisitions).limit(limit).offset(offset).all()
+    for requisition in requisitions_list:
+        employees = get_employees_by_requisitions(requisition.id, base_session)
+        requisition.employees = employees
     return requisitions_list
 
 
@@ -70,7 +74,11 @@ def get_filtered(
 ):
     query = base_session.query(requisitions.Requisitions)
     filtered = __apply_filters(query, filter)
-    return filtered.offset(offset).limit(limit).all()
+    requisitions_list = filtered.offset(offset).limit(limit).all()
+    for requisition in requisitions_list:
+        employees = get_employees_by_requisitions(requisition.id, base_session)
+        requisition.employees = employees
+    return requisitions_list
 
 
 def get_by_status(

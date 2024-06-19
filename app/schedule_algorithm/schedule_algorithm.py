@@ -210,22 +210,28 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
             # update_requisition_status(current_task.id, "SCHEDULED", base_session)
             current_task.status = "SCHEDULED"
             # update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
-            answer.append(current_task)
+            answer[current_task.id] = current_task
         current_task = tasks_heap.pop()
 
-    dynamic_tasks = []
+    dynamic_tasks = {}
     while not tasks_heap.is_empty():
         current_task = tasks_heap.pop()
         # update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
-        dynamic_tasks.append(current_task)
-
-
-
+        dynamic_tasks[current_task.id] = current_task
+    update_db_tasks(answer, base_session)
+    update_db_tasks(dynamic_tasks, base_session)
     return answer
 
 
-def update_db_tasks(tasks_list: List[Task], base_session: Session):
-    db_tasks_list = get_by_ids([task.id for task in tasks_list], base_session)
+def update_db_tasks(tasks_dict: dict, base_session: Session):
+    db_tasks_list = get_by_ids([task_id for task_id in tasks_dict], base_session)
+    for task in db_tasks_list:
+        cur_task = tasks_dict[task.id]
+        task.start_time = cur_task.start_time
+        task.finish_time = cur_task.finish_time
+        task.status = cur_task.status
+        base_session.add(task)
+    base_session.commit()
 
 
 def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
