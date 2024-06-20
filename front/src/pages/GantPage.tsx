@@ -91,6 +91,8 @@ const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
         [navigate],
     );
 
+    console.log(requests);
+
     return (
         <div className={css.GanttChart} ref={chartContainer}>
             <GanttChartHours />
@@ -362,7 +364,7 @@ export const GantPage: FC = () => {
             >
                 <div className={css.GantPage__modal}>
                     <div className={css.GantPage__modalHeader}>
-                        <Text variant="header-2">Заявка №1</Text>
+                        <Text variant="header-2">Заявка №{requestData?.id}</Text>
                         <Button onClick={() => navigate(`/requests/${requestData?.id}`)}>
                             Перейти к заявке
                         </Button>
