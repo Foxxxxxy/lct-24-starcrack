@@ -7,6 +7,7 @@ import css from './AuthPage.module.scss';
 
 import {useMutation} from '@tanstack/react-query';
 import {fetchGetToken} from 'src/api/mutations';
+import {useFetchUserMe} from 'src/api/routes';
 import {updateTokens} from 'src/hooks/useAuth';
 
 type FormValues = {
@@ -19,11 +20,13 @@ const required = (value: any) => (value ? undefined : 'обязательное 
 export const AuthPage: FC = () => {
     const navigate = useNavigate();
     const {add} = useToaster();
+    const {fetch} = useFetchUserMe();
 
     const mutationGetToken = useMutation({
         mutationFn: fetchGetToken,
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             updateTokens(data);
+            await fetch(data.access_token);
             add({
                 name: 'auth-success',
                 title: 'Авторизация прошла успешно',
@@ -42,6 +45,11 @@ export const AuthPage: FC = () => {
     });
 
     const handleRegister = useCallback((values: FormValues) => {
+        add({
+            name: 'auth-warn',
+            title: 'Загрузка',
+            theme: 'info',
+        });
         mutationGetToken.mutate({
             username: values.username,
             password: values.password,

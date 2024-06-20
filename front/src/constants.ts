@@ -1,4 +1,4 @@
-import {Passenger, Shift, Request as RequestT} from './types';
+import {Passenger, Request as RequestT, Shift} from './types';
 
 export const passengerCategories = [
     'ИЗТ',
@@ -37,7 +37,7 @@ export const mapWeeksBack: Record<Shift['weekday'], string> = {
     Friday: 'Пятница',
     Saturday: 'Суббота',
     Sunday: 'Воскресенье',
-}
+};
 
 export const mapMethod: Record<string, Request['method']> = {
     Telephone: 'Электронные сервисы',
@@ -50,8 +50,37 @@ export const mapMethodBack: Record<string, RequestT['method']> = {
 };
 
 export const accessPages = {
-    'Admin': ['main', 'gant', 'passengersList', 'employeeList', 'workTimeList', 'createRequest', 'createPassenger', 'createEmployee', 'createWorkTime'],
-    'Specialist': ['main', 'gant', 'passengersList', 'employeeList', 'workTimeList', 'createRequest', 'createPassenger', 'createEmployee', 'createWorkTime'],
-    'Attendant': ['main'],
-    'Operator': ['main', 'gant', 'passengersList', 'employeeList', 'workTimeList', 'createRequest', 'createPassenger', 'createWorkTime']
-}
+    Admin: [
+        'main',
+        'gant',
+        'passengersList',
+        'employeeList',
+        'workTimeList',
+        'createRequest',
+        'createPassenger',
+        'createEmployee',
+        'createWorkTime',
+    ],
+    Specialist: [
+        'main',
+        'gant',
+        'passengersList',
+        'employeeList',
+        'workTimeList',
+        'createRequest',
+        'createPassenger',
+        'createEmployee',
+        'createWorkTime',
+    ],
+    Inspector: ['main'],
+    Operator: [
+        'main',
+        'gant',
+        'passengersList',
+        'employeeList',
+        'workTimeList',
+        'createRequest',
+        'createPassenger',
+        'createWorkTime',
+    ],
+};

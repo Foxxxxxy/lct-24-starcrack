@@ -1,6 +1,6 @@
 import {Text} from '@gravity-ui/uikit';
-import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import {FC} from 'react';
+import {TableLoader} from 'src/components/TableLoader/TableLoader';
 
 import {MobileTableField} from 'src/components/MobileTableField/MobileTableField';
 import {RequestItemResolved, useResolvedRequests} from 'src/resolvers/useResolvedRequests';
@@ -10,7 +10,7 @@ import css from './MainPageMobile.module.scss';
 
 export const MainPageMobile: FC = () => {
     const {requests} = useFetchRequests({
-        limit: 100,
+        limit: 2000,
         offset: 0,
     });
 
@@ -27,7 +27,9 @@ export const MainPageMobile: FC = () => {
                         <MobileTableField key={index} data={request} />
                     ))}
                 </div>
-            ) : <TableLoader rows={15} />}
+            ) : (
+                <TableLoader rows={15} />
+            )}
         </div>
     );
 };
