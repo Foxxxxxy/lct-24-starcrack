@@ -31,6 +31,7 @@ export type RequestItem = {
     method: RequestMethod;
     baggage: string | null;
     comment: string | null;
+    employees: Employer[];
 };
 
 export type PassengersCategories =
@@ -84,8 +85,8 @@ export type Employer = {
     id?: number;
     full_name: string;
     sex: 'Male' | 'Female';
-    role: 'Admin' | 'Specialist' | 'Attendant' | 'Operator'; //TODO check sub_roles
-    sub_role: 'Head_of_the_section' | 'Senior_inspector' | 'Attendant' | 'Inspector'; //TODO check sub_roles
+    role: 'Admin' | 'Specialist' | 'Inspector' | 'Operator'; //TODO check sub_roles
+    sub_role: 'Head_of_the_section' | 'Senior_inspector' | 'Inspector'; //TODO check sub_roles
     phone: string;
     easy_work: boolean;
     password?: string;

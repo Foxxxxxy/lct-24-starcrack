@@ -6,6 +6,13 @@
     padding: var(--g-spacing-6) var(--g-spacing-6) var(--g-spacing-3) 0;
 }
 
+.MainPage__filter {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
 .MainPage__table {
     :global .g-table__table {
         width: 100%;

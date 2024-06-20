@@ -104,7 +104,7 @@ export const EmoloyeePage: FC = () => {
                 }
             }
 
-            if (request.sub_role === 'Attendant' && !editId) {
+            if (request.sub_role === 'Inspector' && !editId) {
                 navigate('/work-time/create');
             } else {
                 navigate('/employee');
@@ -257,7 +257,7 @@ export const EmoloyeePage: FC = () => {
                             name={'role'}
                             spec={{
                                 type: SpecTypes.String,
-                                enum: ['Admin', 'Specialist', 'Attendant', 'Operator'],
+                                enum: ['Admin', 'Specialist', 'Inspector', 'Operator'],
                                 viewSpec: {
                                     type: 'select',
                                     layout: 'row',
@@ -271,7 +271,7 @@ export const EmoloyeePage: FC = () => {
                             name={'sub_role'}
                             spec={{
                                 type: SpecTypes.String,
-                                enum: ['Head_of_the_section', 'Senior_inspector', 'Attendant'],
+                                enum: ['Head_of_the_section', 'Senior_inspector', 'Inspector'],
                                 viewSpec: {
                                     type: 'select',
                                     layout: 'row',

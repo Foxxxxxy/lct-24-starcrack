@@ -37,26 +37,18 @@ const GanttChartHours = () => {
         <div className={css.GanttChart__hours}>
             {[...Array(24)].flatMap((_, hour) => (
                 <React.Fragment key={hour}>
-                    <div className={css.GanttChart__hoursMain}>
-                        {hour}
-                    </div>
-                    <div className={css.GanttChart__hoursItemFirst}>
-                        10
-                    </div>
+                    <div className={css.GanttChart__hoursMain}>{hour}</div>
+                    <div className={css.GanttChart__hoursItemFirst}>10</div>
                     {[20, 30, 40].map((minute) => (
                         <div key={`h-${hour}-m-${minute}`} className={css.GanttChart__hoursItem}>
                             {minute}
                         </div>
                     ))}
-                    <div className={css.GanttChart__hoursItemLast}>
-                        50
-                    </div>
+                    <div className={css.GanttChart__hoursItemLast}>50</div>
                 </React.Fragment>
             ))}
             <React.Fragment key={24}>
-                <div className={css.GanttChart__hoursMain}>
-                    0
-                </div>
+                <div className={css.GanttChart__hoursMain}>0</div>
             </React.Fragment>
         </div>
     );
@@ -65,7 +57,6 @@ const GanttChartHours = () => {
 const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
     const chartContainer = useRef(null);
     const navigate = useNavigate();
-    const HOUR_WIDTH = 62 * 5;
 
     useEffect(() => {
         const date = new Date();
@@ -76,8 +67,8 @@ const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
     const handleBlockSize = useCallback(
         (req: RequestShedule) => {
             const data = mapHours(req.start_time, req.finish_time);
-            const offset = data.offset
-            const width = data.width
+            const offset = data.offset;
+            const width = data.width;
 
             return {width, offsetX: offset};
         },

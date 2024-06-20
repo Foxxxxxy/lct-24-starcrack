@@ -4,9 +4,9 @@ import {
     TableColumnConfig,
     Text,
     TextInput,
+    useToaster,
     withTableActions,
     withTableCopy,
-    useToaster,
 } from '@gravity-ui/uikit';
 import {useStore} from '@tanstack/react-store';
 import {FC, useCallback, useMemo, useState} from 'react';
@@ -16,12 +16,12 @@ import {
     useFetchRemoveEmployee,
     useFetchRequestsEmployee,
 } from 'src/api/routes';
+import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import {
     RequestItemResolvedEmployee,
     useResolvedRequestsEmployee,
 } from 'src/resolvers/useResolvedRequests';
 import {store} from 'src/store/state';
-import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import css from './EmployeeList.module.scss';
 
 const employeeTableData: TableColumnConfig<RequestItemResolvedEmployee>[] = [
@@ -60,7 +60,7 @@ export const EmployeeList: FC = () => {
     const {add} = useToaster();
 
     const {requests, refetch} = useFetchRequestsEmployee({
-        limit: 100,
+        limit: 1000,
         offset: 0,
     });
 
@@ -166,7 +166,9 @@ export const EmployeeList: FC = () => {
                     onRowClick={handleRowClick}
                     getRowActions={getRowActions}
                 />
-            ) : <TableLoader rows={15} />}
+            ) : (
+                <TableLoader rows={15} />
+            )}
         </div>
     );
 };

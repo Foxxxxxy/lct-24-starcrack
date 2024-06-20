@@ -1,4 +1,4 @@
-import {Text} from '@gravity-ui/uikit';
+import {Select, Text} from '@gravity-ui/uikit';
 import {ReactNode} from 'react';
 import {mapSexBack, mapWeeksBack} from 'src/constants';
 import {useDateTime} from 'src/hooks/useDateTime';
@@ -47,6 +47,19 @@ export const useResolvedRequests = (requests: RequestItem[] | undefined): Reques
         _id: item.id,
         _status: item.status,
         id: <Text color="secondary">{item.id}</Text>,
+        employee: item.employees.length ? (
+            <Select onUpdate={() => {}}>
+                {item.employees.map((employee: Employer) => {
+                    return (
+                        <Select.Option disabled={true} key={employee.id} value={employee.full_name}>
+                            {employee.full_name}
+                        </Select.Option>
+                    );
+                })}
+            </Select>
+        ) : (
+            'Сотрудники не назначены'
+        ),
         passenger_id: <Text color="secondary">{item.passenger_id}</Text>,
         females_males_needed: (
             <Text color="complementary">{`${item.males_needed} м / ${item.females_needed} ж`}</Text>

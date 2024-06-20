@@ -1,12 +1,13 @@
 import heapq
 from datetime import time, timedelta, datetime
+from typing import List
 
 from sqlalchemy.orm import Session
 
 from db.crud_stations import get_station_by_id
 from db.crud_requisitions import update_requisition_employee, update_requisition_status, \
     employee_to_requisition, get_requisition_by_timedelta_status, get_requisitions_by_employee_id, \
-    update_requisition_time
+    update_requisition_time, get_by_ids
 from db.crud_shifts import get_shifts_by_day
 from db.crud_employee import get_employees_by_id
 from model.enum.enums import SexType
@@ -179,11 +180,14 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
     start = start.replace(tzinfo=None)
     executors, latest_shift_time = get_executors(start, base_session)
     tasks_heap = get_heap(tasks)
-    answer = []
+    answer = {}
     if tasks_heap.is_empty() or not executors:
         return "No task or no executors"
     current_task = tasks_heap.pop()
     latest_shift_time = datetime.combine(current_task.finish_time.date(), latest_shift_time)
+
+    emp_to_req_list = []
+
     while not tasks_heap.is_empty() and current_task.finish_time <= latest_shift_time:
         males = current_task.males_needed
         females = current_task.females_needed
@@ -202,16 +206,41 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
             executors[ex_id].current_station = current_task.end_point
             executors[ex_id].free_from = current_task.finish_time.time()
             employee_to_requisition(current_task.id, ex_id, base_session)
-            update_requisition_status(current_task.id, "SCHEDULED", base_session)
-            update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
+            # update_requisition_status(current_task.id, "SCHEDULED", base_session)
             current_task.status = "SCHEDULED"
-            answer.append(current_task)
+            # update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
+            if current_task.id not in answer:
+                answer[current_task.id] = current_task
         current_task = tasks_heap.pop()
 
+    dynamic_tasks = {}
     while not tasks_heap.is_empty():
         current_task = tasks_heap.pop()
-        update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
+        # update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
+        dynamic_tasks[current_task.id] = current_task
+    update_db_tasks(answer, base_session)
+    update_dynamic_db_tasks(dynamic_tasks, base_session)
     return answer
+
+
+def update_db_tasks(tasks_dict: dict, base_session: Session):
+    db_tasks_list = get_by_ids([task_id for task_id in tasks_dict], base_session)
+    for task in db_tasks_list:
+        cur_task = tasks_dict[task.id]
+        task.start_time = cur_task.start_time
+        task.finish_time = cur_task.finish_time
+        task.status = cur_task.status
+        base_session.add(task)
+    base_session.commit()
+
+
+def update_dynamic_db_tasks(tasks_dict: dict, base_session: Session):
+    db_tasks_list = get_by_ids([task_id for task_id in tasks_dict], base_session)
+    for task in db_tasks_list:
+        cur_task = tasks_dict[task.id]
+        task.status = cur_task.status
+        base_session.add(task)
+    base_session.commit()
 
 
 def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
@@ -219,7 +248,7 @@ def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
     start = start.replace(tzinfo=None)
     executors, latest_shift_time = get_executor_dynamic(start, base_session)
     tasks_heap = get_heap(tasks)
-    answer = []
+    answer = {}
     if tasks_heap.is_empty() or not executors:
         return "No task or no executors"
     current_task = tasks_heap.pop()
@@ -242,13 +271,18 @@ def build_dynamic_schedule_func(start, end, base_session: Session, algorithm):
             executors[ex_id].current_station = current_task.end_point
             executors[ex_id].free_from = current_task.finish_time.time()
             employee_to_requisition(current_task.id, ex_id, base_session)
-            update_requisition_status(current_task.id, "SCHEDULED", base_session)
+            # update_requisition_status(current_task.id, "SCHEDULED", base_session)
             current_task.status = "SCHEDULED"
-            update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
-            answer.append(current_task)
+            # update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
+            answer[current_task.id] = current_task
         current_task = tasks_heap.pop()
 
+    dynamic_tasks = {}
     while not tasks_heap.is_empty():
         current_task = tasks_heap.pop()
-        update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
+        dynamic_tasks[current_task.id] = current_task
+        # update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
+
+    update_db_tasks(answer, base_session)
+    update_dynamic_db_tasks(dynamic_tasks, base_session)
     return answer

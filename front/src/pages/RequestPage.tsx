@@ -361,6 +361,9 @@ export const RequestPage: FC = () => {
                                 }}
                                 config={dynamicViewConfig}
                             />
+                            {/* <Button className={css.RequestPage__people}>
+                                Назначить ответственных
+                            </Button> */}
                             <Field label="Выбор пассажира">
                                 <BaseField name="passenger">
                                     {() => (

@@ -5,9 +5,9 @@ import {useStore} from '@tanstack/react-store';
 import {useNavigate} from 'react-router-dom';
 import {useFetchEmployeeSuggestion, useFetchShifts, useFetchShiftsByEmployee} from 'src/api/routes';
 import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
+import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import {useResolvedShifts} from 'src/resolvers/useResolvedRequests';
 import {store} from 'src/store/state';
-import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import css from './WorkTimeList.module.scss';
 
 const requestTableData = [
@@ -53,13 +53,13 @@ export const WorkTimeList: FC = () => {
     });
 
     const shifts = useFetchShiftsByEmployee({
-        limit: 1000,
+        limit: 2000,
         offset: 0,
         employee_id: emplpoyeeSuggest.customInfo?.id,
     });
 
     const shiftsAll = useFetchShifts({
-        limit: 1000,
+        limit: 2000,
         offset: 0,
     });
 
@@ -145,7 +145,9 @@ export const WorkTimeList: FC = () => {
                         onRowClick={handleRowClick}
                         getRowActions={getRowActions}
                     />
-                ) : <TableLoader rows={15} />}
+                ) : (
+                    <TableLoader rows={15} />
+                )}
             </div>
         </div>
     );

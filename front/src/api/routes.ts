@@ -110,7 +110,7 @@ export const useFetchRequests = ({
     offset: number;
 }): {
     requests: RequestItem[] | undefined;
-    refetch: () => void;
+    refetch: () => Promise<RequestItem[]>;
 } => {
     const [requests, setRequests] = useState<RequestItem[] | undefined>();
 
@@ -735,7 +735,7 @@ export const useFetchFilteredRequests = ({
     offset: number;
 }): {
     requests: RequestItem[] | undefined;
-    refetch: (requests: Partial<Request>) => void;
+    refetch: (requests: Partial<Request>) => Promise<RequestItem[]>;
 } => {
     const [requests, setRequests] = useState<RequestItem[] | undefined>();
 
@@ -782,28 +782,34 @@ export const useFetchEmployeeSuggestion = (name: string): Employer[] | undefined
     return employees;
 };
 
-export const useFetchUserMe = (): {fetch: (token: string) => void} => {
-    const fetch = useCallback((token: string) => {
-        return client
-            .get<User[]>(`/user/me`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((res) => {
-                store.setState((state) => {
-                    return {
-                        ...state,
-                        user: res.data,
-                    };
-                });
-            })
-            .catch(() => {});
-    }, []);
+export const useFetchUserMe = (): {fetch: (token: string) => Promise<void>} => {
+    const fetch = useCallback(
+        (token: string) => {
+            return new Promise((resolve) => {
+                client
+                    .get<User[]>(`/user/me`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    })
+                    .then((res) => {
+                        store.setState((state) => {
+                            return {
+                                ...state,
+                                user: res.data,
+                            };
+                        });
+                        resolve(res);
+                    })
+                    .catch(() => {});
+            });
+        },
+        [store],
+    );
     return {
         fetch,
     };
-};;
+};
 
 export const useFetchRequestEmployeesUpdate = () => {
     const token = useStore(store, (state) => state['access_token']);

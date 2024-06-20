@@ -5,28 +5,34 @@ import {
     TableColumnConfig,
     TableDataItem,
     Text,
+    useToaster,
     withTableActions,
     withTableCopy,
     withTableSettings,
-    useToaster,
 } from '@gravity-ui/uikit';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 // import {requests} from 'src/mocks/requests';
 import {RequestItemResolved, useResolvedRequests} from 'src/resolvers/useResolvedRequests';
 
+import {DatePicker} from '@gravity-ui/date-components';
+import {DateTime, dateTimeParse} from '@gravity-ui/date-utils';
 import {useStore} from '@tanstack/react-store';
 import {useNavigate} from 'react-router-dom';
 import {useFetchDeleteRequest, useFetchFilteredRequests, useFetchRequests} from 'src/api/routes';
+import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import {statuses, useStatus} from 'src/hooks/useStatus';
 import {store} from 'src/store/state';
 import {RequestStatus} from 'src/types';
-import {TableLoader} from 'src/components/TableLoader/TableLoader';
 import css from './MainPage.module.scss';
 
 const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
     {
         id: 'id',
         name: 'ID заявки',
+    },
+    {
+        id: 'employee',
+        name: 'Назначенные сотрудники',
     },
     {
         id: 'passenger_id',
@@ -56,7 +62,7 @@ const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
 
 export const MainPage: FC = () => {
     const {requests, refetch: refetchRequests} = useFetchRequests({
-        limit: 100,
+        limit: 2000,
         offset: 0,
     });
 
@@ -66,18 +72,21 @@ export const MainPage: FC = () => {
     const user = useStore(store, (state) => state['user']);
     const userRole = 'Admin'; //TODO: fix user role
 
+    const [dateStart, setDateStart] = useState<DateTime>();
+    const [dateEnd, setDateEnd] = useState<DateTime>();
+
     const [settings, setSettings] = useState([{id: '_status', isSelected: true}]);
 
     const [currentStatus, setCurrentStatus] = useState<RequestStatus>();
 
     const {fetch: fetchDeleteRequest} = useFetchDeleteRequest();
     const {requests: filteredRequests, refetch: fetchFilteredRequests} = useFetchFilteredRequests({
-        limit: 100,
+        limit: 2000,
         offset: 0,
     });
 
     const currentRequests = useMemo(() => {
-        if (currentStatus) {
+        if (currentStatus || dateStart) {
             return filteredRequests;
         }
         return requests;
@@ -115,8 +124,7 @@ export const MainPage: FC = () => {
                         title: 'Что-то пошло не так :(',
                         theme: 'danger',
                     });
-                
-                })
+                });
             refetchRequests();
         },
         [navigate],
@@ -153,14 +161,15 @@ export const MainPage: FC = () => {
     );
 
     useEffect(() => {
-        if (!currentStatus) {
+        if (!currentStatus && !dateStart) {
             refetchRequests();
             return;
         }
         fetchFilteredRequests({
             status: currentStatus,
+            start_time: dateTimeParse(dateStart)?.format('YYYY-MM-DD'),
         });
-    }, [currentStatus]);
+    }, [currentStatus, dateStart]);
 
     return (
         <div className={css.MainPage}>
@@ -186,21 +195,43 @@ export const MainPage: FC = () => {
                         })}
                     </Select>
                 </div>
+                <div className={css.MainPage__filterField}>
+                    <div className={css.MainPage__filterField}>Фильтр по дате начала:</div>
+                    <DatePicker
+                        hasClear={true}
+                        format="DD.MM.YYYY"
+                        value={dateStart}
+                        onUpdate={(d) => setDateStart(d)}
+                    />
+                </div>
+                {/* <div className={css.MainPage__filterField}>
+                    <div className={css.MainPage__filterField}>Фильтр по дате завершения:</div>
+                    <DatePicker
+                        hasClear={true}
+                        format="DD.MM.YYYY"
+                        value={dateEnd}
+                        onUpdate={(d) => setDateEnd(d)}
+                    />
+                </div> */}
             </div>
             {resolvedRequests.length !== 0 ? (
                 <Table
-                className={css.MainPage__table}
-                columns={requestTableData}
-                data={resolvedRequests}
-                onRowClick={handleRowClick}
-                updateSettings={(updated) => {
-                    setSettings(updated);
-                    return Promise.resolve();
-                }}
-                getRowActions={getRowActions}
-                settings={settings}
-            />
-            ) : <TableLoader  rows= {15}/>}
+                    className={css.MainPage__table}
+                    columns={requestTableData}
+                    data={resolvedRequests}
+                    // onRowClick={handleRowClick}
+                    updateSettings={(updated) => {
+                        setSettings(updated);
+                        return Promise.resolve();
+                    }}
+                    getRowActions={getRowActions}
+                    settings={settings}
+                />
+            ) : filteredRequests?.length === 0 ? (
+                'NO DATA FOUND'
+            ) : (
+                <TableLoader rows={15} />
+            )}
         </div>
     );
 };
