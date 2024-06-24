@@ -125,13 +125,12 @@ const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
                                         </div>
                                     );
                                 })}
-                                {lunch && (
+                                {req?.lunch && (
                                     <div
-                                        key={lunch.id}
                                         className={css.GanttChart__taskLabel}
                                         style={{
-                                            width: handleBlockSize(lunch).width,
-                                            transform: `translateX(${handleBlockSize(lunch).offsetX}px)`,
+                                            width: handleBlockSize(req.lunch).width,
+                                            transform: `translateX(${handleBlockSize(req.lunch).offsetX}px)`,
                                         }}
                                     >
                                         <Label

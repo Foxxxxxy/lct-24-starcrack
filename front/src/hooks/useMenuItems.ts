@@ -1,6 +1,7 @@
 import {ListUl, PencilToLine, Person, PersonGear, Plus} from '@gravity-ui/icons';
 import {MenuItem} from '@gravity-ui/navigation';
 import {useStore} from '@tanstack/react-store';
+import {accessPages} from 'src/constants';
 import {router} from 'src/main';
 import {store} from 'src/store/state';
 import {useLocation} from './useLocation';
@@ -142,10 +143,12 @@ const filterAside = (items: MenuItem[]): MenuItem[] => {
         },
     ] as MenuItem[];
 
-    // if (userRole) {
-    //     allItems = allItems.filter((item) => accessPages[userRole].includes(item.name) || item.type === 'divider');
-    //     return allItems;
-    // }
+    if (userRole) {
+        allItems = allItems.filter(
+            (item) => accessPages[userRole].includes(item.name) || item.type === 'divider',
+        );
+        return allItems;
+    }
 
     return allItems;
 };
