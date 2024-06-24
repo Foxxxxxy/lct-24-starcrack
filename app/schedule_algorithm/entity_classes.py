@@ -1,3 +1,7 @@
+from datetime import timedelta, datetime
+import random
+
+
 class Task:
     def __init__(self, task):
         self.id = task.id
@@ -16,7 +20,7 @@ class Task:
 
 
 class Executor:
-    def __init__(self, executor, shift):
+    def __init__(self, executor, shift, date_start, lunch):
         self.id = executor.id
         self.current_station = shift.place_start
         self.shift_start = shift.time_start
@@ -24,3 +28,16 @@ class Executor:
         self.shift_end = shift.time_end
         self.sex = executor.sex
         self.tasks = []
+        if not lunch:
+            dt_start = datetime.combine(date_start.date(), shift.time_start)
+            dt_end = datetime.combine(date_start.date(), shift.time_end)
+
+            shift_duration = dt_end - dt_start
+            half_shift_duration = shift_duration / 2
+            random_adjustment = random.choice([-1, 0, 1])
+            lunch_start = dt_start + half_shift_duration + timedelta(hours=random_adjustment)
+            lunch_end = lunch_start + timedelta(hours=1)
+        else:
+            lunch_start = lunch.start_lunch.replace(tzinfo=None)
+            lunch_end = lunch.end_lunch.replace(tzinfo=None)
+        self.lunch = [lunch_start, lunch_end]

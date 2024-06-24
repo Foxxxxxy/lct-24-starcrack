@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from db.crud_employee import get_employees_by_id
 from db.models import requisitions
+from db.models import lunch as l
 from model.dto.entity import RequisitionDTO
 from model.dto.filters import RequisitionFilterDTO
 from db.models import executer_to_requisition
@@ -26,6 +27,16 @@ def get_everything(
         employees = get_employees_by_requisitions(requisition.id, base_session)
         requisition.employees = employees
     return requisitions_list
+
+
+def get_lunches(executor_id, start, next_day, base_session):
+    lunch = base_session.query(l.Lunch).filter(and_(
+            l.Lunch.executor_id == executor_id,
+            l.Lunch.start_lunch >= start,
+            l.Lunch.end_lunch < next_day
+        )
+    ).first()
+    return lunch
 
 
 def get_scheduled(
@@ -46,9 +57,10 @@ def get_scheduled(
         for employee in employees:
             if employee not in employees_dict:
                 employees_dict[employee] = []
+                lunch = get_lunches(employee.id, date, next_day, base_session)
+                employees_dict[employee].append(lunch)
             employees_dict[employee].append(requisition)
-
-    res = [{"employee": e, "requisitions": r} for e, r in employees_dict.items()]
+    res = [{"employee": e, "requisitions": r[1::], "lunch": r[0]} for e, r in employees_dict.items()]
     return res
 
 

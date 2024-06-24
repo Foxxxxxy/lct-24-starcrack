@@ -7,9 +7,10 @@ from sqlalchemy.orm import Session
 from db.crud_stations import get_station_by_id
 from db.crud_requisitions import update_requisition_employee, update_requisition_status, \
     employee_to_requisition, get_requisition_by_timedelta_status, get_requisitions_by_employee_id, \
-    update_requisition_time, get_by_ids
+    update_requisition_time, get_by_ids, get_lunches
 from db.crud_shifts import get_shifts_by_day
 from db.crud_employee import get_employees_by_id
+from db.models.lunch import Lunch
 from model.enum.enums import SexType
 from schedule_algorithm.entity_classes import Task
 from schedule_algorithm.weight_counter import *
@@ -30,11 +31,21 @@ def check_suitability_sex(executor, males, females):
 
 def is_time_within_limit(distance, time_free, time_start):
     distance_timedelta = timedelta(minutes=distance)
+    additional_time = timedelta(minutes=15)
     time_free_datetime = datetime.combine(time_start.date(), time_free)
 
-    final_time = time_free_datetime + distance_timedelta
-    # print(final_time, time_start)
+    final_time = time_free_datetime + distance_timedelta + additional_time
+
     return final_time < time_start
+
+
+def not_lunch(lunch_time, task):
+    start, end = task.start_time, task.finish_time
+    lunch_start, lunch_end = lunch_time
+    if lunch_end <= start or lunch_start >= end:
+        return True
+    else:
+        return False
 
 
 def check_suitability_distance(executor, task, algorithm):
@@ -70,7 +81,7 @@ def executor_appointment(task, executors, algorithm, males, females):
         if executor_id not in task.employees:
             suitability_sex = check_suitability_sex(executor, males, females)
             suitability_distance = check_suitability_distance(executor, task, algorithm)
-            if suitability_sex and suitability_distance:
+            if suitability_sex and suitability_distance and not_lunch(executor.lunch, task):
                 suitability = suitability_sex + suitability_distance
                 possible.append([suitability, executor])
     if possible:
@@ -99,7 +110,7 @@ def executor_appointment_dynamic(task, executors, algorithm, males, females):
         if executor_id not in task.employees:
             suitability_sex = check_suitability_sex(executor, males, females)
             suitability_distance = check_suitability_distance(executor, task, algorithm)
-            if suitability_sex and suitability_distance:
+            if suitability_sex and suitability_distance and not_lunch(executor.lunch, task):
                 seconds_to_subtract = abs(suitability_distance) * 60
                 time_delta_start = timedelta(seconds=seconds_to_subtract)
                 start_time = task.start_time - time_delta_start
@@ -121,7 +132,7 @@ def executor_appointment_dynamic(task, executors, algorithm, males, females):
 def get_executors(date_start, base_session):
     day = date_start.weekday()
     shifts = get_shifts_by_day(weekdays[day], 1000, 0, base_session)
-    executors = [Executor(get_employees_by_id(shift.employee_id, base_session), shift) for shift in shifts]
+    executors = [Executor(get_employees_by_id(shift.employee_id, base_session), shift, date_start, None) for shift in shifts]
     executors_dict = {}
     latest_shift_end = None
     for executor in executors:
@@ -134,7 +145,8 @@ def get_executors(date_start, base_session):
 def get_executor_dynamic(date_start, base_session):
     day = date_start.weekday()
     shifts = get_shifts_by_day(weekdays[day], 1000, 0, base_session)
-    executors = [Executor(get_employees_by_id(shift.employee_id, base_session), shift) for shift in shifts]
+    executors = [Executor(get_employees_by_id(shift.employee_id, base_session), shift, date_start,
+                          get_lunches(shift.employee_id, date_start, date_start + timedelta(days=1), base_session)) for shift in shifts]
     executors_dict = {}
     latest_shift_end = None
     for executor in executors:
@@ -185,9 +197,6 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
         return "No task or no executors"
     current_task = tasks_heap.pop()
     latest_shift_time = datetime.combine(current_task.finish_time.date(), latest_shift_time)
-
-    emp_to_req_list = []
-
     while not tasks_heap.is_empty() and current_task.finish_time <= latest_shift_time:
         males = current_task.males_needed
         females = current_task.females_needed
@@ -209,8 +218,7 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
             # update_requisition_status(current_task.id, "SCHEDULED", base_session)
             current_task.status = "SCHEDULED"
             # update_requisition_time(current_task.id, current_task.start_time, current_task.finish_time, base_session)
-            if current_task.id not in answer:
-                answer[current_task.id] = current_task
+            answer[current_task.id] = current_task
         current_task = tasks_heap.pop()
 
     dynamic_tasks = {}
@@ -218,9 +226,11 @@ def build_schedule_func(start, end, base_session: Session, algorithm):
         current_task = tasks_heap.pop()
         # update_requisition_status(current_task.id, "NEED_DYNAMIC_SCHEDULING", base_session)
         dynamic_tasks[current_task.id] = current_task
+    print(answer, dynamic_tasks)
+    update_lunches(executors, base_session)
     update_db_tasks(answer, base_session)
     update_dynamic_db_tasks(dynamic_tasks, base_session)
-    return answer
+    return answer, dynamic_tasks
 
 
 def update_db_tasks(tasks_dict: dict, base_session: Session):
@@ -231,6 +241,17 @@ def update_db_tasks(tasks_dict: dict, base_session: Session):
         task.finish_time = cur_task.finish_time
         task.status = cur_task.status
         base_session.add(task)
+    base_session.commit()
+
+
+def update_lunches(executors, base_session):
+    for id in executors:
+        executor = executors[id]
+        lunch = Lunch()
+        lunch.start_lunch = executor.lunch[0]
+        lunch.end_lunch = executor.lunch[1]
+        lunch.executor_id = executor.id
+        base_session.add(lunch)
     base_session.commit()
 
 

@@ -25,8 +25,8 @@ async def get_sorted_schedules(background_tasks: BackgroundTasks,
         date_start = now + timedelta(hours=24)
 
         date_end = now + timedelta(hours=48)
-    background_tasks.add_task(build_schedule_func, date_start, date_end, base_session, algorithm)
-    return
+    # background_tasks.add_task(build_schedule_func, date_start, date_end, base_session, algorithm)
+    return build_schedule_func(date_start, date_end, base_session, algorithm)
 
 
 @schedule_router.get("/dynamic")

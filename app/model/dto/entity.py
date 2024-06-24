@@ -67,6 +67,15 @@ class RequisitionDTO(pydantic.BaseModel):
         use_enum_values = True
 
 
+class Lunch(pydantic.BaseModel):
+    id: Union[int, None]
+    start_lunch: Union[datetime, None]
+    end_lunch: Union[datetime, None]
+    executor_id: Union[int, None]
+    shift_id: Union[int, None]
+
+
 class ScheduledRequisitionDTO(pydantic.BaseModel):
     employee: EmployeeDTO
     requisitions: List[RequisitionDTO]
+    lunch: Optional[Union[Lunch, None]] = None
