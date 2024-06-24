@@ -257,7 +257,7 @@ export const EmoloyeePage: FC = () => {
                             name={'role'}
                             spec={{
                                 type: SpecTypes.String,
-                                enum: ['Admin', 'Specialist', 'Inspector', 'Operator'],
+                                enum: ['Admin', 'Specialist', 'Attendant', 'Operator'],
                                 viewSpec: {
                                     type: 'select',
                                     layout: 'row',
