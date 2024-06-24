@@ -1,4 +1,5 @@
 import {
+    Button,
     Table as GravityTable,
     Select,
     TableActionConfig,
@@ -18,8 +19,15 @@ import {DatePicker} from '@gravity-ui/date-components';
 import {DateTime, dateTimeParse} from '@gravity-ui/date-utils';
 import {useStore} from '@tanstack/react-store';
 import {useNavigate} from 'react-router-dom';
-import {useFetchDeleteRequest, useFetchFilteredRequests, useFetchRequests} from 'src/api/routes';
+import {
+    useFetchDeleteRequest,
+    useFetchFilteredRequests,
+    useFetchPassengerSuggestion,
+    useFetchRequests,
+} from 'src/api/routes';
+import {Suggest, SuggestItem} from 'src/components/Suggest/Suggest';
 import {TableLoader} from 'src/components/TableLoader/TableLoader';
+import {useScrollToBottom} from 'src/hooks/useScroll';
 import {statuses, useStatus} from 'src/hooks/useStatus';
 import {store} from 'src/store/state';
 import {RequestStatus} from 'src/types';
@@ -61,9 +69,22 @@ const requestTableData: TableColumnConfig<RequestItemResolved>[] = [
 ];
 
 export const MainPage: FC = () => {
+    const [limit, setLimit] = useState(50);
+    const [offset, setOfsset] = useState(0);
+
     const {requests, refetch: refetchRequests} = useFetchRequests({
-        limit: 2000,
-        offset: 0,
+        limit: limit,
+        offset: offset,
+    });
+
+    const {requests: filteredRequests, refetch: fetchFilteredRequests} = useFetchFilteredRequests({
+        limit: limit,
+        offset: offset,
+    });
+
+    useScrollToBottom(() => {
+        setLimit(limit + 50);
+        setOfsset(offset + 50);
     });
 
     const navigate = useNavigate();
@@ -78,19 +99,32 @@ export const MainPage: FC = () => {
     const [settings, setSettings] = useState([{id: '_status', isSelected: true}]);
 
     const [currentStatus, setCurrentStatus] = useState<RequestStatus>();
+    const [passengerName, setPassengerName] = useState('');
+    const passengersSuggestion = useFetchPassengerSuggestion(passengerName);
 
-    const {fetch: fetchDeleteRequest} = useFetchDeleteRequest();
-    const {requests: filteredRequests, refetch: fetchFilteredRequests} = useFetchFilteredRequests({
-        limit: 2000,
-        offset: 0,
+    const [passengerSuggest] = useState<SuggestItem>({
+        info: '',
+        label: '',
+        customInfo: {},
     });
 
+    const handlePassengerSelect = useCallback(
+        (item: SuggestItem) => {
+            passengerSuggest.info = item.info;
+            passengerSuggest.label = item.label;
+            passengerSuggest.customInfo = item.customInfo;
+        },
+        [passengerSuggest],
+    );
+
+    const {fetch: fetchDeleteRequest} = useFetchDeleteRequest();
+
     const currentRequests = useMemo(() => {
-        if (currentStatus || dateStart) {
+        if (currentStatus || dateStart || passengerSuggest.customInfo?.id) {
             return filteredRequests;
         }
         return requests;
-    }, [currentStatus, filteredRequests, requests]);
+    }, [currentStatus, filteredRequests, requests, passengerSuggest.customInfo?.id]);
 
     const resolvedRequests = useResolvedRequests(currentRequests);
 
@@ -161,15 +195,24 @@ export const MainPage: FC = () => {
     );
 
     useEffect(() => {
-        if (!currentStatus && !dateStart) {
+        if (!currentStatus && !dateStart && !passengerSuggest.customInfo?.id) {
             refetchRequests();
             return;
         }
         fetchFilteredRequests({
             status: currentStatus,
             start_time: dateTimeParse(dateStart)?.format('YYYY-MM-DD'),
+            passenger_id: passengerSuggest.customInfo?.id,
         });
-    }, [currentStatus, dateStart]);
+    }, [currentStatus, dateStart, passengerSuggest.customInfo?.id]);
+
+    const handleReset = useCallback(() => {
+        fetchFilteredRequests({});
+        setPassengerName('');
+        passengerSuggest.info = '';
+        passengerSuggest.label = '';
+        passengerSuggest.customInfo = {};
+    }, [fetchFilteredRequests, setPassengerName]);
 
     return (
         <div className={css.MainPage}>
@@ -203,6 +246,26 @@ export const MainPage: FC = () => {
                         value={dateStart}
                         onUpdate={(d) => setDateStart(d)}
                     />
+                </div>
+                <div className={css.MainPage__filterField}>
+                    <div className={css.MainPage__filterField}>Фильтр по пассажиру:</div>
+                    <Suggest
+                        placeholder="Начните вводить ФИО"
+                        onChange={setPassengerName}
+                        onSelect={handlePassengerSelect}
+                        value={passengerName}
+                        items={passengersSuggestion?.map((item) => ({
+                            label: item.name,
+                            info: item.phone,
+                            customInfo: {
+                                id: item.id,
+                                passenger_category: item.passenger_category,
+                            },
+                        }))}
+                    />
+                </div>
+                <div className={css.MainPage__filterField}>
+                    <Button onClick={handleReset}>Сбросить фильтры</Button>
                 </div>
                 {/* <div className={css.MainPage__filterField}>
                     <div className={css.MainPage__filterField}>Фильтр по дате завершения:</div>

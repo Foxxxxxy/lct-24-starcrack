@@ -37,9 +37,6 @@ export const useFetchPassengerSuggestion = (name: string): Passenger[] | undefin
 
     const token = useStore(store, (state) => state['access_token']);
     useEffect(() => {
-        if (!name) {
-            return;
-        }
         client
             .get<Passenger[]>(`/passenger/suggestions/?name=${name}`, {
                 headers: {
@@ -123,7 +120,13 @@ export const useFetchRequests = ({
                     Authorization: `Bearer ${token}`,
                 },
             })
-            .then((res) => setRequests(res.data));
+            .then((res) => {
+                if (offset !== 0 && requests !== undefined) {
+                    setRequests([...requests, ...res.data]);
+                } else {
+                    setRequests(res.data);
+                }
+            });
     }, [limit, offset, token]);
 
     useEffect(() => {
@@ -600,6 +603,10 @@ export const useFetchSheduledRequest = (
 } => {
     const [requests, setRequests] = useState<RequestShedule[] | undefined>();
 
+    useEffect(() => {
+        console.log(requests);
+    }, [requests]);
+
     const token = useStore(store, (state) => state['access_token']);
 
     const fetch = useCallback(() => {
@@ -753,7 +760,13 @@ export const useFetchFilteredRequests = ({
                         },
                     },
                 )
-                .then((res) => setRequests(res.data));
+                .then((res) => {
+                    if (offset !== 0 && requests !== undefined) {
+                        setRequests([...requests, ...res.data]);
+                    } else {
+                        setRequests(res.data);
+                    }
+                });
         },
         [limit, offset, token],
     );

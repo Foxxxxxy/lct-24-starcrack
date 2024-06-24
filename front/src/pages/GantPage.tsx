@@ -2,7 +2,7 @@ import {DatePicker} from '@gravity-ui/date-components';
 import {dateTime, DateTime, dateTimeParse} from '@gravity-ui/date-utils';
 import {Button, Label, Modal, Text, useToaster} from '@gravity-ui/uikit';
 import cx from 'classnames';
-import React, {FC, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
     useFetchDynamicSchedule,
@@ -28,10 +28,6 @@ interface GanttChartProps {
     openModal: (isTrue: boolean, request: Request) => void;
 }
 
-type TimeMapping = {
-    startHour: number;
-    finishHour: number;
-};
 const GanttChartHours = () => {
     return (
         <div className={css.GanttChart__hours}>
@@ -66,7 +62,12 @@ const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
 
     const handleBlockSize = useCallback(
         (req: RequestShedule) => {
-            const data = mapHours(req.start_time, req.finish_time);
+            let data = null;
+            if (req.start_lunch && req.end_lunch) {
+                data = mapHours(req.start_lunch, req.end_lunch);
+            } else {
+                data = mapHours(req.start_time, req.finish_time);
+            }
             const offset = data.offset;
             const width = data.width;
 
@@ -82,6 +83,14 @@ const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
         [navigate],
     );
 
+    const lunch = {
+        id: 1,
+        start_lunch: '2024-06-24T06:30:00Z',
+        end_lunch: '2024-06-24T08:30:00Z',
+        executor_id: 106,
+        shift_id: null,
+    };
+
     return (
         <div className={css.GanttChart} ref={chartContainer}>
             <GanttChartHours />
@@ -90,10 +99,14 @@ const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
                     return (
                         <div key={idx} className={css.GanttChart__line}>
                             <div className={css.GanttChart__taskBar}>
-                                {req?.requisitions?.map((childRequest) => {
+                                {req?.requisitions?.map((childRequest, idx) => {
                                     return (
                                         <div
-                                            key={childRequest.id}
+                                            key={
+                                                String(idx) +
+                                                String(childRequest.id) +
+                                                String(childRequest.creation_time)
+                                            }
                                             className={css.GanttChart__taskLabel}
                                             onClick={() => handleBlockPress(childRequest)}
                                             style={{
@@ -112,6 +125,24 @@ const GanttChart: React.FC<GanttChartProps> = ({requests, openModal}) => {
                                         </div>
                                     );
                                 })}
+                                {lunch && (
+                                    <div
+                                        key={lunch.id}
+                                        className={css.GanttChart__taskLabel}
+                                        style={{
+                                            width: handleBlockSize(lunch).width,
+                                            transform: `translateX(${handleBlockSize(lunch).offsetX}px)`,
+                                        }}
+                                    >
+                                        <Label
+                                            className={css.GanttChart__status}
+                                            theme="warning"
+                                            size="xs"
+                                        >
+                                            Обед
+                                        </Label>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     );
@@ -264,10 +295,6 @@ export const GantPage: FC = () => {
     useEffect(() => {
         setNewEmployeers([]);
     }, [isOpenedModal]);
-
-    const requestsFiltered = useMemo(() => {
-        return sheduledRequests?.filter((req) => req.employees?.length);
-    }, [sheduledRequests]);
 
     const handleDateUpdate = useCallback(
         (data: DateTime) => {

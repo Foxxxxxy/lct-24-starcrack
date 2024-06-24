@@ -1,43 +1,29 @@
-import {useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 
-function useBottomScrollDetection<T extends HTMLElement>(
-    ref: React.RefObject<T>,
-    threshold: number = 0.1,
-): boolean {
+export const useScrollToBottom = (callback: () => void): boolean => {
     const [isBottom, setIsBottom] = useState(false);
-    const observer = useRef<IntersectionObserver | null>(null);
+
+    const handleScroll = useCallback(() => {
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight || window.innerHeight;
+
+        // Check if the user has scrolled to the bottom
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1; // Use a small offset for precision
+
+        setIsBottom(isAtBottom);
+
+        if (isAtBottom) {
+            callback();
+        }
+    }, [callback]);
 
     useEffect(() => {
-        if (!ref.current) return;
+        window.addEventListener('scroll', handleScroll);
 
-        const handleObserver: IntersectionObserverCallback = (entries) => {
-            const target = entries[0];
-            if (target.isIntersecting) {
-                setIsBottom(true);
-            } else {
-                setIsBottom(false);
-            }
-        };
-
-        observer.current = new IntersectionObserver(handleObserver, {
-            root: null, // relative to the viewport
-            rootMargin: '0px', // margin around the root
-            threshold: threshold, // percentage of target's visible area. Triggers "onChange" when this amount is visible.
-        });
-
-        if (ref.current) {
-            observer.current.observe(ref.current);
-        }
-
-        // Clean up observer on component unmount
-        return () => {
-            if (observer.current) {
-                observer.current.disconnect();
-            }
-        };
-    }, [ref, threshold]);
+        // Cleanup the event listener on component unmount
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [handleScroll]);
 
     return isBottom;
-}
-
-export default useBottomScrollDetection;
+};
